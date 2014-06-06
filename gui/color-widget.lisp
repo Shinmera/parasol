@@ -105,12 +105,12 @@
                 (round (+ (* (cos deg) radius) radius))
                 (round (+ (* (sin deg) radius) radius)))
     ;; Draw square (@fixme triangle, positioning)
-    (#_setColorAt ef1-gradient 0.0 (#_new QColor 0 0 0))
-    (#_setColorAt ef1-gradient 1.0 (#_new QColor 255 255 255))
+    (#_setColorAt ef1-gradient 0.0 (#_new QColor 0 0 0 255))
+    (#_setColorAt ef1-gradient 1.0 (#_new QColor 0 0 0 0))
     (#_setColorAt ef2-gradient 0.0 (#_QColor::fromHsv (#_hsvHue color) 255 255 255))
-    (#_setColorAt ef2-gradient 1.0 (#_QColor::fromHsv (#_hsvHue color) 255 255 0))
-    (#_fillRect painter (floor (* radius 0.5)) (floor (* radius 0.5)) radius radius (#_new QBrush ef1-gradient))
+    (#_setColorAt ef2-gradient 1.0 (#_new QColor 255 255 255 255))
     (#_fillRect painter (floor (* radius 0.5)) (floor (* radius 0.5)) radius radius (#_new QBrush ef2-gradient))
+    (#_fillRect painter (floor (* radius 0.5)) (floor (* radius 0.5)) radius radius (#_new QBrush ef1-gradient))
     ;; Draw pick
     (#_setColor pen (#_new QColor 255 255 255))
     (#_setWidthF pen 2.0)
@@ -180,8 +180,8 @@
         (:picker
          (#_setHsv (color widget)
                    (#_hsvHue (color widget))
-                   (floor (* 255 (+ (/ (- y) radius) 0.5)))
-                   (floor (* 255 (+ (/ x radius) 0.5))))
+                   (min (max (floor (* 255 (+ (/ (- y) radius) 0.5))) 0) 255)
+                   (min (max (floor (* 255 (+ (/ x radius) 0.5))) 0) 255))
          (update-color-triangle widget)
          (#_update widget))))))
 
