@@ -21,9 +21,11 @@
                (:module "curves"
                 :components ((:file "curve")
                              (:file "spline")))
-               (:file "brush")
-               (:file "stroke")
-               (:file "canvas")
+               (:module "brushes"
+                :components ((:file "brush")))
+               (:module "document"
+                :components ((:file "stroke")
+                             (:file "canvas")))
                (:module "gui"
                 :components ((:file "canvas-widget")
                              (:file "brush-widget")
