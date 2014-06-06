@@ -29,7 +29,7 @@
   (#_setJoinStyle (pen canvas) (#_Qt::RoundJoin))
   (resize-canvas canvas (width canvas) (height canvas)))
 
-(defgeneric resize-canvas (canvas width height &optional (x-offset 0) (y-offset 0))
+(defgeneric resize-canvas (canvas width height &optional x-offset y-offset)
   (:method ((canvas canvas) width height &optional (x-offset 0) (y-offset 0))
     (let ((pixmap (#_new QPixmap width height)))
       (#_fill pixmap (background canvas))
