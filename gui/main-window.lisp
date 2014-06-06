@@ -27,7 +27,8 @@
       (#_setChildrenCollapsible right-splitter NIL)
       (#_addWidget right-splitter (make-instance 'brush-widget))
       (#_addWidget right-splitter (make-instance 'color-widget))
+      (#_addWidget right-splitter (make-instance 'layer-widget))
       (#_addWidget right-splitter (#_new QWidget))
-      (#_setStretchFactor right-splitter 2 10)
+      (#_setStretchFactor right-splitter 3 10)
       
       (#_setCentralWidget window central-splitter))))

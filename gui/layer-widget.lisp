@@ -7,3 +7,16 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
+(defclass layer-widget ()
+  ((%list-widget :initform (#_new QListWidget) :accessor list-widget))
+  (:metaclass qt-class)
+  (:qt-superclass "QWidget"))
+
+(defmethod initialize-instance :after ((widget layer-widget) &key)
+  (new widget)
+  (let ((layout (#_new QGridLayout)))
+    (#_addWidget layout (#_new QLabel "Layers") 0 0 1 2)
+    (#_addWidget layout (list-widget widget) 1 0 1 2)
+    (#_addWidget layout (button-add widget) 2 0)
+    (#_addWidget layout (button-remove widget) 2 1)
+    (#_setLayout widget layout)))
