@@ -208,9 +208,10 @@
     
     (#_addTab tabs slider "rgb")
     (#_addTab tabs triangle "hsv")
-    
-    (#_addWidget layout tabs 0 0)
-    (#_addWidget layout current 1 0)
+
+    (#_addWidget layout (#_new QLabel "Colour") 0 0)
+    (#_addWidget layout tabs 1 0)
+    (#_addWidget layout current 2 0)
     (#_setLayout widget layout)
 
     (setf (slider-widget widget) slider

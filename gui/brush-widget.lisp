@@ -17,11 +17,10 @@
 
 (defmethod initialize-instance :after ((widget brush-widget) &key)
   (new widget)
-  (let ((layout (#_new QVBoxLayout))
+  (let ((layout (#_new QGridLayout))
         (size (%make-size-slider)))
-    (#_setSpacing layout 0)
-    (#_setContentsMargins layout 0 0 0 0)
-    (#_addWidget layout size)
+    (#_addWidget layout (#_new QLabel "Brush") 0 0)
+    (#_addWidget layout size 1 0)
     (#_setLayout widget layout)
     (setf (size widget) size)))
 
