@@ -13,6 +13,7 @@
 (defun main (&optional style)
   (with-main-window (window (make-instance 'main-window))
     (setf *main-window* window)
+    (setf *current-brush* (make-instance 'brush))
     (when style
       (#_QApplication::setStyle
        (#_QStyleFactory::create (ecase style
