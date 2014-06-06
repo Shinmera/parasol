@@ -28,6 +28,7 @@
                              (:file "canvas")))
                (:module "gui"
                 :components ((:file "canvas-widget")
+                             (:file "ex-slider-widget")
                              (:file "brush-widget")
                              (:file "color-widget")
                              (:file "layer-widget")

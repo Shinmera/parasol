@@ -45,9 +45,11 @@
     (#_setLayout widget layout)))
 
 (defmethod exs-update ((widget ex-slider-widget) value)
-  (#_setValue (exs-slider widget) value)
-  (#_setValue (exs-spin-box widget) value)
-  (funcall (exs-on-change widget) value))
+  (when (or (/= (#_value (exs-slider widget)) value)
+            (/= (#_value (exs-spin-box widget)) value))
+    (#_setValue (exs-slider widget) value)
+    (#_setValue (exs-spin-box widget) value)
+    (funcall (exs-on-change widget) value)))
 
 (defmethod exs-reset ((widget ex-slider-widget))
   (#_setValue (exs-slider widget) (exs-default widget))
