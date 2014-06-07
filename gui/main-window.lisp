@@ -14,6 +14,7 @@
 
 (defmethod initialize-instance :after ((window main-window) &key)
   (new window)
+  (setf *current-brush* (make-instance 'brush))
   (let ((canvas-widget (make-instance 'canvas-widget)))
     (setf (canvas-widget window) canvas-widget)
     (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
