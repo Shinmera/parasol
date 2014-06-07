@@ -11,14 +11,13 @@
 
 (defclass stroke ()
   ((%curve :initform (make-curve *curve-type*) :accessor curve)
-   (%brush :initform *current-brush* :accessor brush)
+   (%brush :initform (current-brush *window*) :accessor brush)
    (%last-index :initform 0 :accessor last-index)))
 
-(defgeneric draw (stroke painter)
-  (:documentation "Redraws the full STROKE using the PAINTER object.")
-  (:method ((stroke stroke) painter)
-    (setf (last-index stroke) 0)
-    (draw-incremental stroke painter)))
+(defmethod draw ((stroke stroke) painter)
+  "Redraws the full STROKE using the PAINTER object."
+  (setf (last-index stroke) 0)
+  (draw-incremental stroke painter))
 
 (defgeneric draw-incremental (stroke painter)
   (:documentation "Only draws new STROKE parts that have not been drawn before using the PAINTER.")
@@ -31,7 +30,8 @@
                     #'(lambda (x y xt yt p)
                         (declare (ignore xt yt))
                         (let ((len (* p (base-size (brush stroke)))))
-                          (#_drawEllipse painter (#_new QRectF (- x len) (- y len) (* 2 len) (* 2 len)))))
+                          (with-objects ((point (#_new QPointF x y)))
+                            (#_drawEllipse painter point len len))))
                     :from (last-index stroke)
                     :to point-count)
         (setf (last-index stroke) (1- point-count))))))

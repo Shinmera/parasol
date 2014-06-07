@@ -7,12 +7,8 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(defvar *qapp*)
-(defvar *main-window*)
-
 (defun main (&optional style)
   (with-main-window (window (make-instance 'main-window))
-    (setf *main-window* window)
     (when style
       (#_QApplication::setStyle
        (#_QStyleFactory::create (ecase style

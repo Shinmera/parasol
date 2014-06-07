@@ -25,10 +25,11 @@
                 :components ((:file "brush")))
                (:module "document"
                 :components ((:file "stroke")
+                             (:file "layer")
+                             (:file "document")
                              (:file "canvas")))
                (:module "gui"
-                :components ((:file "canvas-widget")
-                             (:file "ex-slider-widget")
+                :components ((:file "ex-slider-widget")
                              (:file "brush-widget")
                              (:file "color-widget")
                              (:file "layer-widget")

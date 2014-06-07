@@ -18,6 +18,7 @@
    (%pixmap :initform NIL :accessor pixmap)
    (%painter :initform NIL :accessor painter)
    ;;
+   (%document :initarg :document :initform (error "Document required.") :accessor document)
    (%stroke :initform NIL :accessor stroke)))
 
 (defmethod initialize-instance :after ((canvas canvas) &key)
@@ -37,6 +38,7 @@
         (#_end (painter canvas))
         (let ((painter (#_new QPainter pixmap)))
           (#_drawPixmap painter x-offset y-offset (pixmap canvas))
+          (optimized-delete (pixmap canvas))
           (#_end painter)))
       (let ((painter (#_new QPainter pixmap)))
         (#_setRenderHint painter (#_QPainter::Antialiasing))
@@ -52,6 +54,7 @@
 
 (defgeneric scale-canvas (canvas width height)
   (:method ((canvas canvas) width height)
+    ;; Dispose of old pixmap
     (let ((pixmap (#_scaled (pixmap canvas) width height (#_Qt::IgnoreAspectRatio) (#_Qt::SmoothTransformation))))
       (let ((painter (#_new QPainter pixmap)))
         (#_setRenderHint painter (#_QPainter::Antialiasing))
@@ -79,3 +82,6 @@
   (record-point (stroke canvas) x y x-tilt y-tilt pressure)
   (draw-incremental (stroke canvas) (painter canvas))
   canvas)
+
+(defmethod draw ((canvas canvas) painter)
+  (#_drawPixmap painter 0 0 (pixmap canvas)))

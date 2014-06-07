@@ -110,7 +110,7 @@
                     (round (+ (* (sin deg) (- radius wheel-width)) radius))
                     (round (+ (* (cos deg) radius) radius))
                     (round (+ (* (sin deg) radius) radius))))
-      ;; Draw square (@fixme triangle, positioning)
+      ;; Draw square (@fixme triangle, positioning/size)
       (with-objects ((ef1-gradient (#_new QLinearGradient
                                           (floor (* radius 0.5)) (floor (* radius 0.5))
                                           (floor (* radius 1.5)) (floor (* radius 0.5))))
@@ -237,10 +237,10 @@
     (setf (slider-widget widget) slider
           (triangle-widget widget) triangle
           (current-color widget) current)
-    (color-widget-update widget (color *current-brush*))))
+    (color-widget-update widget (color (current-brush *window*)))))
 
 (defmethod color-widget-update ((widget color-widget) new-color)
-  (setf (color *current-brush*) new-color)
+  (setf (color (current-brush *window*)) new-color)
   (#_setColor (#_palette (current-color widget)) (#_QPalette::Background) new-color)
   (#_update (current-color widget))
 

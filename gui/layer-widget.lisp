@@ -20,5 +20,5 @@
     (#_addWidget layout (#_new QLabel "Layers") 0 0 1 2)
     (#_addWidget layout (list-widget widget) 1 0 1 2)
     (#_addWidget layout button-add 2 0)
-    (#_addWidget layout button-removes 2 1)
+    (#_addWidget layout button-remove 2 1)
     (#_setLayout widget layout)))
