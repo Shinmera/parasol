@@ -7,12 +7,6 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(defun main (&optional style)
-  (with-main-window (window (make-instance 'main-window))
-    (when style
-      (#_QApplication::setStyle
-       (#_QStyleFactory::create (ecase style
-                                  (:cde "CDE")
-                                  (:macintosh "Macintosh")
-                                  (:windows "Windows")
-                                  (:motif "Motif")))))))
+(defun main ()
+  (ensure-smoke :qtopengl)
+  (with-main-window (window (make-instance 'main-window))))
