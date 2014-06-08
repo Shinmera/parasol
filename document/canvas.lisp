@@ -19,6 +19,7 @@
    (%painter :initform NIL :accessor painter)
    ;;
    (%document :initarg :document :initform (error "Document required.") :accessor document)
+   (%active-layer :initform 0 :accessor active-layer)
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
    (%stroke :initform NIL :accessor stroke)))
 
@@ -118,3 +119,41 @@
   (let ((layer (make-instance 'layer :name (or name (format NIL "Layer ~d" (length (layers canvas)))) :mode mode)))
     (vector-push-extend layer (layers canvas))
     layer))
+
+(defmethod remove-layer ((canvas canvas) &optional index)
+  (when index
+    (destroy (elt (layers canvas) index))
+    (loop for i from index below (1- (length (layers canvas)))
+          do (setf (aref (layers canvas) i)
+                   (aref (layers canvas) (1+ i))))
+    (vector-pop (layers canvas))
+    (when (= (length (layers canvas)) 0)
+      (add-layer canvas))
+    (#_update (document canvas))))
+
+(defmethod activate-layer ((canvas canvas) index)
+  (setf (active-layer canvas) index))
+
+(defmethod move-layer ((canvas canvas) index)
+  (let* ((layers (layers canvas))
+         (layer (aref layers (active-layer canvas))))
+    ;; Pop out
+    (loop for i from (active-layer canvas) below (1- (length layers))
+          do (setf (aref layers i)
+                   (aref layers (1+ i))))
+    ;; Shift
+    (loop for i downfrom (length layers) above index
+          do (setf (aref layers i)
+                   (aref layers (1- i))))
+    ;; Push in
+    (setf (aref layers index) layer
+          (active-layer canvas) index)))
+
+(defmethod finalize ((canvas canvas))
+  (remove-canvas-background canvas)
+  (optimized-delete (brush canvas))
+  (optimized-delete (pen canvas))
+  (optimized-delete (painter canvas))
+  (optimized-delete (pixmap canvas))
+  (loop for layer across (layers canvas)
+        do (finalize layer)))
