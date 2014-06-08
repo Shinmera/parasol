@@ -39,4 +39,6 @@
                              (:file "documents-widget")
                              (:file "main-window")))
                (:file "parasol"))
-  :depends-on (:qt :uiop))
+  :depends-on (:qt
+               :cl-opengl
+               :uiop))
