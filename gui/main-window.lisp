@@ -27,7 +27,7 @@
   (#_resize window 500 500)
   (setf (current-brush window) (make-instance 'brush))
 
-  (let ((documents (#_new QTabWidget))
+  (let ((documents (make-instance 'documents-widget))
         (central-splitter (#_new QSplitter (#_Qt::Horizontal)))
         (right-splitter (#_new QSplitter (#_Qt::Vertical))))
     (setf (documents window) documents)
