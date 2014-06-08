@@ -11,7 +11,7 @@
   (;; Properties
    (%width :initform 500 :initarg :width :accessor width)
    (%height :initform 500 :initarg :height :accessor height)
-   (%background :initform (#_new QColor 255 255 255) :initarg :background :accessor background)
+   (%bg-brush :initform NIL :initarg :bg-brush :accessor bg-brush)
    ;; Qt instances
    (%brush :initform (#_new QBrush) :accessor brush)
    (%pen :initform (#_new QPen) :accessor pen)
@@ -19,6 +19,7 @@
    (%painter :initform NIL :accessor painter)
    ;;
    (%document :initarg :document :initform (error "Document required.") :accessor document)
+   (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
    (%stroke :initform NIL :accessor stroke)))
 
 (defmethod initialize-instance :after ((canvas canvas) &key)
@@ -28,12 +29,14 @@
   (#_setWidthF (pen canvas) 1)
   (#_setCapStyle (pen canvas) (#_Qt::RoundCap))
   (#_setJoinStyle (pen canvas) (#_Qt::RoundJoin))
+  (setf (background canvas) (merge-pathnames "background.png" (asdf:system-source-directory :parasol)))
+  (add-layer canvas)
   (resize-canvas canvas (width canvas) (height canvas)))
 
 (defgeneric resize-canvas (canvas width height &optional x-offset y-offset)
   (:method ((canvas canvas) width height &optional (x-offset 0) (y-offset 0))
     (let ((pixmap (#_new QPixmap width height)))
-      (#_fill pixmap (background canvas))
+      (#_fill pixmap (#_new QColor 0 0 0 0))
       (when (pixmap canvas)
         (#_end (painter canvas))
         (let ((painter (#_new QPainter pixmap)))
@@ -72,8 +75,8 @@
     (#_save (pixmap canvas) (uiop:native-namestring path) format 100)
     path))
 
-(defgeneric start-stroke (canvas x y x-tilt y-tilt pressure)
-  (:method ((canvas canvas) x y x-tilt y-tilt pressure)
+(defgeneric start-stroke (canvas type x y x-tilt y-tilt pressure)
+  (:method ((canvas canvas) type x y x-tilt y-tilt pressure)
     (setf (stroke canvas) (make-instance 'stroke))
     (record-point canvas x y x-tilt y-tilt pressure)
     canvas))
@@ -84,4 +87,34 @@
   canvas)
 
 (defmethod draw ((canvas canvas) painter)
+  (#_fillRect painter (#_rect (document canvas)) (bg-brush canvas))
   (#_drawPixmap painter 0 0 (pixmap canvas)))
+
+(defun remove-canvas-background (canvas)
+  (let ((bg-brush (bg-brush canvas)))
+    (when bg-brush
+      (unless (qt:null-qobject-p (#_textureImage bg-brush))
+        (optimized-delete (#_textureImage bg-brush)))
+      (unless (qt:null-qobject-p (#_color bg-brush))
+        (optimized-delete (#_color bg-brush)))
+      (optimized-delete bg-brush))))
+
+(defmethod (setf background) ((file pathname) (canvas canvas))
+  (remove-canvas-background canvas)
+  (setf (bg-brush canvas)
+        (#_new QBrush (#_new QImage (uiop:native-namestring file)))))
+
+(defmethod (setf background) ((rgb list) (canvas canvas))
+  (remove-canvas-background canvas)
+  (setf (br-brush canvas)
+        (#_new QBrush (#_new QColor (first rgb) (second rgb) (third rgb)))))
+
+(defmethod (setf background) (brush-parameter (canvas canvas))
+  (remove-canvas-background canvas)
+  (setf (bg-brush canvas)
+        (#_new QBrush brush-parameter)))
+
+(defmethod add-layer ((canvas canvas) &key name mode)
+  (let ((layer (make-instance 'layer :name (or name (format NIL "Layer ~d" (length (layers canvas)))) :mode mode)))
+    (vector-push-extend layer (layers canvas))
+    layer))
