@@ -95,7 +95,7 @@
 
 (defmethod (setf color) (value (window main-window))
   (let ((history (color-history window)))
-    (loop for i from 1 below (length history)
+    (loop for i downfrom (1- (length history)) above 0
           do (setf (aref history i)
                    (aref history (1- i))))
     (setf (aref history 0) value)))
