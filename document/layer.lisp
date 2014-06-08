@@ -8,8 +8,12 @@
 (named-readtables:in-readtable :qt)
 
 (defclass layer ()
-  ((%pixmap)
-   (%strokes)
-   (%mode)
-   (%name)))
+  ((%pixmap :accessor pixmap)
+   (%strokes :initform () :accessor strokes)
+   (%mode :initarg :mode :accessor mode)
+   (%name :initarg :name :accessor name)))
 
+(defmethod print-object ((layer layer) stream)
+  (print-unreadable-object (layer stream :type T :identity T)
+    (format stream "~a" (name layer)))
+  layer)
