@@ -82,7 +82,7 @@
                                           (floor (* radius 0.5)) (floor (* radius 1.5))))
                      (c1 (#_new QColor 0 0 0 255))
                      (c2 (#_new QColor 0 0 0 0))
-                     (c3 (#_QColor::fromHsv (abs (#_hsvHue color)) 255 255 255))
+                     (c3 (#_QColor::fromHsv (#_hsvHue color) 255 255 255))
                      (c4 (#_new QColor 255 255 255 255)))
         (#_setColorAt ef1-gradient 0.0 c1)
         (#_setColorAt ef1-gradient 1.0 c2)
@@ -171,7 +171,7 @@
 
 (defmethod color-widget-update ((widget color-hsv-widget) new-color)
   (#_setHsv (color widget)
-            (#_hsvHue new-color)
+            (max (#_hsvHue new-color) 0)
             (#_saturation new-color)
             (#_value new-color))
   (update-color-triangle widget))
