@@ -10,7 +10,10 @@
 (defvar *window*)
 
 (defclass main-window ()
-  ((%documents :accessor documents)
+  ((%documents-widget :accessor documents-widget)
+   (%layer-widget :accessor layer-widget)
+   (%brush-widget :accessor brush-widget)
+   (%color-widget :accessor color-widget)
    (%current-brush :accessor current-brush)
    (%current-eraser :accessor current-eraser)
    (%color-history :initform (make-array 5 :initial-element (#_new QColor 0 0 0)) :accessor color-history))
@@ -27,24 +30,30 @@
   (#_resize window 500 500)
   (setf (current-brush window) (make-instance 'brush))
 
-  (let ((documents (make-instance 'documents-widget))
+  (let ((documents-widget (make-instance 'documents-widget))
+        (brush-widget (make-instance 'brush-widget))
+        (color-widget (make-instance 'color-widget))
+        (layer-widget (make-instance 'layer-widget))
         (central-splitter (#_new QSplitter (#_Qt::Horizontal)))
         (right-splitter (#_new QSplitter (#_Qt::Vertical))))
-    (setf (documents window) documents)
+    (setf (documents-widget window) documents-widget
+          (brush-widget window) brush-widget
+          (color-widget window) color-widget
+          (layer-widget window) layer-widget)
 
-    (#_setHorizontalPolicy (#_sizePolicy documents) (#_QSizePolicy::Expanding))
+    (#_setHorizontalPolicy (#_sizePolicy documents-widget) (#_QSizePolicy::Expanding))
     (#_setHorizontalPolicy (#_sizePolicy right-splitter) (#_QSizePolicy::Minimum))
     
-    (#_addWidget central-splitter documents)
+    (#_addWidget central-splitter documents-widget)
     (#_addWidget central-splitter right-splitter)
 
     (#_setStretchFactor central-splitter 0 1)
     (#_setStretchFactor central-splitter 1 0)
 
     (#_setChildrenCollapsible right-splitter NIL)
-    (#_addWidget right-splitter (make-instance 'brush-widget))
-    (#_addWidget right-splitter (make-instance 'color-widget))
-    (#_addWidget right-splitter (make-instance 'layer-widget))
+    (#_addWidget right-splitter brush-widget)
+    (#_addWidget right-splitter color-widget)
+    (#_addWidget right-splitter layer-widget)
     (#_addWidget right-splitter (#_new QWidget))
     
     (#_setCentralWidget window central-splitter)
@@ -68,10 +77,10 @@
 
 (defmethod open-document ((window main-window) &key (name "Untitled") path)
   (declare (ignore path))
-  (#_addTab (documents window) (make-instance 'document :name name) name))
+  (#_addTab (documents-widget window) (make-instance 'document :name name) name))
 
 (defun mw-new (window)
-  (open-document window :name (format NIL "Untitled - ~d" (#_count (documents window)))))
+  (open-document window :name (format NIL "Untitled - ~d" (#_count (documents-widget window)))))
 
 (defun mw-quit (window)
   (#_close window))
@@ -107,3 +116,6 @@
           do (setf (aref history i)
                    (aref history (1+ i))))
     (setf (aref history (length history)) first)))
+
+(defmethod current-document ((window main-window))
+  (current-document (documents-widget window)))
