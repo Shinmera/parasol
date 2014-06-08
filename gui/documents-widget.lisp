@@ -30,3 +30,6 @@
     (when (close-document document)
       (#_removeTab widget index)
       (optimized-delete document))))
+
+(defmethod current-document ((widget documents-widget))
+  (#_currentWidget widget))
