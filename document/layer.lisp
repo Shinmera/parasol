@@ -21,7 +21,9 @@
 
 (defmethod initialize-instance :after ((layer layer) &key)
   (let* ((pixmap (#_new QImage 500 500 (#_QImage::Format_ARGB32_Premultiplied)))
-         (painter (#_new QPainter pixmap)))
+         (painter (#_new QPainter pixmap))
+         (transparent (#_new QColor 0 0 0 0)))
+    (#_fill pixmap transparent)
     (#_setRenderHint painter (#_QPainter::Antialiasing))
     (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
     (#_setStyle (#_brush painter) (#_Qt::SolidPattern))
