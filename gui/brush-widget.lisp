@@ -25,4 +25,4 @@
     (setf (size widget) size)))
 
 (defun brush-widget-update (size)
-  (setf (base-size *current-brush*) (/ size 100)))
+  (setf (base-size (current-brush *window*)) (/ size 100)))
