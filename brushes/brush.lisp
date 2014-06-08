@@ -8,5 +8,4 @@
 (named-readtables:in-readtable :qt)
 
 (defclass brush ()
-  ((%color :initarg :color :initform (#_new QColor 0 0 0) :accessor color)
-   (%base-size :initarg :base-size :initform 5 :accessor base-size)))
+  ((%base-size :initarg :base-size :initform 5 :accessor base-size)))
