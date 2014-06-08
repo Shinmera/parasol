@@ -31,6 +31,8 @@
                (:module "gui"
                 :components ((:file "ex-slider-widget")
                              (:file "brush-widget")
+                             (:file "color-rgb-widget")
+                             (:file "color-hsv-widget")
                              (:file "color-widget")
                              (:file "layer-widget")
                              (:file "main-window")))
