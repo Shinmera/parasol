@@ -39,6 +39,15 @@ Note that not all objects keep track of their parent, even if they are strictly 
 NAME defaults to \"Layer D\" where D is the current count of layers.
 MODE defaults to SOURCE-OVER."))
 
+(defgeneric remove-layer (object &optional index)
+  (:documentation "Remove a layer."))
+
+(defgeneric activate-layer (object index)
+  (:documentation ""))
+
+(defgeneric move-layer (object index)
+  (:documentation "Moves the currently active layer to index, pushing the others out of the way."))
+
 (defgeneric draw (object painter)
   (:documentation "Draws the OBJECT using the PAINTER."))
 
@@ -52,9 +61,19 @@ This usually means that the object is set as the new target of input events."))
 
 (defgeneric finalize (object)
   (:documentation "Perform cleanup on the object, making it ready to be GC-ed.
-Note that the object and all its content will become unusable after calling this function."))
+Note that the object and all its content will become unusable after calling this function.
+This function is cascading, meaning that complex inner objects automatically receive a
+FINALIZE call as well, making them too unsafe to use.
+
+Unless overridden, this is a NO-OP.")
+  (:method (object)))
 
 (defgeneric destroy (object)
   (:documentation "Requests that the object be destroyed.
 If this returns NIL, the object refuses the destruction due to some complication.
-Destruction can only proceed if a non-NIL value is returned and the object FINALIZEs itself."))
+Destruction can only proceed if a non-NIL value is returned and the object FINALIZEs itself.
+
+Unless overridden, this simply calls FINALIZE and returns T.")
+  (:method (object)
+    (finalize object)
+    T))
