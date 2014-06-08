@@ -27,7 +27,7 @@
 
 (defmethod close-tab ((widget documents-widget) index)
   (let ((document (#_widget widget index)))
-    (when (close-document document)
+    (when (destroy document)
       (#_removeTab widget index)
       (optimized-delete document))))
 
