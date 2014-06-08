@@ -77,7 +77,9 @@
 
 (defmethod open-document ((window main-window) &key (name "Untitled") path)
   (declare (ignore path))
-  (#_addTab (documents-widget window) (make-instance 'document :name name) name))
+  (let ((document (make-instance 'document :name name)))
+    (#_addTab (documents-widget window) document name)
+    (#_setCurrentWidget (documents-widget window) document)))
 
 (defun mw-new (window)
   (open-document window :name (format NIL "Untitled - ~d" (#_count (documents-widget window)))))
