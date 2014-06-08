@@ -8,7 +8,7 @@
 (named-readtables:in-readtable :qt)
 
 (defun %make-color-slider (color-widget)
-  (make-instance 'ex-slider-widget :max 255 :on-change #'(lambda (val) (declare (ignore val)) (color-rgb-widget-update color-widget))))
+  (make-instance 'ex-slider-widget :max 255 :on-release #'(lambda (val) (declare (ignore val)) (color-rgb-widget-update color-widget))))
 
 (defclass color-rgb-widget ()
   ((%r :accessor r)
