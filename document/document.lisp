@@ -21,6 +21,11 @@
              ("mouseReleaseEvent" mouse-release-event)
              ("mouseMoveEvent" mouse-move-event)))
 
+(defmethod print-object ((document document) stream)
+  (print-unreadable-object (document stream :type T :identity T)
+    (format stream "~a" (name document)))
+  document)
+
 (defmethod initialize-instance :after ((document document) &key)
   (new document)
   (setf (canvas document) (make-instance 'canvas :document document)))
@@ -70,5 +75,24 @@
 (defmethod make-active ((widget document))
   )
 
+(defmethod finalize ((widget document))
+  (finalize (canvas widget)))
+
 (defmethod destroy ((widget document))
   )
+
+;; delegate
+(defmethod layers ((widget document))
+  (layers (canvas widget)))
+
+(defmethod add-layer ((widget document) &key name mode)
+  (add-layer (canvas widget) :name name :mode mode))
+
+(defmethod remove-layer ((widget document) &optional index)
+  (remove-layer (canvas widget) index))
+
+(defmethod activate-layer ((widget document) index)
+  (activate-layer (canvas widget) index))
+
+(defmethod move-layer ((widget document) index)
+  (move-layer (canvas widget) index))
