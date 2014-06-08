@@ -18,6 +18,7 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
+               (:file "generics")
                (:module "curves"
                 :components ((:file "curve")
                              (:file "spline")))
@@ -35,6 +36,7 @@
                              (:file "color-hsv-widget")
                              (:file "color-widget")
                              (:file "layer-widget")
+                             (:file "documents-widget")
                              (:file "main-window")))
                (:file "parasol"))
   :depends-on (:qt :uiop))
