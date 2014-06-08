@@ -136,6 +136,7 @@
 
 (defmethod move-layer ((canvas canvas) index)
   (let* ((layers (layers canvas))
+         (index (min index (1- (length layers))))
          (layer (aref layers (active-layer canvas))))
     ;; Pop out
     (loop for i from (active-layer canvas) below (1- (length layers))
