@@ -82,34 +82,49 @@
         (with-objects ((color (#_QColor::fromHsv (#_hsvHue color)
                                                  255 255)))
           (#_beginNativePainting painter)
-          (gl:push-matrix)
-          (gl:translate radius radius 0)
-          (gl:rotate (- (#_hsvHue color)) 0 0 1)
-          (let* ((radius (- radius wheel-width))
-                 (side (* radius (cos (/ (* PI 30) 180)))))
-            (gl:with-primitives :triangles
-              (gl:color (/ (#_red color) 255)
-                        (/ (#_green color) 255)
-                        (/ (#_blue color) 255))
-              (gl:vertex radius 0)
-              (gl:color 1.0 1.0 1.0)
-              (gl:vertex (- (/ radius 2)) side)
-              (gl:color 0.0 0.0 0.0)
-              (gl:vertex (- (/ radius 2)) (- side))))
-          (gl:pop-matrix)
-          (#_endNativePainting painter))
-        
+          (ignore-errors ;; This errors on startup and idk why (yet).
+           (gl:push-matrix)
+           (gl:translate radius radius 0)
+           (gl:rotate (- (#_hsvHue color)) 0 0 1)
+           (let* ((radius (- radius wheel-width))
+                  (side (* radius (cos (/ (* PI 30) 180)))))
+             (gl:with-primitives :triangles
+               (gl:color (/ (#_red color) 255)
+                         (/ (#_green color) 255)
+                         (/ (#_blue color) 255))
+               (gl:vertex radius 0)
+               (gl:color 1.0 1.0 1.0)
+               (gl:vertex (- (/ radius 2)) side)
+               (gl:color 0.0 0.0 0.0)
+               (gl:vertex (- (/ radius 2)) (- side))))
+           (gl:pop-matrix))
+          (#_endNativePainting painter))        
         ;; Draw pick
         (with-objects ((pen (#_new QPen))
-                       (brush (#_new QBrush))
-                       (point (#_new QPoint
-                                     (floor (* radius (+ 0.5 (/ (#_value color) 255))))
-                                     (floor (* radius (+ 1.5 (- (/ (#_hsvSaturation color) 255))))))))
+                       (brush (#_new QBrush)))
           (#_setColor pen white)
           (#_setWidthF pen 2.0)
           (#_setPen painter pen)
           (#_setBrush painter brush)
-          (#_drawEllipse painter point 5 5))
+          (let* ((p (/ (* (- 30 (#_hsvHue color)) PI) 180))
+                 (v (/ (#_value color) 255))
+                 (s (/ (#_saturation color) 255))
+                 ;; Triangle side length
+                 (g (* 2 (- radius wheel-width) (cos (/ (* PI 30) 180))))
+                 ;; Triangle height
+                 (h (* g (/ (sqrt 3) 2)))
+                 ;; Calculate Cartesian coordinates
+                 (x (* v (- s (/ g 2))))
+                 (y (* h (- (/ 2 3) v)))
+                 ;; Turn into hue rotated coordinates
+                 (x2 (- (* x (cos p))
+                        (* y (sin p))))
+                 (y2 (+ (* x (sin p))
+                        (* y (cos p)))))
+            (with-objects ((point (#_new QPoint
+                                         (round (+ radius x2))
+                                         (round (+ radius y2)))))
+              (#_drawEllipse painter point 5 5))))
         
         (#_end painter)
         (setf (pixmap widget) (#_toImage pixmap))))))
@@ -174,6 +189,7 @@
                    (#_hsvHue (color widget))
                    (min (max (floor (* 255 (+ (/ (- y) radius) 0.5))) 0) 255)
                    (min (max (floor (* 255 (+ (/ x radius) 0.5))) 0) 255))
+         
          (update-color-triangle widget)
          (#_update widget))))))
 
