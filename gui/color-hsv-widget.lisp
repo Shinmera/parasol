@@ -145,7 +145,7 @@
 (defmethod mouse-release-event ((widget color-hsv-widget) event)
   (when (pressed widget)
     (setf (pressed widget) NIL)
-    (color-widget-update (parent widget) (color widget))))
+    (color-widget-update (parent widget) (#_toRgb (color widget)))))
 
 (defmethod mouse-move-event ((widget color-hsv-widget) event)
   (let* ((size (size widget))
@@ -170,5 +170,8 @@
          (#_update widget))))))
 
 (defmethod color-widget-update ((widget color-hsv-widget) new-color)
-  (setf (color widget) new-color)
+  (#_setHsv (color widget)
+            (#_hsvHue new-color)
+            (#_saturation new-color)
+            (#_value new-color))
   (update-color-triangle widget))
