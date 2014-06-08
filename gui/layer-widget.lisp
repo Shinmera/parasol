@@ -55,8 +55,7 @@
 
 ;; Hook into document change
 (defmethod make-active :after ((document document))
-  ;;(update-layer-widget)
-  )
+  (update-layer-widget))
 
 (defmethod add-layer ((widget layer-widget) &key name mode)
   (declare (ignore name mode))
