@@ -237,10 +237,10 @@
     (setf (slider-widget widget) slider
           (triangle-widget widget) triangle
           (current-color widget) current)
-    (color-widget-update widget (color (current-brush *window*)))))
+    (color-widget-update widget (color *window*))))
 
 (defmethod color-widget-update ((widget color-widget) new-color)
-  (setf (color (current-brush *window*)) new-color)
+  (setf (color *window*) new-color)
   (#_setColor (#_palette (current-color widget)) (#_QPalette::Background) new-color)
   (#_update (current-color widget))
 
