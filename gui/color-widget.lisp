@@ -20,9 +20,11 @@
         (hsv (make-instance 'color-hsv-widget :parent widget))
         (cols (1- (length (color-history widget))))
         (tabs (#_new QTabWidget))
-        (layout (#_new QGridLayout)))    
+        (layout (#_new QGridLayout)))
+    (#_setMovable tabs T)
     (#_addTab tabs rgb "rgb")
     (#_addTab tabs hsv "hsv")
+    (#_setCurrentIndex tabs 1)
 
     (#_setSpacing layout 1)
     (#_addWidget layout (#_new QLabel "Colour") 0 0 1 cols)
