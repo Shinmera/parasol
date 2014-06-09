@@ -117,7 +117,7 @@
     (loop for i from 0 below (1- (length history))
           do (setf (aref history i)
                    (aref history (1+ i))))
-    (setf (aref history (length history)) first)))
+    (setf (aref history (1- (length history))) first)))
 
 (defmethod current-document ((window main-window))
   (current-document (documents-widget window)))
