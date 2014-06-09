@@ -160,8 +160,7 @@
         ((< (- radius wheel-width) r radius)
          (setf (pressed widget) :wheel)
          (mouse-move-event widget event))
-        ((and (< (abs x) (/ radius 2))
-              (< (abs y) (/ radius 2)))
+        ((< r (- radius wheel-width))
          (setf (pressed widget) :picker)
          (mouse-move-event widget event))))))
 
@@ -185,10 +184,23 @@
          (#_update widget))
 
         (:picker
-         (#_setHsv (color widget)
-                   (#_hsvHue (color widget))
-                   (min (max (floor (* 255 (+ (/ (- y) radius) 0.5))) 0) 255)
-                   (min (max (floor (* 255 (+ (/ x radius) 0.5))) 0) 255))
+         (let* ((p (/ (* (+ 210 (#_hsvHue (color widget))) PI) 180))
+                ;; Triangle side length
+                (g (* 2 (- radius wheel-width) (cos (/ (* PI 30) 180))))
+                ;; Triangle height
+                (h (* g (/ (sqrt 3) 2)))
+                ;; Reverse rotation
+                (x2 (- (* x (cos p))
+                       (* y (sin p))))
+                (y2 (+ (* x (sin p))
+                       (* y (cos p))))
+                ;; Calculate triangle coordinates
+                (v (- (/ 2 3) (/ y2 h)))
+                (s (+ (/ x2 (* v g)) (/ 1 2)))
+                ;; Scale and cap
+                (v (round (* (max (min v 1) 0) 255)))
+                (s (round (* (- 1 (max (min s 1) 0)) 255))))
+           (#_setHsv (color widget) (#_hsvHue (color widget)) s v))
          
          (update-color-triangle widget)
          (#_update widget))))))
