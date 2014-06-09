@@ -55,3 +55,12 @@
 
   (color-widget-update (rgb-widget widget) new-color)
   (color-widget-update (hsv-widget widget) new-color))
+
+(defmethod cycle-color :after ((window main-window))
+  (let ((widget (color-widget window)))
+    (loop for widget across (color-history widget)
+          for color across (color-history *window*)
+          do (#_setColor (#_palette widget) (#_QPalette::Background) color)
+             (#_update widget))
+    (color-widget-update (rgb-widget widget) (color window))
+    (color-widget-update (hsv-widget widget) (color window))))
