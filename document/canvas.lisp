@@ -9,7 +9,8 @@
 
 (defclass canvas ()
   ((%bg-brush :initform NIL :initarg :bg-brush :accessor bg-brush)
-   ;;
+   (%offset-x :initform 0 :accessor offset-x)
+   (%offset-y :initform 0 :accessor offset-y)
    (%document :initarg :document :initform (error "Document required.") :accessor document)
    (%active-layer :initform 0 :accessor active-layer)
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
@@ -33,16 +34,22 @@
 
 (defmethod start-stroke ((canvas canvas) type x y x-tilt y-tilt pressure)
   (start-stroke (aref (layers canvas) (active-layer canvas))
-                type x y x-tilt y-tilt pressure)
+                type
+                (+ (offset-x canvas) x)
+                (+ (offset-y canvas) y)
+                x-tilt y-tilt pressure)
   canvas)
 
 (defmethod record-point ((canvas canvas) x y x-tilt y-tilt pressure)
   (record-point (aref (layers canvas) (active-layer canvas))
-                x y x-tilt y-tilt pressure)
+                (+ (offset-x canvas) x)
+                (+ (offset-y canvas) y)
+                x-tilt y-tilt pressure)
   canvas)
 
 (defmethod draw ((canvas canvas) painter)
   (#_fillRect painter (#_rect (document canvas)) (bg-brush canvas))
+  (#_translate painter (offset-x canvas) (offset-y canvas))
   (loop for layer across (layers canvas)
         do (draw layer painter)))
 
