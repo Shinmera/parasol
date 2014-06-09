@@ -7,7 +7,8 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(defvar *layer-block-size* 500)
+(defparameter *layer-block-size* 500)
+(defparameter *layer-block-border* 200)
 ;; Maybe switch to a different system
 ;; that uses a map of blocks instead of one
 ;; big one? But then how do I know where to draw...
@@ -29,39 +30,56 @@
     (format stream "~a" (name layer)))
   layer)
 
-(defmethod initialize-instance :after ((layer layer) &key)
-  (assure-suitable-size layer 1 1))
+(defmethod initialize-instance :after ((layer layer) &key))
 
 (defmethod assure-suitable-size ((layer layer) x y)
-  (unless (and (< (offset-x layer) x (+ (offset-x layer) (width layer)))
-               (< (offset-y layer) y (+ (offset-y layer) (height layer))))
-    (let ((width (* *layer-block-size* (ceiling (/ x *layer-block-size*))))
-          (height (* *layer-block-size* (ceiling (/ y *layer-block-size*))))
-          (xoff (offset-x layer))
-          (yoff (offset-y layer)))
-      (when (< width 0)
-        (incf xoff width)
-        (incf width (width layer)))
-      (when (< height 0)
-        (incf yoff height)
-        (incf height (height layer)))
-      (setf width (max width (width layer)))
-      (setf height (max height (height layer)))
-      (format T "~a ASSURING NEW BOUNDS: ~a,~a ~a/~a~%" layer xoff yoff width height)
+  ;; First stroke. We can optimize by moving our canvas closer.
+  (when (= (width layer) 0)
+    (setf (offset-x layer) (+ x (/ *layer-block-size* 2))
+          (offset-y layer) (+ y (/ *layer-block-size* 2))))
+  (unless (and (< (+ (offset-x layer)
+                     *layer-block-border*)
+                  x
+                  (- (+ (offset-x layer) (width layer))
+                     *layer-block-border*))
+               (< (+ (offset-y layer)
+                     *layer-block-border*)
+                  y
+                  (- (+ (offset-y layer) (height layer))
+                     *layer-block-border*)))
+    (let* ((off-x (offset-x layer))
+           (off-y (offset-y layer))
+           (required-width  (* *layer-block-size* (ceiling (/ (+ (abs (- x off-x)) *layer-block-border*) *layer-block-size*))))
+           (required-height (* *layer-block-size* (ceiling (/ (+ (abs (- y off-y)) *layer-block-border*) *layer-block-size*))))
+           (width (max (width layer)
+                       (if (<= (+ off-x *layer-block-size*) x)
+                           required-width
+                           (progn (decf off-x required-width)
+                                  (+ (width layer) required-width)))))
+           (height (max (height layer)
+                        (if (<= (+ off-y *layer-block-size*) y)
+                            required-height
+                            (progn (decf off-y required-height)
+                                   (+ (height layer) required-height))))))
+      (format T "~a Fitting ~a,~a with new bounds ~a,~a ~a/~a~%" layer x y off-x off-y width height)
       (let* ((pixmap (#_new QImage width height (#_QImage::Format_ARGB32_Premultiplied)))
              (painter (#_new QPainter pixmap))
-             (transparent (#_new QColor 0 0 0 0)))
+             (transparent (#_new QColor 0 0 255 10)))
         (#_fill pixmap transparent)
         (when (pixmap layer)
-          (#_drawImage painter 0 0 (pixmap layer))
+          (#_drawImage painter
+                       (- (offset-x layer) off-x)
+                       (- (offset-y layer) off-y)
+                       (pixmap layer))
           (optimized-delete (pixmap layer)))
         (#_setRenderHint painter (#_QPainter::Antialiasing))
         (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
+        (#_translate painter (- off-x) (- off-y))
         (#_setStyle (#_brush painter) (#_Qt::SolidPattern))
         (setf (pixmap layer) pixmap
               (painter layer) painter
-              (offset-x layer) xoff
-              (offset-y layer) yoff
+              (offset-x layer) off-x
+              (offset-y layer) off-y
               (width layer) width
               (height layer) height)))))
 
@@ -77,7 +95,8 @@
   layer)
 
 (defmethod draw ((layer layer) painter)
-  (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer)))
+  (when (pixmap layer)
+    (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
 
 (defmethod finalize ((layer layer))
   (optimized-delete (painter layer))
