@@ -8,6 +8,9 @@
 (named-readtables:in-readtable :qt)
 
 (defvar *layer-block-size* 500)
+;; Maybe switch to a different system
+;; that uses a map of blocks instead of one
+;; big one? But then how do I know where to draw...
 
 (defclass layer ()
   ((%width :initform 0 :accessor width)
