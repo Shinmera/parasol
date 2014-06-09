@@ -35,15 +35,15 @@
 (defmethod start-stroke ((canvas canvas) type x y x-tilt y-tilt pressure)
   (start-stroke (aref (layers canvas) (active-layer canvas))
                 type
-                (+ (offset-x canvas) x)
-                (+ (offset-y canvas) y)
+                (- x (offset-x canvas))
+                (- y (offset-y canvas))
                 x-tilt y-tilt pressure)
   canvas)
 
 (defmethod record-point ((canvas canvas) x y x-tilt y-tilt pressure)
   (record-point (aref (layers canvas) (active-layer canvas))
-                (+ (offset-x canvas) x)
-                (+ (offset-y canvas) y)
+                (- x (offset-x canvas))
+                (- y (offset-y canvas))
                 x-tilt y-tilt pressure)
   canvas)
 
@@ -113,6 +113,10 @@
     (setf (aref layers index) layer
           (active-layer canvas) index))
   (#_update (document canvas)))
+
+(defmethod move ((canvas canvas) x y)
+  (incf (offset-x canvas) x)
+  (incf (offset-y canvas) y))
 
 (defmethod finalize ((canvas canvas))
   (remove-canvas-background canvas)
