@@ -7,6 +7,8 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
+(defvar *graphics* (merge-pathnames "graphics/" (asdf:system-source-directory :parasol)))
+
 (defmacro qtenumcase (keyform &body forms)
   (let ((key (gensym "KEY")))
     `(let ((,key ,keyform))
