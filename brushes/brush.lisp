@@ -14,4 +14,7 @@
 (defmethod assume-form ((brush brush))
   (make-instance 'brush
                  :base-size (base-size brush)
-                 :base-color (color *window*)))
+                 :base-color (#_new QColor (color *window*))))
+
+(defmethod finalize ((brush brush))
+  (optimized-delete (base-color brush)))
