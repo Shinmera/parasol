@@ -16,7 +16,7 @@
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)))
 
 (defmethod initialize-instance :after ((canvas canvas) &key)
-  (setf (background canvas) (merge-pathnames "background.png" (asdf:system-source-directory :parasol)))
+  (setf (background canvas) (merge-pathnames "background.png" *graphics*))
   (add-layer canvas))
 
 (defgeneric resize-canvas (canvas width height &optional x-offset y-offset)
