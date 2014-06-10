@@ -74,8 +74,8 @@
 (defmethod activate-layer ((widget layer-widget) index)
   (unless (< index 0)
     ;; Reverse index again
-    (activate-layer (current-document *window*)
-                    (- (length (layers (current-document *window*))) 1 index))))
+    (setf (active-layer (current-document *window*))
+          (- (length (layers (current-document *window*))) 1 index))))
 
 (defmethod drop-event ((widget layer-list-widget) event)
   ;; We can't call the qt-superclass' method here, unfortunately.

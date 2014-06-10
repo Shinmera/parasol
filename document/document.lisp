@@ -103,6 +103,10 @@
      (#_update widget))))
 
 (defmethod mouse-release-event ((widget document) event)
+  (case (mode widget)
+    ((:tablet :mouse)
+     (end-stroke (canvas widget))
+     (#_update widget)))
   (setf (mode widget) NIL
         (tab-event widget) NIL))
 
@@ -131,8 +135,14 @@
 (defmethod remove-layer ((widget document) &optional index)
   (remove-layer (canvas widget) index))
 
-(defmethod activate-layer ((widget document) index)
-  (activate-layer (canvas widget) index))
+(defmethod (setf active-layer) (index (widget document))
+  (setf (active-layer (canvas widget)) index))
 
 (defmethod move-layer ((widget document) index)
   (move-layer (canvas widget) index))
+
+(defmethod undo ((widget document))
+  (undo (canvas widget)))
+
+(defmethod redo ((widget document))
+  (redo (canvas widget)))
