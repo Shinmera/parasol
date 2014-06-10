@@ -33,6 +33,7 @@
     ))
 
 (defmethod start-stroke ((canvas canvas) type x y x-tilt y-tilt pressure)
+  (push-color *window*)
   (start-stroke (aref (layers canvas) (active-layer canvas))
                 type
                 (- x (offset-x canvas))

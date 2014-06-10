@@ -8,6 +8,7 @@
 (named-readtables:in-readtable :qt)
 
 (defvar *window*)
+(defvar *color-history-size* 5)
 
 (defclass main-window ()
   ((%documents-widget :accessor documents-widget)
@@ -16,7 +17,7 @@
    (%color-widget :accessor color-widget)
    (%current-brush :accessor current-brush)
    (%current-eraser :accessor current-eraser)
-   (%color-history :initform (make-array 5 :initial-element (#_new QColor 0 0 0)) :accessor color-history))
+   (%color-history :initform (make-array (1+ *color-history-size*) :initial-element (#_new QColor 0 0 0)) :accessor color-history))
   (:metaclass qt-class)
   (:qt-superclass "QMainWindow")
   (:slots ("quit()" mw-quit)
@@ -105,19 +106,44 @@
   (aref (color-history window) 0))
 
 (defmethod (setf color) (value (window main-window))
-  (let ((history (color-history window)))
-    (loop for i downfrom (1- (length history)) above 0
-          do (setf (aref history i)
-                   (aref history (1- i))))
-    (setf (aref history 0) value)))
+  (setf (aref (color-history window) 0) value))
+
+(defmethod push-color ((window main-window) &optional color)
+  (let* ((history (color-history window))
+         (color (or color (aref history 0))))
+    (unless (#_operator== color (aref history 1))
+      (loop for i downfrom (1- (length history)) above 0
+            do (setf (aref history i)
+                     (aref history (1- i))))
+      (setf (aref history 0) color))))
 
 (defmethod cycle-color ((window main-window))
   (let* ((history (color-history window))
-         (first (aref history 0)))
-    (loop for i from 0 below (1- (length history))
+         (first (aref history 1)))
+    (loop for i from 1 below (1- (length history))
           do (setf (aref history i)
                    (aref history (1+ i))))
-    (setf (aref history (1- (length history))) first)))
+    (setf (aref history (1- (length history))) first
+          (aref history 0) (aref history 1))))
 
 (defmethod current-document ((window main-window))
   (current-document (documents-widget window)))
+
+;; Need to move to resolve class dependency cycle.
+;; SHould be in color-widget.lisp
+(defmethod push-color :after ((window main-window) &optional color)
+  (declare (ignore color))
+  (let ((widget (color-widget window)))
+    (loop for widget across (color-history widget)
+          for color across (color-history *window*)
+          do (#_setColor (#_palette widget) (#_QPalette::Background) color)
+             (#_update widget))))
+
+(defmethod cycle-color :after ((window main-window))
+  (let ((widget (color-widget window)))
+    (loop for widget across (color-history widget)
+          for color across (color-history *window*)
+          do (#_setColor (#_palette widget) (#_QPalette::Background) color)
+             (#_update widget))
+    (color-widget-update (rgb-widget widget) (color window))
+    (color-widget-update (hsv-widget widget) (color window))))
