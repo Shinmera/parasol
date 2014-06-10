@@ -13,10 +13,13 @@
        (cond ,@(loop for form in forms
                      collect `((qt:enum= ,key ,(car form)) ,@(cdr form)))))))
 
+(defun qobject-alive-p (object)
+  (not (or (null-qobject-p object)
+           (qobject-deleted object))))
+
 (defun maybe-delete-qobject (object)
   (if object
-      (unless (or (typep object 'null-qobject)
-                  (qobject-deleted object))
-        (format T "~& Deleting: ~a~%" object)
+      (when (qobject-alive-p object)
+        (format T "~& Deleting QObject: ~a~%" object)
         (optimized-delete object))
-      (format T "~& Deleting: WARN Tried to delete NIL~%")))
+      (format T "~& Deleting QObject: WARN Tried to delete NIL~%")))
