@@ -41,4 +41,6 @@
 
 (defmethod finalize ((stroke stroke))
   (finalize (curve stroke))
-  (finalize (brush stroke)))
+  (finalize (brush stroke))
+  (setf (curve stroke) NIL
+        (brush stroke) NIL))

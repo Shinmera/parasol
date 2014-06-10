@@ -66,9 +66,9 @@
   (#_value (exs-slider widget)))
 
 (defmethod finalize ((widget ex-slider-widget))
-  (optimized-delete (exs-slider widget))
-  (optimized-delete (exs-spin-box widget))
-  (optimized-delete (exs-button widget))
+  (maybe-delete-qobject (exs-slider widget))
+  (maybe-delete-qobject (exs-spin-box widget))
+  (maybe-delete-qobject (exs-button widget))
   (setf (exs-slider widget) NIL
         (exs-spin-box widget) NIL
         (exs-button widget) NIL

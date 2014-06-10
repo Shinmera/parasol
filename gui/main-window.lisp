@@ -31,6 +31,7 @@
   (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
   (#_resize window 500 500)
   (setf (current-brush window) (make-instance 'brush))
+  (setf (current-eraser window) (make-instance 'brush))
 
   (let ((documents-widget (make-instance 'documents-widget))
         (brush-widget (make-instance 'brush-widget))
@@ -146,7 +147,7 @@
   (finalize (current-brush window))
   (finalize (current-eraser window))
   (loop for color across (color-history window)
-        do (optimized-delete color))
+        do (maybe-delete-qobject color))
   (setf (documents-widget window) NIL
         (layer-widget window) NIL
         (brush-widget window) NIL

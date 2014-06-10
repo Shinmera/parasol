@@ -13,8 +13,7 @@
    (%offset-y :initform 0 :accessor offset-y)
    (%document :initarg :document :initform (error "Document required.") :accessor document)
    (%active-layer-index :initform 0 :accessor active-layer-index)
-   (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
-   (%stroke :initform NIL :accessor stroke)))
+   (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)))
 
 (defmethod initialize-instance :after ((canvas canvas) &key)
   (setf (background canvas) (merge-pathnames "background.png" (asdf:system-source-directory :parasol)))
@@ -60,11 +59,9 @@
 (defun remove-canvas-background (canvas)
   (let ((bg-brush (bg-brush canvas)))
     (when bg-brush
-      (unless (qt:null-qobject-p (#_textureImage bg-brush))
-        (optimized-delete (#_textureImage bg-brush)))
-      (unless (qt:null-qobject-p (#_color bg-brush))
-        (optimized-delete (#_color bg-brush)))
-      (optimized-delete bg-brush))))
+      (maybe-delete-qobject (#_textureImage bg-brush))
+      ;;(maybe-delete-qobject (#_color bg-brush))
+      (maybe-delete-qobject bg-brush))))
 
 (defmethod (setf background) ((file pathname) (canvas canvas))
   (remove-canvas-background canvas)
@@ -135,9 +132,8 @@
 
 (defmethod finalize ((canvas canvas))
   (remove-canvas-background canvas)
-  (optimized-delete (brush canvas))
-  (optimized-delete (pen canvas))
-  (optimized-delete (painter canvas))
-  (optimized-delete (pixmap canvas))
   (loop for layer across (layers canvas)
-        do (finalize layer)))
+        do (finalize layer))
+  (setf (bg-brush canvas) NIL
+        (layers canvas) NIL
+        (document canvas) NIL))

@@ -119,7 +119,8 @@
   )
 
 (defmethod finalize ((widget document))
-  (finalize (canvas widget)))
+  (finalize (canvas widget))
+  (setf (canvas widget) NIL))
 
 (defmethod destroy ((widget document))
   ;; add checks

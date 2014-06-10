@@ -88,5 +88,5 @@
     (#_setCurrentRow widget insert-row)))
 
 (defmethod finalize ((widget layer-widget))
-  (optimized-delete (list-widget widget))
+  (maybe-delete-qobject (list-widget widget))
   (setf (list-widget widget) NIL))

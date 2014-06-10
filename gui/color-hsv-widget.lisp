@@ -213,8 +213,8 @@
   (update-color-triangle widget))
 
 (defmethod finalize ((widget color-hsv-widget))
-  (optimized-delete (pixmap widget))
-  (optimized-delete (color widget))
+  (maybe-delete-qobject (pixmap widget))
+  (maybe-delete-qobject (color widget))
   (setf (pixmap widget) NIL
         (color widget) NIL
         (parent widget) NIL))

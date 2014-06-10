@@ -29,7 +29,7 @@
   (let ((document (#_widget widget index)))
     (when (destroy document)
       (#_removeTab widget index)
-      (optimized-delete document))))
+      (maybe-delete-qobject document))))
 
 (defmethod current-document ((widget documents-widget))
   (#_currentWidget widget))
@@ -38,5 +38,5 @@
   (loop for i from 0 below (#_count widget)
         for document = (#_widget widget i)
         do (finalize document)
-           (optimized-delete document))
+           (maybe-delete-qobject document))
   (#_clear widget))

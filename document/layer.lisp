@@ -73,7 +73,7 @@
                        (- (offset-x layer) off-x)
                        (- (offset-y layer) off-y)
                        (pixmap layer))
-          (optimized-delete (pixmap layer)))
+          (maybe-delete-qobject (pixmap layer)))
         (#_setRenderHint painter (#_QPainter::Antialiasing))
         (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
         (#_translate painter (- off-x) (- off-y))
@@ -131,7 +131,10 @@
     (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
 
 (defmethod finalize ((layer layer))
-  (optimized-delete (painter layer))
-  (optimized-delete (pixmap layer))
+  (maybe-delete-qobject (painter layer))
+  (maybe-delete-qobject (pixmap layer))
   (loop for stroke across (strokes layer)
-        do (finalize stroke)))
+        do (finalize stroke))
+  (setf (painter layer) NIL
+        (pixmap layer) NIL
+        (strokes layer) NIL))

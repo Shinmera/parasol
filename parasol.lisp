@@ -9,4 +9,9 @@
 
 (defun main ()
   (ensure-smoke :qtopengl)
-  (with-main-window (window (make-instance 'main-window))))
+  (progn
+    (make-qapplication)
+    (with-objects ((window (make-instance 'main-window)))
+      (#_show window)
+      (#_exec *qapplication*)
+      (finalize window))))

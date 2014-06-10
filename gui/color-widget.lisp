@@ -60,7 +60,7 @@
   (finalize (rgb-widget widget))
   (finalize (hsv-widget widget))
   (loop for label across (color-history widget)
-        do (optimized-delete label))
+        do (maybe-delete-qobject label))
   (setf (rgb-widget widget) NIL
         (hsv-widget widget) NIL
         (color-history widget) NIL))

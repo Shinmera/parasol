@@ -9,7 +9,7 @@
 
 (defclass brush ()
   ((%base-size :initarg :base-size :initform 5 :accessor base-size)
-   (%base-color :initarg :base-color :accessor base-color)))
+   (%base-color :initarg :base-color :initform NIL :accessor base-color)))
 
 (defmethod assume-form ((brush brush))
   (make-instance 'brush
@@ -17,4 +17,4 @@
                  :base-color (#_new QColor (color *window*))))
 
 (defmethod finalize ((brush brush))
-  (optimized-delete (base-color brush)))
+  (maybe-delete-qobject (base-color brush)))
