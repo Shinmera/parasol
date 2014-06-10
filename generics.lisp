@@ -66,7 +66,9 @@ This function is cascading, meaning that complex inner objects automatically rec
 FINALIZE call as well, making them too unsafe to use.
 
 Unless overridden, this is a NO-OP.")
-  (:method (object)))
+  (:method (object))
+  (:method :before (object)
+    (format T "~& Finalizing: ~a~%" object)))
 
 (defgeneric destroy (object)
   (:documentation "Requests that the object be destroyed.
