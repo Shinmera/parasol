@@ -11,7 +11,7 @@
 
 (defclass stroke ()
   ((%curve :initform (make-curve *curve-type*) :accessor curve)
-   (%brush :initform (current-brush *window*) :accessor brush)
+   (%brush :initform (assume-form (current-brush *window*)) :accessor brush)
    (%last-index :initform 0 :accessor last-index)))
 
 (defmethod draw ((stroke stroke) painter)
@@ -24,8 +24,8 @@
   (:method ((stroke stroke) painter)
     (let ((point-count (point-count (curve stroke))))
       (when (< 0 point-count)
-        (#_setColor (#_brush painter) (color *window*))
-        (#_setColor (#_pen painter) (color *window*))
+        (#_setColor (#_brush painter) (base-color (brush stroke)))
+        (#_setColor (#_pen painter) (base-color (brush stroke)))
         (map-points (curve stroke)
                     #'(lambda (x y xt yt p)
                         (declare (ignore xt yt))
@@ -38,3 +38,7 @@
 
 (defmethod record-point ((stroke stroke) x y xt yt p)
   (record-point (curve stroke) (float x) (float y) xt yt p))
+
+(defmethod finalize ((stroke stroke))
+  (finalize (curve stroke))
+  (finalize (brush stroke)))
