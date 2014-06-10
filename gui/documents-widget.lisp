@@ -23,7 +23,9 @@
   (connect widget "tabCloseRequested(int)" widget "tabClose(int)"))
 
 (defmethod change-tab ((widget documents-widget) index)
-  (make-active (#_widget widget index)))
+  (let ((document (#_widget widget index)))
+    (when (qobject-alive-p document) ;; Singal can occur during finalize.
+      (make-active document))))
 
 (defmethod close-tab ((widget documents-widget) index)
   (let ((document (#_widget widget index)))
