@@ -37,6 +37,7 @@
                              (:file "color-widget")
                              (:file "layer-widget")
                              (:file "documents-widget")
+                             (:file "repl-widget")
                              (:file "main-window")))
                (:file "parasol"))
   :depends-on (:qt

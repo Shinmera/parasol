@@ -15,6 +15,7 @@
    (%layer-widget :accessor layer-widget)
    (%brush-widget :accessor brush-widget)
    (%color-widget :accessor color-widget)
+   (%repl-widget :accessor repl-widget)
    (%current-brush :accessor current-brush)
    (%current-eraser :accessor current-eraser)
    (%color-history :initform (make-array (1+ *color-history-size*) :initial-element (#_new QColor 0 0 0)) :accessor color-history))
@@ -23,7 +24,8 @@
   (:slots ("quit()" mw-quit)
           ("new()" mw-new)
           ("about()" mw-about))
-  (:override ("keyReleaseEvent" key-release-event)))
+  (:override ("keyReleaseEvent" key-release-event)
+             ("mousePressEvent" mouse-press-event)))
 
 (defmethod initialize-instance :after ((window main-window) &key)
   (new window)
@@ -37,21 +39,28 @@
         (brush-widget (make-instance 'brush-widget))
         (color-widget (make-instance 'color-widget))
         (layer-widget (make-instance 'layer-widget))
+        (repl-widget (make-instance 'repl-widget))
         (central-splitter (#_new QSplitter (#_Qt::Horizontal)))
-        (right-splitter (#_new QSplitter (#_Qt::Vertical))))
+        (right-splitter (#_new QSplitter (#_Qt::Vertical)))
+        (left-splitter (#_new QSplitter (#_Qt::Vertical))))
     (setf (documents-widget window) documents-widget
           (brush-widget window) brush-widget
           (color-widget window) color-widget
-          (layer-widget window) layer-widget)
+          (layer-widget window) layer-widget
+          (repl-widget window) repl-widget)
 
     (#_setHorizontalPolicy (#_sizePolicy documents-widget) (#_QSizePolicy::Expanding))
     (#_setHorizontalPolicy (#_sizePolicy right-splitter) (#_QSizePolicy::Minimum))
     
-    (#_addWidget central-splitter documents-widget)
+    (#_addWidget central-splitter left-splitter)
     (#_addWidget central-splitter right-splitter)
 
     (#_setStretchFactor central-splitter 0 1)
     (#_setStretchFactor central-splitter 1 0)
+
+    (#_setChildrenCollapsible left-splitter NIL)
+    (#_addWidget left-splitter documents-widget)
+    (#_addWidget left-splitter repl-widget)
 
     (#_setChildrenCollapsible right-splitter NIL)
     (#_addWidget right-splitter brush-widget)
@@ -104,13 +113,22 @@
                                   (asdf:system-maintainer parasol)
                                   (asdf:system-license parasol)))))
 
+(defmethod mouse-press-event ((window main-window) event)
+  (let ((focused (#_QApplication::focusWidget)))
+    (when (qt:qtypep focused (find-qclass "QLineEdit"))
+      (#_clearFocus focused)))
+  (#_ignore event))
+
 (defmethod key-release-event ((window main-window) event)
-  
-  (case (#_key event)
-    (90 ;; (#_Qt::Key_Z)
-     (undo (current-document window)))
-    (89 ;; (#_Qt::Key_Y)
-     (redo (current-document window)))))
+  (unless (qt:qtypep (#_QApplication::focusWidget) (find-qclass "QLineEdit"))
+    (case (#_key event)
+      (90 ;; (#_Qt::Key_Z)
+       (undo (current-document window)))
+      (89 ;; (#_Qt::Key_Y)
+       (redo (current-document window)))
+      (32 ;; (#_Qt::Key_Space)
+       (#_setFocus (input (repl-widget window))
+                   (#_Qt::ShortcutFocusReason))))))
 
 (defmethod color ((window main-window))
   (aref (color-history window) 0))
