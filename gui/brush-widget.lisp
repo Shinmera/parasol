@@ -26,3 +26,7 @@
 
 (defun brush-widget-update (size)
   (setf (base-size (current-brush *window*)) (/ size 100)))
+
+(defmethod finalize ((widget brush-widget))
+  (finalize (size widget))
+  (setf (size widget) NIL))

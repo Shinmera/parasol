@@ -33,3 +33,10 @@
 
 (defmethod current-document ((widget documents-widget))
   (#_currentWidget widget))
+
+(defmethod finalize ((widget documents-widget))
+  (loop for i from 0 below (#_count widget)
+        for document = (#_widget widget i)
+        do (finalize document)
+           (optimized-delete document))
+  (#_clear widget))

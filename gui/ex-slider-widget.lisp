@@ -64,3 +64,17 @@
 
 (defmethod value ((widget ex-slider-widget))
   (#_value (exs-slider widget)))
+
+(defmethod finalize ((widget ex-slider-widget))
+  (optimized-delete (exs-slider widget))
+  (optimized-delete (exs-spin-box widget))
+  (optimized-delete (exs-button widget))
+  (setf (exs-slider widget) NIL
+        (exs-spin-box widget) NIL
+        (exs-button widget) NIL
+        (exs-max widget) NIL
+        (exs-min widget) NIL
+        (exs-step widget) NIL
+        (exs-default widget) NIL
+        (exs-on-change widget) NIL
+        (exs-on-release widget) NIL))

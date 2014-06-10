@@ -138,6 +138,23 @@
 (defmethod current-document ((window main-window))
   (current-document (documents-widget window)))
 
+(defmethod finalize ((window main-window))
+  (finalize (documents-widget window))
+  (finalize (layer-widget window))
+  (finalize (brush-widget window))
+  (finalize (color-widget window))
+  (finalize (current-brush window))
+  (finalize (current-eraser window))
+  (loop for color across (color-history window)
+        do (optimized-delete color))
+  (setf (documents-widget window) NIL
+        (layer-widget window) NIL
+        (brush-widget window) NIL
+        (color-widget window) NIL
+        (current-brush window) NIL
+        (current-eraser window) NIL
+        (color-history window) NIL))
+
 ;; Need to move to resolve class dependency cycle.
 ;; SHould be in color-widget.lisp
 (defmethod push-color :after ((window main-window) &optional color)

@@ -86,3 +86,7 @@
                 (- (length (layers (current-document *window*))) 1 insert-row))
     (update-layer-widget)
     (#_setCurrentRow widget insert-row)))
+
+(defmethod finalize ((widget layer-widget))
+  (optimized-delete (list-widget widget))
+  (setf (list-widget widget) NIL))

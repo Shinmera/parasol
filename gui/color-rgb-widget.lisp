@@ -43,3 +43,12 @@
   (exs-update (r widget) (#_red new-color))
   (exs-update (g widget) (#_green new-color))
   (exs-update (b widget) (#_blue new-color)))
+
+(defmethod finalize ((widget color-rgb-widget))
+  (finalize (r widget))
+  (finalize (g widget))
+  (finalize (b widget))
+  (setf (r widget) NIL
+        (g widget) NIL
+        (b widget) NIL
+        (parent widget) NIL))
