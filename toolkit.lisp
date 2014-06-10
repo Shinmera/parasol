@@ -12,3 +12,11 @@
     `(let ((,key ,keyform))
        (cond ,@(loop for form in forms
                      collect `((qt:enum= ,key ,(car form)) ,@(cdr form)))))))
+
+(defun maybe-delete-qobject (object)
+  (if object
+      (unless (or (typep object 'null-qobject)
+                  (qobject-deleted object))
+        (format T "~& Deleting: ~a~%" object)
+        (optimized-delete object))
+      (format T "~& Deleting: WARN Tried to delete NIL~%")))
