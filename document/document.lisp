@@ -77,7 +77,8 @@
      (setf (mode widget) :move)
      (setf (car (last-mouse widget)) (#_x event)
            (cdr (last-mouse widget)) (#_y event))))
-  (#_update widget))
+  (#_update widget)
+  (#_ignore event))
 
 (defmethod mouse-move-event ((widget document) event)
   (case (mode widget)
@@ -100,7 +101,8 @@
              (- (#_y event) (cdr last)))
        (setf (car last) (#_x event)
              (cdr last) (#_y event)))
-     (#_update widget))))
+     (#_update widget)))
+  (#_ignore event))
 
 (defmethod mouse-release-event ((widget document) event)
   (case (mode widget)
@@ -108,7 +110,8 @@
      (end-stroke (canvas widget))
      (#_update widget)))
   (setf (mode widget) NIL
-        (tab-event widget) NIL))
+        (tab-event widget) NIL)
+  (#_ignore event))
 
 (defmethod paint-event ((widget document) event)
   (with-objects ((painter (#_new QPainter widget)))
