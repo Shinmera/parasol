@@ -9,6 +9,7 @@
 
 (defparameter *layer-block-size* 500)
 (defparameter *layer-block-border* 200)
+(defparameter *presample-history* 20)
 ;; Maybe switch to a different system
 ;; that uses a map of blocks instead of one
 ;; big one? But then how do I know where to draw...
@@ -21,7 +22,8 @@
 
    (%pixmap :initform NIL :accessor pixmap)
    (%painter :initform NIL :accessor painter)
-   (%stroke :initform () :accessor stroke)
+   (%strokes :initform (make-array *presample-history* :adjustable T :fill-pointer 0) :accessor strokes)
+   (%history-size :initform 0 :accessor history-size)
    (%mode :initarg :mode :accessor mode)
    (%name :initarg :name :accessor name)))
 
@@ -84,15 +86,45 @@
               (height layer) height)))))
 
 (defmethod start-stroke ((layer layer) type x y x-tilt y-tilt pressure)
-  (setf (stroke layer) (make-instance 'stroke))
+  (truncate-history layer)
+  (vector-push-extend (make-instance 'stroke) (strokes layer))
   (record-point layer x y x-tilt y-tilt pressure)
   layer)
 
 (defmethod record-point ((layer layer) x y x-tilt y-tilt pressure)
   (assure-suitable-size layer x y)
-  (record-point (stroke layer) x y x-tilt y-tilt pressure)
-  (draw-incremental (stroke layer) (painter layer))
+  (let ((stroke (elt (strokes layer) (1- (fill-pointer (strokes layer))))))
+    (record-point stroke x y x-tilt y-tilt pressure)
+    (draw-incremental stroke (painter layer)))
   layer)
+
+(defmethod end-stroke ((layer layer))
+  (recache layer))
+
+(defmethod truncate-history ((layer layer))
+  (loop for i from (fill-pointer (strokes layer))
+          to (history-size layer)
+        for stroke = (aref (strokes layer) i)
+        when stroke
+          do (finalize stroke)
+             (setf (aref (strokes layer) i) NIL))
+  (setf (history-size layer) (fill-pointer (strokes layer))))
+
+(defmethod recache ((layer layer))
+  (with-objects ((transparent (#_new QColor 0 0 0 0)))
+    (#_fill (pixmap layer) transparent)
+    (loop for stroke across (strokes layer)
+          do (draw stroke (painter layer)))))
+
+(defmethod undo ((layer layer))
+  (when (< 0 (fill-pointer (strokes layer)))
+    (decf (fill-pointer (strokes layer)))
+    (recache layer)))
+
+(defmethod redo ((layer layer))
+  (when (< (fill-pointer (strokes layer)) (history-size layer))
+    (incf (fill-pointer (strokes layer)))
+    (recache layer)))
 
 (defmethod draw ((layer layer) painter)
   (when (pixmap layer)
@@ -101,4 +133,5 @@
 (defmethod finalize ((layer layer))
   (optimized-delete (painter layer))
   (optimized-delete (pixmap layer))
-  (finalize (stroke layer)))
+  (loop for stroke across (strokes layer)
+        do (finalize stroke)))
