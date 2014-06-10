@@ -8,4 +8,10 @@
 (named-readtables:in-readtable :qt)
 
 (defclass brush ()
-  ((%base-size :initarg :base-size :initform 5 :accessor base-size)))
+  ((%base-size :initarg :base-size :initform 5 :accessor base-size)
+   (%base-color :initarg :base-color :accessor base-color)))
+
+(defmethod assume-form ((brush brush))
+  (make-instance 'brush
+                 :base-size (base-size brush)
+                 :base-color (color *window*)))
