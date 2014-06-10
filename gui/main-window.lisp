@@ -22,7 +22,8 @@
   (:qt-superclass "QMainWindow")
   (:slots ("quit()" mw-quit)
           ("new()" mw-new)
-          ("about()" mw-about)))
+          ("about()" mw-about))
+  (:override ("keyReleaseEvent" key-release-event)))
 
 (defmethod initialize-instance :after ((window main-window) &key)
   (new window)
@@ -101,6 +102,14 @@
                                   (asdf:system-description parasol)
                                   (asdf:system-maintainer parasol)
                                   (asdf:system-license parasol)))))
+
+(defmethod key-release-event ((window main-window) event)
+  
+  (case (#_key event)
+    (90 ;; (#_Qt::Key_Z)
+     (undo (current-document window)))
+    (89 ;; (#_Qt::Key_Y)
+     (redo (current-document window)))))
 
 (defmethod color ((window main-window))
   (aref (color-history window) 0))
