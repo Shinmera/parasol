@@ -12,7 +12,7 @@
    (%offset-x :initform 0 :accessor offset-x)
    (%offset-y :initform 0 :accessor offset-y)
    (%document :initarg :document :initform (error "Document required.") :accessor document)
-   (%active-layer :initform 0 :accessor active-layer)
+   (%active-layer-index :initform 0 :accessor active-layer-index)
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
    (%stroke :initform NIL :accessor stroke)))
 
@@ -34,7 +34,7 @@
 
 (defmethod start-stroke ((canvas canvas) type x y x-tilt y-tilt pressure)
   (push-color *window*)
-  (start-stroke (aref (layers canvas) (active-layer canvas))
+  (start-stroke (active-layer canvas)
                 type
                 (- x (offset-x canvas))
                 (- y (offset-y canvas))
@@ -42,11 +42,14 @@
   canvas)
 
 (defmethod record-point ((canvas canvas) x y x-tilt y-tilt pressure)
-  (record-point (aref (layers canvas) (active-layer canvas))
+  (record-point (active-layer canvas)
                 (- x (offset-x canvas))
                 (- y (offset-y canvas))
                 x-tilt y-tilt pressure)
   canvas)
+
+(defmethod end-stroke ((canvas canvas))
+  (end-stroke (active-layer canvas)))
 
 (defmethod draw ((canvas canvas) painter)
   (#_fillRect painter (#_rect (document canvas)) (bg-brush canvas))
@@ -95,15 +98,18 @@
       (add-layer canvas))
     (#_update (document canvas))))
 
-(defmethod activate-layer ((canvas canvas) index)
-  (setf (active-layer canvas) index))
+(defmethod active-layer ((canvas canvas))
+  (aref (layers canvas) (active-layer-index canvas)))
+
+(defmethod (setf active-layer) (index (canvas canvas))
+  (setf (active-layer-index canvas) index))
 
 (defmethod move-layer ((canvas canvas) index)
   (let* ((layers (layers canvas))
          (index (min index (1- (length layers))))
-         (layer (aref layers (active-layer canvas))))
+         (layer (active-layer canvas)))
     ;; Pop out
-    (loop for i from (active-layer canvas) below (1- (length layers))
+    (loop for i from (active-layer-index canvas) below (1- (length layers))
           do (setf (aref layers i)
                    (aref layers (1+ i))))
     ;; Shift
@@ -112,12 +118,20 @@
                    (aref layers (1- i))))
     ;; Push in
     (setf (aref layers index) layer
-          (active-layer canvas) index))
+          (active-layer-index canvas) index))
   (#_update (document canvas)))
 
 (defmethod move ((canvas canvas) x y)
   (incf (offset-x canvas) x)
   (incf (offset-y canvas) y))
+
+(defmethod undo ((canvas canvas))
+  (undo (active-layer canvas))
+  (#_update (document canvas)))
+
+(defmethod redo ((canvas canvas))
+  (redo (active-layer canvas))
+  (#_update (document canvas)))
 
 (defmethod finalize ((canvas canvas))
   (remove-canvas-background canvas)
