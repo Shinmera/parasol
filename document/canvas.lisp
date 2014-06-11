@@ -70,7 +70,7 @@
 
 (defmethod (setf background) ((rgb list) (canvas canvas))
   (remove-canvas-background canvas)
-  (setf (br-brush canvas)
+  (setf (bg-brush canvas)
         (#_new QBrush (#_new QColor (first rgb) (second rgb) (third rgb)))))
 
 (defmethod (setf background) (brush-parameter (canvas canvas))
