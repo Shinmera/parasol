@@ -7,7 +7,10 @@
 (in-package #:org.tymoonnext.parasol)
 
 (defclass curve ()
-  ()
+  ((%data :initarg :points :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor data)
+   (%distances :initform NIL :accessor distances)
+   (%point-distance :initarg :point-distance :initform 0 :accessor point-distance)
+   (%point-amount :initarg :point-amount :initform 0 :accessor point-amount))
   (:documentation ""))
 
 (defgeneric record-point (curve x y x-tilt y-tilt pressure)

@@ -9,6 +9,29 @@
 
 (defvar *graphics* (merge-pathnames "graphics/" (asdf:system-source-directory :parasol)))
 
+;; Curve helper stuff
+(defun idata (var data-slot pos)
+  (aref (aref var data-slot) pos))
+
+(defgeneric (setf idata) (val var data-slot pos)
+  (:method (val var data-slot pos)
+    (setf (aref (aref var data-slot) pos) val)))
+
+(defun copy-adjustable (array)
+  (let ((new (make-array (length array) :element-type 'float :adjustable T :fill-pointer T)))
+    (loop for i from 0 below (length array)
+          do (setf (aref new i) (aref array i)))
+    new))
+
+(defun ensure-length (vector required-length)
+  (cond ((< (array-dimension vector 0) required-length)
+         (adjust-array vector (+ required-length *spline-adjust-buffer*)
+                       :fill-pointer required-length))
+        ((< (fill-pointer vector) required-length)
+         (setf (fill-pointer vector) required-length)))
+  vector)
+
+;; Qt helper stuff
 (defmacro qtenumcase (keyform &body forms)
   (let ((key (gensym "KEY")))
     `(let ((,key ,keyform))
