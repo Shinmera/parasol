@@ -35,20 +35,25 @@
         (loop for i from (length dist) below (1- len)
               do (vector-push-extend (dist i (1+ i)) dist))))))
 
+;; This function is gross.
 (defun recalculate-linear-interpolations (curve &key (from 0))
   (let* ((dist (distances curve))
          (pointd (point-distance curve))
          (len (length (aref (data curve) 0))))
-    (when (< 1 len)
+    (when (< 2 len)
       (loop with i = from
             with seglen = (aref dist 0)
             for cdist = (remainder curve)
               then (+ cdist pointd)
-            do (when (>= cdist seglen)
+            do (when (< seglen pointd)
+                 (setf seglen (/ pointd 2)))
+               (when (>= cdist seglen)
                  (incf i)
                  (setf cdist (- cdist seglen))
                  (when (< i (1- len))
                    (setf seglen (elt dist i))))
+               (when (< seglen pointd)
+                 (setf seglen (/ pointd 2)))
             while (< i (1- len))
             do (loop for int across (interpolated curve)
                      for dat across (data curve)
@@ -67,7 +72,7 @@
         for i from 0
         do (vector-push-extend (float data) (elt (data curve) i)))
   (calculate-linear-distances curve)
-  (recalculate-linear-interpolations curve :from (- (length (aref (data curve) 0)) 2)))
+  (recalculate-linear-interpolations curve :from (- (length (aref (data curve) 0)) 3)))
 
 (defmethod make-curve ((type (eql 'linear)))
   (make-instance 'linear))
