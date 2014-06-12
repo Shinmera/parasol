@@ -43,15 +43,18 @@
     (setf (list-widget widget) list)))
 
 (defun update-layer-widget ()
-  (let ((widget (list-widget (layer-widget *window*)))
-        (document (current-document *window*)))
-    (#_clear widget)
-    ;; insert reverse
-    (loop for i downfrom (1- (length (layers document))) to 0
-          for layer = (aref (layers document) i)
-          do (#_addItem widget (name layer)))
-    (when (< (#_currentRow widget) 0)
-      (#_setCurrentRow widget 0))))
+  (with-objects ((size (#_new QSize 10 30)))
+    (let ((widget (list-widget (layer-widget *window*)))
+          (document (current-document *window*)))
+      (#_clear widget)
+      ;; insert reverse
+      (loop for i downfrom (1- (length (layers document))) to 0
+            for layer = (aref (layers document) i)
+            do (let ((item (#_new QListWidgetItem (name layer))))
+                 (#_setSizeHint item size)
+                 (#_addItem widget item)))
+      (when (< (#_currentRow widget) 0)
+        (#_setCurrentRow widget 0)))))
 
 ;; Hook into document change
 (defmethod make-active :after ((document document))
