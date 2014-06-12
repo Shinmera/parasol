@@ -65,7 +65,8 @@
 (defmethod remove-layer ((widget layer-widget) &optional index)
   (declare (ignore index))
   (let ((index (#_currentRow (list-widget widget))))
-    (remove-layer (current-document *window*) index)
+    (remove-layer (current-document *window*)
+                  (- (length (layers (current-document *window*))) 1 index))
     (update-layer-widget)
     (if (< index (#_count (list-widget widget)))
         (#_setCurrentRow (list-widget widget) index)
@@ -82,8 +83,10 @@
   ;; Reimplementing the drop is done lazily by just changing the order
   ;; and then rebuilding it completely. Why not.
   (let ((insert-row (#_row widget (#_itemAt widget (#_pos event)))))
-    (move-layer (current-document *window*)
-                (- (length (layers (current-document *window*))) 1 insert-row))
+    (if (< insert-row 0)
+        (move-layer (current-document *window*) 0)
+        (move-layer (current-document *window*)
+                    (- (length (layers (current-document *window*))) 1 insert-row)))
     (update-layer-widget)
     (#_setCurrentRow widget insert-row)))
 

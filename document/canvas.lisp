@@ -103,14 +103,13 @@
 
 (defmethod move-layer ((canvas canvas) index)
   (let* ((layers (layers canvas))
-         (index (min index (1- (length layers))))
          (layer (active-layer canvas)))
     ;; Pop out
     (loop for i from (active-layer-index canvas) below (1- (length layers))
           do (setf (aref layers i)
                    (aref layers (1+ i))))
     ;; Shift
-    (loop for i downfrom (length layers) above index
+    (loop for i downfrom (1- (length layers)) above index
           do (setf (aref layers i)
                    (aref layers (1- i))))
     ;; Push in
