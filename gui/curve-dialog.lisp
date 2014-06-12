@@ -46,6 +46,7 @@
     (#_addWidget layout distance 0 2 1 1)
     (#_addWidget layout canvas 1 0 1 3)
     (#_setLayout dialog layout)
+    (#_setSizeConstraint (#_layout dialog) (#_QLayout::SetFixedSize))
     (connect picker "currentIndexChanged(const QString)" dialog "selectCurve(const QString)")
     (connect distance "valueChanged(double)" dialog "selectDistance(double)")
     (select-curve dialog "spline")))
