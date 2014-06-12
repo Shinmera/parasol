@@ -171,6 +171,7 @@
   (finalize (layer-widget window))
   (finalize (brush-widget window))
   (finalize (color-widget window))
+  (finalize (repl-widget window))
   (finalize (current-brush window))
   (finalize (current-eraser window))
   (loop for color across (color-history window)

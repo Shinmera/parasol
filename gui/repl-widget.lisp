@@ -43,3 +43,6 @@
        (input widget) (format NIL "; READ error: ~a" err))))
   (#_clear (input widget))
   (#_clearFocus (input widget)))
+
+(defmethod finalize ((widget repl-widget))
+  (maybe-delete-qobject (input widget)))
