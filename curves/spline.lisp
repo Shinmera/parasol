@@ -7,6 +7,7 @@
 (in-package #:org.tymoonnext.parasol)
 
 (defvar *spline-adjust-buffer* 500)
+(defvar *spline-from-hack* 0)
 
 (defclass spline (curve)
   ((%spline-data :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor spline-data)
@@ -22,8 +23,9 @@
         point-distance)
   (when (/= (length (distances spline)) 0)
     (setf (point-amount spline)
-          (1+ (ceiling (/ (aref (distances spline) (1- (length (distances spline))))
-                          point-distance))))))
+          (1+ (floor (/ (aref (distances spline) (1- (length (distances spline))))
+                          point-distance)))))
+  (calculate-spline-interpolation spline :from *spline-from-hack*))
 
 (defun calculate-spline-distances (spline &key (from 0))
   (let* ((data (data spline))
@@ -195,9 +197,9 @@
         (let ((newpos (- (length (aref (data spline) 0)) 3)))
           (when (<= 0 newpos)
             (calculate-spline-distances spline :from newpos)
-            (setf (point-distance spline) (point-distance spline))
             (calculate-spline-data spline :from newpos)
-            (calculate-spline-interpolation spline :from newpos)))))
+            (let ((*spline-from-hack* newpos))
+              (setf (point-distance spline) (point-distance spline)))))))
     spline))
 
 (defun make-spline (x y &rest additional-data)
@@ -211,9 +213,8 @@
                (vector-push-extend (make-array len :element-type 'float :initial-element 0.0 :adjustable T :fill-pointer T) (interpolated spline)))
       (setf (distances spline)     (make-array len :element-type 'float :initial-element 0.0 :adjustable T :fill-pointer T)))
     (calculate-spline-distances spline)
-    (setf (point-distance spline) 2)
     (calculate-spline-data spline)
-    (calculate-spline-interpolation spline)
+    (setf (point-distance spline) 2)
     spline))
 
 (defun make-empty-spline (&optional (field-count 2))
@@ -227,9 +228,6 @@
 (defmethod record-point ((spline spline) x y x-tilt y-tilt pressure)
   (add-data-point spline x y x-tilt y-tilt pressure))
 
-(defmethod point-count ((spline spline))
-  (length (aref (interpolated spline) 0)))
-
 (defmethod point-data ((spline spline) pos)
   (list (aref (aref (interpolated spline) 0) pos)
         (aref (aref (interpolated spline) 1) pos)
@@ -239,7 +237,7 @@
 
 (defmethod map-points ((spline spline) function &key from to)
   (unless from (setf from 0))
-  (unless to (setf to (point-count spline)))
+  (unless to (setf to (point-amount spline)))
   (let ((xs (aref (interpolated spline) 0))
         (ys (aref (interpolated spline) 1))
         (xts (aref (interpolated spline) 2))

@@ -8,8 +8,8 @@
 
 (defclass curve ()
   ((%data :initarg :points :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor data)
-   (%distances :initform NIL :accessor distances)
-   (%point-distance :initarg :point-distance :initform 0 :accessor point-distance)
+   (%distances :initform (make-array 0 :element-type 'float :initial-element 0.0 :adjustable T :fill-pointer 0) :accessor distances)
+   (%point-distance :initarg :point-distance :initform 2 :accessor point-distance)
    (%point-amount :initarg :point-amount :initform 0 :accessor point-amount))
   (:documentation ""))
 
@@ -18,11 +18,6 @@
 
 (defgeneric make-curve (curve-type)
   (:documentation "Creates a new, empty curve of type CURVE-TYPE."))
-
-(defgeneric point-count (curve)
-  (:documentation "Returns the number of points the curve wants to draw.
-This is not equal to the points recorded in the curve, but rather to the
-number of points the curve uses when interpolated."))
 
 (defgeneric point-data (curve pos)
   (:documentation "Returns a list of point-data at position POS.
