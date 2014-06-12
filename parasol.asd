@@ -35,6 +35,7 @@
                              (:file "color-rgb-widget")
                              (:file "color-hsv-widget")
                              (:file "color-widget")
+                             (:file "curve-dialog")
                              (:file "layer-widget")
                              (:file "documents-widget")
                              (:file "repl-widget")

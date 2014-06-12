@@ -23,7 +23,8 @@
   (:qt-superclass "QMainWindow")
   (:slots ("quit()" mw-quit)
           ("new()" mw-new)
-          ("about()" mw-about))
+          ("about()" mw-about)
+          ("curve()" mw-curve))
   (:override ("keyReleaseEvent" key-release-event)
              ("mousePressEvent" mouse-press-event)))
 
@@ -82,6 +83,10 @@
       (#_addAction file new)
       (#_addSeparator file)
       (#_addAction file quit)))
+  (let ((tools (#_addMenu (#_menuBar window) "Tools")))
+    (let ((curve (#_new QAction "Curve..." window)))
+      (connect curve "triggered()" window "curve()")
+      (#_addAction tools curve)))
   (let ((help (#_addMenu (#_menuBar window) "Help")))
     (let ((about (#_new QAction "About" window)))
       (connect about "triggered()" window "about()")
@@ -98,6 +103,10 @@
 
 (defun mw-quit (window)
   (#_close window))
+
+(defun mw-curve (window)
+  (declare (ignore window))
+  (with-dialog (dialog (make-instance 'curve-dialog))))
 
 (defun mw-about (window)
   (let ((parasol (asdf:find-system :parasol)))
