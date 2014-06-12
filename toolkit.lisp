@@ -48,3 +48,9 @@
         (format T "~& Deleting QObject: ~a~%" object)
         (optimized-delete object))
       (format T "~& Deleting QObject: WARN Tried to delete NIL~%")))
+
+(defmacro with-dialog ((var instance-form) &body setup-forms)
+  `(with-objects ((,var ,instance-form))
+     ,@setup-forms
+     (#_exec ,var)
+     (finalize ,var)))
