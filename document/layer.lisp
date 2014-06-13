@@ -10,9 +10,6 @@
 (defparameter *layer-block-size* 500)
 (defparameter *layer-block-border* 200)
 (defparameter *presample-history* 20)
-;; Maybe switch to a different system
-;; that uses a map of blocks instead of one
-;; big one? But then how do I know where to draw...
 
 (defclass layer ()
   ((%width :initform 0 :accessor width)
@@ -99,7 +96,7 @@
   layer)
 
 (defmethod end-stroke ((layer layer))
-  (recache layer))
+  )
 
 (defmethod truncate-history ((layer layer))
   (loop for i from (fill-pointer (strokes layer))
