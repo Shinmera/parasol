@@ -40,6 +40,7 @@
           (distance dialog) distance)
     (#_setValue distance 2.0)
     (#_setMinimum distance 0.1)
+    (#_setMaximum distance 200)
     (#_addItem picker "spline")
     (#_addItem picker "linear") ;; Automate at some point.
     (#_addWidget layout picker 0 0 1 2)
