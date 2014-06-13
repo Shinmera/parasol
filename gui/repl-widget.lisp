@@ -29,18 +29,18 @@
     (connect (input widget) "returnPressed()" widget "replEval()")))
 
 (defmethod repl-eval ((widget repl-widget))
-  
-  (handler-case
-      (let ((read (read-from-string (#_text (input widget)))))
-        (handler-case
-            (#_setPlaceholderText
-             (input widget) (princ-to-string (eval read)))
-          (error (err)
-            (#_setPlaceholderText
-             (input widget) (format NIL "; EVAL error: ~a" err)))))
-    (error (err)
-      (#_setPlaceholderText
-       (input widget) (format NIL "; READ error: ~a" err))))
+  (let ((*package* (find-package "PARASOL")))
+    (handler-case
+        (let ((read (read-from-string (#_text (input widget)))))
+          (handler-case
+              (#_setPlaceholderText
+               (input widget) (princ-to-string (eval read)))
+            (error (err)
+              (#_setPlaceholderText
+               (input widget) (format NIL "; EVAL error: ~a" err)))))
+      (error (err)
+        (#_setPlaceholderText
+         (input widget) (format NIL "; READ error: ~a" err)))))
   (#_clear (input widget))
   (#_clearFocus (input widget)))
 
