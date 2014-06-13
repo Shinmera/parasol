@@ -7,12 +7,16 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(defvar *curve-type* 'spline)
+(defvar *curve-type* 'linear)
 
 (defclass stroke ()
   ((%curve :initform (make-curve *curve-type*) :accessor curve)
    (%brush :initform (assume-form (current-brush *window*)) :accessor brush)
    (%last-index :initform 0 :accessor last-index)))
+
+(defmethod initialize-instance :after ((stroke stroke) &key)
+  (setf (point-distance (curve stroke))
+        (point-distance (brush stroke))))
 
 (defmethod draw ((stroke stroke) painter)
   "Redraws the full STROKE using the PAINTER object."
@@ -24,16 +28,7 @@
   (:method ((stroke stroke) painter)
     (let ((point-amount (point-amount (curve stroke))))
       (when (< 0 point-amount)
-        (#_setColor (#_brush painter) (base-color (brush stroke)))
-        (#_setColor (#_pen painter) (base-color (brush stroke)))
-        (map-points (curve stroke)
-                    #'(lambda (x y xt yt p)
-                        (declare (ignore xt yt))
-                        (let ((len (* p (base-size (brush stroke)))))
-                          (with-objects ((point (#_new QPointF x y)))
-                            (#_drawEllipse painter point len len))))
-                    :from (last-index stroke)
-                    :to point-amount)
+        (draw-curve (brush stroke) painter (curve stroke) :from (last-index stroke) :to point-amount)
         (setf (last-index stroke) (1- point-amount))))))
 
 (defmethod record-point ((stroke stroke) x y xt yt p)
