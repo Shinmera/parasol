@@ -22,11 +22,15 @@
 (defclass curve-dialog ()
   ((%picker :accessor picker)
    (%canvas :accessor canvas)
-   (%distance :accessor distance))
+   (%distance :accessor distance)
+   (%button-ok :accessor button-ok)
+   (%button-cancel :accessor button-cancel))
   (:metaclass qt-class)
   (:qt-superclass "QDialog")
   (:slots ("selectCurve(const QString)" select-curve)
-          ("selectDistance(double)" select-distance)))
+          ("selectDistance(double)" select-distance)
+          ("ok()" ok)
+          ("cancel()" cancel)))
 
 (defmethod initialize-instance :after ((dialog curve-dialog) &key)
   (new dialog)
@@ -34,22 +38,30 @@
   (let ((layout (#_new QGridLayout))
         (picker (#_new QComboBox))
         (canvas (make-instance 'curve-dialog-canvas))
-        (distance (#_new QDoubleSpinBox)))
+        (distance (#_new QDoubleSpinBox))
+        (button-ok (#_new QPushButton "Ok"))
+        (button-cancel (#_new QPushButton "Cancel")))
     (setf (picker dialog) picker
           (canvas dialog) canvas
-          (distance dialog) distance)
+          (distance dialog) distance
+          (button-ok dialog) button-ok
+          (button-cancel dialog) button-cancel)
     (#_setValue distance 2.0)
     (#_setMinimum distance 0.1)
     (#_setMaximum distance 200)
     (#_addItem picker "spline")
     (#_addItem picker "linear") ;; Automate at some point.
-    (#_addWidget layout picker 0 0 1 2)
-    (#_addWidget layout distance 0 2 1 1)
-    (#_addWidget layout canvas 1 0 1 3)
+    (#_addWidget layout picker 0 0 1 3)
+    (#_addWidget layout distance 0 3 1 1)
+    (#_addWidget layout canvas 1 0 1 4)
+    (#_addWidget layout button-ok 2 0 1 2)
+    (#_addWidget layout button-cancel 2 2 1 2)
     (#_setLayout dialog layout)
     (#_setSizeConstraint (#_layout dialog) (#_QLayout::SetFixedSize))
     (connect picker "currentIndexChanged(const QString)" dialog "selectCurve(const QString)")
     (connect distance "valueChanged(double)" dialog "selectDistance(double)")
+    (connect button-ok "clicked()" dialog "ok()")
+    (connect button-cancel "clicked()" dialog "cancel()")
     (select-curve dialog "spline")))
 
 (defmethod select-curve ((dialog curve-dialog) name)
@@ -95,6 +107,13 @@
                    (#_drawEllipse painter point 2 2))))
       (#_end painter))))
 
+(defmethod ok ((dialog curve-dialog))
+  (setf *curve-type* (class-name (class-of (curve (canvas dialog)))))
+  (#_close dialog))
+
+(defmethod cancel ((dialog curve-dialog))
+  (#_close dialog))
+
 (defmethod finalize ((canvas curve-dialog-canvas))
   (finalize (curve canvas)))
 
@@ -102,4 +121,6 @@
   (finalize (canvas dialog))
   (maybe-delete-qobject (distance dialog))
   (maybe-delete-qobject (picker dialog))
-  (maybe-delete-qobject (canvas dialog)))
+  (maybe-delete-qobject (canvas dialog))
+  (maybe-delete-qobject (button-ok dialog))
+  (maybe-delete-qobject (button-cancel dialog)))
