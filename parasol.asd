@@ -24,7 +24,8 @@
                              (:file "spline")
                              (:file "linear")))
                (:module "brushes"
-                :components ((:file "brush")))
+                :components ((:file "brush")
+                             (:file "texture-brush")))
                (:module "document"
                 :components ((:file "stroke")
                              (:file "layer")
@@ -44,4 +45,5 @@
                (:file "parasol"))
   :depends-on (:qt
                :cl-opengl
-               :uiop))
+               :uiop
+               :closer-mop))
