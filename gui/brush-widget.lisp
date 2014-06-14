@@ -50,7 +50,11 @@
             (#_addWidget (brush-layout widget) element)))))))
 
 (defmethod finalize ((widget brush-widget))
-  (finalize (size widget))
+  (dolist (element (brush-elements widget))
+    (finalize element)
+    (maybe-delete-qobject element))
   (maybe-delete-qobject (brush widget))
-  (setf (size widget) NIL
+  (maybe-delete-qobject (brush-layout widget))
+  (setf (brush-layout widget) NIL
+        (brush-elements widget) NIL
         (brush widget) NIL))

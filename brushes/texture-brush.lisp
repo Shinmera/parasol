@@ -10,7 +10,10 @@
 (defclass texture-brush (abstract-brush)
   ((%name :initform "Texture Brush" :accessor name)
    (%point-distance :initarg :point-distance :initform 32 :accessor point-distance)
-   (%texture :initarg :texture :initform (error "Texture Required") :accessor texture)))
+   (%texture-scale :initarg :texture-scale :initform 1.0 :accessor texture-scale)
+   (%texture :initarg :texture :initform (error "Texture Required") :accessor texture))
+  (:metaclass brush-class)
+  (:fields (texture-scale :type :float :range (0.01 2.00))))
 
 (defmethod draw-point ((brush texture-brush) painter x y xt yt p)
   (declare (ignore xt yt))
@@ -29,8 +32,10 @@
 
 (defclass pepper-brush (texture-brush brush)
   ((%name :initform "Pepper Brush" :accessor name)
-   (%texture :initarg :texture :initform (#_new QImage (uiop:native-namestring (merge-pathnames "pepper.png" *graphics*))) :accessor texture)))
+   (%texture :initarg :texture :initform (#_new QImage (uiop:native-namestring (merge-pathnames "pepper.png" *graphics*))) :accessor texture))
+  (:metaclass brush-class))
 
 (defclass jalapeno-brush (texture-brush brush)
   ((%name :initform "Jalapeno Brush" :accessor name)
-   (%texture :initarg :texture :initform (#_new QImage (uiop:native-namestring (merge-pathnames "jalapeno.png" *graphics*))) :accessor texture)))
+   (%texture :initarg :texture :initform (#_new QImage (uiop:native-namestring (merge-pathnames "jalapeno.png" *graphics*))) :accessor texture))
+  (:metaclass brush-class))

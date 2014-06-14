@@ -7,16 +7,32 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
+;; Manual computation of fields;
+;; Fields need to be inherited (and appended) always, unless specified with empty clause.
 (defclass brush-class (standard-class)
   ((fields :initform () :initarg :fields :accessor class-fields)))
+
+(defmethod c2mop:validate-superclass ((class brush-class) (superclass t))
+  nil)
+
+(defmethod c2mop:validate-superclass ((class standard-class) (superclass brush-class))
+  nil)
+
+(defmethod c2mop:validate-superclass ((class brush-class) (superclass standard-class))
+  t)
+
+(defmethod c2mop:validate-superclass ((class brush-class) (superclass brush-class))
+  t)
 
 (defclass abstract-brush ()
   ((%name :initform "Abstract Brush" :accessor name)
    (%base-color :initarg :base-color :initform NIL :accessor base-color)
-   (%point-distance :initarg :point-distance :initform 2 :accessor point-distance)))
+   (%point-distance :initarg :point-distance :initform 2 :accessor point-distance))
+  (:metaclass brush-class))
 
 (defclass brush (abstract-brush)
-  ((%name :initform "Unnamed Brush" :accessor name)))
+  ((%name :initform "Unnamed Brush" :accessor name))
+  (:metaclass brush-class))
 
 (defmethod assume-form ((brush abstract-brush))
   (make-instance (class-name (class-of brush))
