@@ -48,7 +48,8 @@
   ((%name :initform "Abstract Brush" :accessor name)
    (%base-color :initarg :base-color :initform NIL :accessor base-color)
    (%point-distance :initarg :point-distance :initform 2 :accessor point-distance))
-  (:metaclass brush-class))
+  (:metaclass brush-class)
+  (:fields (point-distance :type :integer :range (0.01 200.0))))
 
 (defclass brush (abstract-brush)
   ((%name :initform "Unnamed Brush" :accessor name))
@@ -79,9 +80,17 @@
     (unless (member opt allowed)
       (error "~a is not a valid option." opt))))
 
-(defmethod brush-ui ((brush abstract-brush))
-  (loop for field in (class-fields (class-of brush))
-        collect ()))
+(defgeneric build-brush-element (type name &key range &allow-other-keys)
+  (:method ((type (eql :integer)) name &key range))
+  (:method ((type (eql :float)) name &key range))
+  (:method ((type (eql :boolean)) name &key))
+  (:method ((type (eql :file)) name &key))
+  (:method ((type (eql :string)) name &key)))
+
+(defgeneric brush-ui (brush)
+  (:method ((brush abstract-brush))
+    (loop for field in (class-fields (class-of brush))
+          collect (apply #'build-brush-element (getf (cdr field) :type) (car field) (cdr field)))))
 
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
   (destructuring-bind (class-name &optional
