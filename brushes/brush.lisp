@@ -7,14 +7,16 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
+(defclass brush-class (standard-class)
+  ((fields :initform () :initarg :fields :accessor class-fields)))
+
 (defclass abstract-brush ()
   ((%name :initform "Abstract Brush" :accessor name)
-   (%base-size :initarg :base-size :initform 5 :accessor base-size)
    (%base-color :initarg :base-color :initform NIL :accessor base-color)
    (%point-distance :initarg :point-distance :initform 2 :accessor point-distance)))
 
 (defclass brush (abstract-brush)
-  ((%name :initform "Abstract Brush" :accessor name)))
+  ((%name :initform "Unnamed Brush" :accessor name)))
 
 (defmethod assume-form ((brush abstract-brush))
   (make-instance (class-name (class-of brush))
@@ -30,7 +32,7 @@
 
 (defmethod draw-point ((brush abstract-brush) painter x y xt yt p)
   (declare (ignore xt yt))
-  (let ((len (* p (base-size brush))))
+  (let ((len (* p 10)))
     (with-objects ((point (#_new QPointF x y)))
       (#_drawEllipse painter point len len))))
 
@@ -42,17 +44,15 @@
     (unless (member opt allowed)
       (error "~a is not a valid option." opt))))
 
-(defun build-brush-field (name &key default type range)
-  )
+(defmethod build-ui ((brush abstract-brush))
+  (loop for field in (class-fields (class-of brush))
+        collect (let (()))))
 
-(defmacro define-brush (name &body options)
+(defmacro define-brush (name direct-superclasses direct-slots &body options)
   (destructuring-bind (class-name &optional
                                     (name (string-downcase class-name))
                                     (package (make-symbol (format NIL "ORG.TYMOONNEXT.PARASOL.BRUSH.~a" class-name)))) (if (listp name) name (list name))
     (let ((fields (cdr (assoc :fields options)))
-          (field-data ())
-          (slots (cdr (assoc :slots options)))
-          (superclasses (cdr (assoc :superclasses options)))
           (documentation (cdr (assoc :documentation options)))
           (finalize (cdr (assoc :finalize options)))
           (draw (cdr (assoc :draw options)))
@@ -60,16 +60,14 @@
       (error-on-not-found (mapcar #'car options) '(:fields :slots :superclasses :documentation :finalize :draw :draw-point))
       (dolist (field fields)
         (destructuring-bind (name &key default type range) field
+          (declare (ignore default))
           (unless type (error "Field ~a has no type definition." name))
           (ecase type (:integer) (:float) (:file) (:string) (:boolean))
           (if range
               (unless (or (eq type :integer) (eq type :float))
                 (error "Field ~a is of type ~a and thus cannot have a range definition." name type))
               (when (or (eq type :integer) (eq type :float))
-                (error "Field ~a is of type ~a and thus requires a range definition." name type)))
-          
-          (push `(,name :initform ,default :accessor ,name) slots)
-          (push `(build-brush-field :name ',name :type type :default default :range ',range) field-data)))
+                (error "Field ~a is of type ~a and thus requires a range definition." name type)))))
       `(progn
          ,@(when package
              `((defpackage ,package
@@ -78,13 +76,13 @@
                  (:export ,(make-symbol (string class-name))))
                (in-package ,package)
                (named-readtables:in-readtable :qt)))
-         (defclass ,class-name (,@superclasses brush)
+         (defclass ,class-name (,@direct-superclasses)
            ((%name :initform ,name :accessor name)
-            ,@slots)
+            ,@direct-slots)
+           (:metaclass brush-class)
+           (:fields ,@fields)
            ,@(when documentation
                `((:documentation ,documentation))))
-         (defmethod build-ui ((,(gensym "BRUSH") ,class-name))
-           (list ,@field-data))
          ,@(when draw
              `((defmethod draw-curve ((,(caar draw) ,class-name) ,@(cdar draw))
                  ,@(cdr draw))))
