@@ -20,7 +20,6 @@
 
 (defmethod assume-form ((brush abstract-brush))
   (make-instance (class-name (class-of brush))
-                 :base-size (base-size brush)
                  :base-color (#_new QColor (color *window*))
                  :point-distance (point-distance brush)))
 
