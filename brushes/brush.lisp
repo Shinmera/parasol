@@ -7,8 +7,6 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-;; Manual computation of fields;
-;; Fields need to be inherited (and appended) always, unless specified with empty clause.
 (defclass brush-class (standard-class)
   ((fields :initform () :initarg :fields :accessor class-fields)))
 
@@ -23,6 +21,28 @@
 
 (defmethod c2mop:validate-superclass ((class brush-class) (superclass brush-class))
   t)
+
+(defun initialize-brush-class (class next-method &rest args &key direct-superclasses fields &allow-other-keys)
+  (let ((fields (append (loop with superfields
+                              for superclass in direct-superclasses
+                              do (loop for field in (class-fields superclass)
+                                       unless (or (find (car field) superfields :key #'car)
+                                                  (find (car field) fields :key #'car))
+                                         do (push field superfields))
+                              finally (return superfields))
+                        (remove :remove fields :test #'find))))
+    
+    (apply next-method
+           class
+           :allow-other-keys t
+           :fields fields
+           args)))
+
+(defmethod initialize-instance :around ((class brush-class) &rest args)
+  (apply #'initialize-brush-class class #'call-next-method args))
+
+(defmethod reinitialize-instance :around ((class brush-class) &rest args)
+  (apply #'initialize-brush-class class #'call-next-method args))
 
 (defclass abstract-brush ()
   ((%name :initform "Abstract Brush" :accessor name)
