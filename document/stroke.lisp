@@ -28,7 +28,7 @@
   (:method ((stroke stroke) painter)
     (let ((point-amount (point-amount (curve stroke))))
       (when (< 0 point-amount)
-        (draw-curve (brush stroke) painter (curve stroke) :from (last-index stroke) :to point-amount)
+        (draw-curve (brush stroke) painter (curve stroke) (last-index stroke) point-amount)
         (setf (last-index stroke) (1- point-amount))))))
 
 (defmethod record-point ((stroke stroke) x y xt yt p)
