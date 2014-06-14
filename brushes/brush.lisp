@@ -43,9 +43,9 @@
     (unless (member opt allowed)
       (error "~a is not a valid option." opt))))
 
-(defmethod build-ui ((brush abstract-brush))
+(defmethod brush-ui ((brush abstract-brush))
   (loop for field in (class-fields (class-of brush))
-        collect (let (()))))
+        collect ()))
 
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
   (destructuring-bind (class-name &optional
