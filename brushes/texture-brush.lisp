@@ -13,7 +13,7 @@
    (%texture-scale :initarg :texture-scale :initform 1.0 :accessor texture-scale)
    (%texture :initarg :texture :initform (error "Texture Required") :accessor texture))
   (:metaclass brush-class)
-  (:fields (texture-scale :type :float :range (0.01 2.00))))
+  (:fields (texture-scale :type :float :range (0.01 2.00) :slot %texture-scale)))
 
 (defmethod draw-point ((brush texture-brush) painter x y xt yt p)
   (declare (ignore xt yt))
