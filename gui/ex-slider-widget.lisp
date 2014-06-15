@@ -46,6 +46,7 @@
     (#_setValue spin-box (exs-default widget))
     (#_setText button (princ-to-string (exs-default widget)))
     (#_setFixedWidth button 50)
+    (#_setFixedWidth spin-box 70)
     (connect slider "valueChanged(int)" widget "update(int)")
     (connect slider "sliderReleased()" widget "release()")
     (if (= 1 divisor)
@@ -86,7 +87,7 @@
   (emit-signal widget "onRelease(int)" (#_value (exs-slider widget))))
 
 (defmethod exs-reset ((widget ex-slider-widget))
-  (#_setValue (exs-slider widget) (exs-default widget))
+  (#_setValue (exs-slider widget) (round (* (exs-divisor widget) (exs-default widget))))
   (#_setValue (exs-spin-box widget) (exs-default widget)))
 
 (defmethod value ((widget ex-slider-widget))
