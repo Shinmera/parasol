@@ -33,6 +33,7 @@
                              (:file "canvas")))
                (:module "gui"
                 :components ((:file "ex-slider-widget")
+                             (:file "file-chooser-widget")
                              (:file "brush-widget")
                              (:file "color-rgb-widget")
                              (:file "color-hsv-widget")
