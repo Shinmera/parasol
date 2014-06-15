@@ -27,7 +27,8 @@
                 :components ((:file "brush")
                              (:file "texture-brush")
                              (:file "rotational-brush")
-                             (:file "compositing-brush")))
+                             (:file "compositing-brush")
+                             (:file "complex-brush")))
                (:module "document"
                 :components ((:file "stroke")
                              (:file "layer")
