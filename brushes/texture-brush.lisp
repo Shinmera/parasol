@@ -17,7 +17,8 @@
 
 (defmethod draw-point ((brush texture-brush) painter x y xt yt p)
   (declare (ignore xt yt))
-  (let ((transform (#_new QTransform (#_worldTransform painter))))
+  (let ((transform (#_new QTransform (#_worldTransform painter)))
+        (p (* p (texture-scale brush))))
     (with-objects ((point (#_new QPointF
                                  (- x (* (#_width (texture brush)) p 1/2))
                                  (- y (* (#_height (texture brush)) p 1/2)))))
