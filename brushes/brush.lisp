@@ -25,15 +25,30 @@
 
 (defun compute-fields (class &key (direct-superclasses (c2mop:class-direct-superclasses class))
                                (fields (class-direct-fields class)))
-  (append (loop with superfields
-                for superclass in direct-superclasses
-                do (loop for field in (when (typep superclass 'brush-class)
-                                        (class-fields superclass))
-                         unless (or (find (car field) superfields :key #'car)
-                                    (find (car field) fields :key #'car))
-                           do (push field superfields))
-                finally (return superfields))
-          (remove :remove fields :test #'find)))
+  (let ((fields (append (loop with superfields
+                              for superclass in direct-superclasses
+                              do (loop for field in (when (typep superclass 'brush-class)
+                                                      (class-fields superclass))
+                                       unless (or (find (car field) superfields :key #'car)
+                                                  (find (car field) fields :key #'car))
+                                         do (push field superfields))
+                              finally (return superfields))
+                        (remove :remove fields :test #'find))))
+    (loop for field in fields
+          for setter = (getf (cdr field) :setter)
+          for slot = (getf (cdr field) :slot)
+          when setter
+            do (setf (getf (cdr field) :setter)
+                     (typecase setter
+                       (symbol (symbol-function setter))
+                       (function setter)
+                       (T (let ((*package* (find-package "PARASOL"))) (eval setter)))))
+          when slot
+            do (setf (getf (cdr field) :slot)
+                     (typecase slot
+                       (symbol slot)
+                       (T (let ((*package* (find-package "PARASOL"))) (eval setter))))))
+    fields))
 
 (defun cascade-field-changes (class)
   (setf (class-fields class) (compute-fields class))
@@ -109,6 +124,10 @@
   (dolist (opt list)
     (unless (member opt allowed)
       (error "~a is not a valid option." opt))))
+
+(defgeneric set-brush-slot (slot value)
+  (:method (slot value)
+    (setf (slot-value (current-brush *window*) slot) value)))
 
 (defgeneric build-brush-element (type name &key range &allow-other-keys))
 
