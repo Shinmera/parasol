@@ -32,6 +32,13 @@
   vector)
 
 ;; Qt helper stuff
+(defgeneric copy-qobject (qclass instance)
+  ;; QImage
+  (:method :before (qclass instance)
+    (format T "~& Copying QObject: ~a~%" instance))
+  (:method ((qclass (eql 11848)) instance)
+    (#_copy instance)))
+
 (defmacro qtenumcase (keyform &body forms)
   (let ((key (gensym "KEY")))
     `(let ((,key ,keyform))
@@ -71,3 +78,11 @@
      ,@setup-forms
      (#_exec ,var)
      (finalize ,var)))
+
+(defmacro with-transform ((painter-form) &body body)
+  (let ((painter (gensym "PAINTER"))
+        (transform (gensym "TRANSFORM")))
+    `(let ((,painter ,painter-form))
+       (let ((,transform (#_new QTransform (#_worldTransform ,painter))))
+         ,@body
+         (#_setWorldTransform ,painter ,transform)))))
