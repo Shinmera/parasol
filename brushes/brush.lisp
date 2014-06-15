@@ -68,7 +68,7 @@
    (%base-color :initarg :base-color :initform NIL :accessor base-color)
    (%point-distance :initarg :point-distance :initform 2 :accessor point-distance))
   (:metaclass brush-class)
-  (:fields (point-distance :type :float :range (0.01 200.0) :slot %point-distance)))
+  (:fields (point-distance :type :float :range (0.1 200.0 0.5) :slot %point-distance)))
 
 (defclass brush (abstract-brush)
   ((%name :initform "Unnamed Brush" :accessor name))
