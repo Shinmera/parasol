@@ -79,6 +79,15 @@
     (connect line "editingFinished()" element "change()")
     element))
 
+(defmethod build-brush-element ((type (eql :choice)) name &key choices (slot name) (setter #'set-brush-slot))
+  (let* ((combo (#_new QComboBox))
+         (element (make-instance 'brush-element :inner combo :name (string-downcase name)
+                                                :on-change #'(lambda (choice) (funcall setter slot choice)))))
+    (dolist (choice choices)
+      (#_addItem combo choice))
+    (connect combo "currentIndexChanged(const QString)" element "change(const QString)")
+    element))
+
 (defmethod brush-ui ((brush abstract-brush))
   (loop for field in (class-fields (class-of brush))
         collect (apply #'build-brush-element (getf (cdr field) :type) (car field) (cdr field))))
