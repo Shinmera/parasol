@@ -14,7 +14,8 @@
    (%chooser-label :initform (#_new QLineEdit) :accessor chooser-label))
   (:metaclass qt-class)
   (:qt-superclass "QWidget")
-  (:slots ("chooseFile()" file-chooser-choose)))
+  (:slots ("chooseFile()" file-chooser-choose))
+  (:signals ("fileChanged(const QString)")))
 
 (defmethod initialize-instance :after ((widget file-chooser-widget) &key)
   (new widget)
@@ -29,10 +30,11 @@
     (connect (chooser-button widget) "clicked()" widget "chooseFile()")))
 
 (defmethod file-chooser-choose ((widget file-chooser-widget))
-  (let ((path (#_QFileDialog::getOpenFileName widget "Open File" (uiop:native-namestring (file widget)) (filters widget))))
+  (let ((path (#_QFileDialog::getOpenFileName widget "Choose File" (uiop:native-namestring (file widget)) (filters widget))))
     (when (< 0 (length path))
       (setf (file widget) (uiop:parse-native-namestring path))
       (#_setText (chooser-label widget) path)
-      (#_setCursorPosition (chooser-label widget) 0))))
+      (#_setCursorPosition (chooser-label widget) 0)
+      (qt:emit-signal widget "fileChanged(const QString)" (uiop:native-namestring (file widget))))))
 
 
