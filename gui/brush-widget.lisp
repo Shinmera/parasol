@@ -40,14 +40,16 @@
     (when class-name
       (let ((brush (make-instance class-name)))
         (dolist (element (brush-elements widget))
-          (#_removeWidget (brush-layout widget) element)
-          (finalize element)
-          (maybe-delete-qobject element))
+          (when element
+            (#_removeWidget (brush-layout widget) element)
+            (finalize element)
+            (maybe-delete-qobject element)))
         (setf (current-brush *window*) brush)
         (let ((elements (brush-ui brush)))
           (setf (brush-elements widget) elements)
           (dolist (element elements)
-            (#_addWidget (brush-layout widget) element)))))))
+            (when element
+              (#_addWidget (brush-layout widget) element))))))))
 
 (defmethod finalize ((widget brush-widget))
   (dolist (element (brush-elements widget))
