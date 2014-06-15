@@ -8,7 +8,9 @@
 (named-readtables:in-readtable :qt)
 
 (defun %make-color-slider (color-widget)
-  (make-instance 'ex-slider-widget :max 255 :on-release #'(lambda (val) (declare (ignore val)) (color-rgb-widget-update color-widget))))
+  (let ((widget (make-instance 'ex-slider-widget :max 255)))
+    (connect widget "valueChanged(int)" color-widget "valueChanged(int)")
+    widget))
 
 (defclass color-rgb-widget ()
   ((%r :accessor r)
@@ -16,7 +18,8 @@
    (%b :accessor b)
    (%parent :initarg :parent :initform (error "Parent required") :accessor parent))
   (:metaclass qt-class)
-  (:qt-superclass "QWidget"))
+  (:qt-superclass "QWidget")
+  (:slots ("valueChanged(int)" color-rgb-widget-update)))
 
 (defmethod initialize-instance :after ((widget color-rgb-widget) &key)
   (new widget)
@@ -36,7 +39,8 @@
 (defmethod color ((widget color-rgb-widget))
   (#_new QColor (value (r widget)) (value (g widget)) (value (b widget))))
 
-(defun color-rgb-widget-update (widget)
+(defun color-rgb-widget-update (widget &rest ignore)
+  (declare (ignore ignore))
   (color-widget-update (parent widget) (color widget)))
 
 (defmethod color-widget-update ((widget color-rgb-widget) new-color)
