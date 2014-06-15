@@ -43,11 +43,28 @@
            (qobject-deleted object))))
 
 (defun maybe-delete-qobject (object)
-  (if object
+  (if (typep object 'abstract-qobject)
       (when (qobject-alive-p object)
         (format T "~& Deleting QObject: ~a~%" object)
         (optimized-delete object))
-      (format T "~& Deleting QObject: WARN Tried to delete NIL~%")))
+      (format T "~& Deleting QObject: WARN Tried to delete non-qobject ~a~%" object)))
+
+(defun finalize-and-delete (object)
+  (finalize object)
+  (when (typep object 'abstract-qobject)
+    (maybe-delete-qobject object))
+  object)
+
+(defmacro cleanup ((instance-form) &rest accessors)
+  (let ((instance (gensym "INSTANCE")))
+    `(let ((,instance ,instance-form))
+       ,@(loop for accessor in accessors
+               collect `(finalize-and-delete (,accessor ,instance)))
+       (setf ,@(loop with stuff = ()
+                     for accessor in accessors
+                     do (push NIL stuff)
+                        (push `(,accessor ,instance) stuff)
+                     finally (return stuff))))))
 
 (defmacro with-dialog ((var instance-form) &body setup-forms)
   `(with-objects ((,var ,instance-form))
