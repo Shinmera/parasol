@@ -33,11 +33,14 @@
 
 ;; Qt helper stuff
 (defgeneric copy-qobject (qclass instance)
-  ;; QImage
   (:method :before (qclass instance)
     (format T "~& Copying QObject: ~a~%" instance))
-  (:method ((qclass (eql 11848)) instance)
-    (#_copy instance)))
+  ;; QImage
+  (:method ((qclass (eql 11848)) instance) 
+    (#_copy instance))
+  ;; QColor
+  (:method ((qclass (eql 3976)) instance)
+    (#_new QColor instance)))
 
 (defmacro qtenumcase (keyform &body forms)
   (let ((key (gensym "KEY")))
