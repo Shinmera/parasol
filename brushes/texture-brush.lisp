@@ -40,3 +40,15 @@
   ((%name :initform "Jalapeno Brush" :accessor name)
    (%texture :initarg :texture :initform (#_new QImage (uiop:native-namestring (merge-pathnames "jalapeno.png" *graphics*))) :accessor texture))
   (:metaclass brush-class))
+
+(defun set-brush-texture (slot path)
+  (let ((curtex (slot-value (current-brush *window*) slot)))
+    (when curtex (finalize-and-delete curtex)))
+  (setf (slot-value (current-brush *window*) slot)
+        (#_new QImage (uiop:native-namestring path))))
+
+(defclass textured-brush (texture-brush brush)
+  ((%name :initform "Textured Brush" :accessor name)
+   (%texture :initarg :texture :initform NIL :accessor texture))
+  (:metaclass brush-class)
+  (:fields (texture :type :file :slot %texture :setter #'set-brush-texture)))
