@@ -17,15 +17,12 @@
 
 (defmethod draw-point ((brush texture-brush) painter x y xt yt p)
   (declare (ignore xt yt))
-  (let ((transform (#_new QTransform (#_worldTransform painter)))
-        (p (* p (texture-scale brush))))
+  (let ((p (* p (texture-scale brush))))
     (with-objects ((point (#_new QPointF
-                                 (- x (* (#_width (texture brush)) p 1/2))
-                                 (- y (* (#_height (texture brush)) p 1/2)))))
-      (#_translate painter point)
+                                 (* (#_width (texture brush)) -1/2)
+                                 (* (#_height (texture brush)) -1/2))))
       (#_scale painter p p)
-      (#_drawImage painter 0 0 (texture brush)))
-    (#_setWorldTransform painter transform)))
+      (#_drawImage painter point (texture brush)))))
 
 (defmethod finalize ((brush texture-brush))
   (maybe-delete-qobject (texture brush))
@@ -51,4 +48,5 @@
   ((%name :initform "Textured Brush" :accessor name)
    (%texture :initarg :texture :initform NIL :accessor texture))
   (:metaclass brush-class)
-  (:fields (texture :type :file :slot %texture :setter #'set-brush-texture)))
+  (:fields (texture :type :file :slot %texture :setter #'set-brush-texture
+                    :filters "Image Files (*.png *.jpg *.jpeg *.bmp")))

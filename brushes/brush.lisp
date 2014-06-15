@@ -92,19 +92,29 @@
 (defmethod draw-curve ((brush abstract-brush) painter curve from to)
   (#_setColor (#_brush painter) (base-color brush))
   (#_setColor (#_pen painter) (base-color brush))
-  (map-points curve #'(lambda (x y xt yt p) (draw-point brush painter x y xt yt p))
+  (map-points curve #'(lambda (x y xt yt p)
+                        (with-transform (painter)
+                          (with-objects ((point (#_new QPointF x y)))
+                            (#_translate painter point)
+                            (draw-point brush painter x y xt yt p))))
               :from from :to to))
 
 (defmethod draw-point ((brush abstract-brush) painter x y xt yt p)
   (declare (ignore xt yt))
   (let ((len (* p 10)))
-    (with-objects ((point (#_new QPointF x y)))
+    (with-objects ((point (#_new QPointF 0 0)))
       (#_drawEllipse painter point len len))))
 
 (defun slot-initarg (class slot)
   (first (c2mop:slot-definition-initargs
           (find slot (c2mop:class-slots class)
                 :key #'c2mop:slot-definition-name))))
+
+(defmethod assume-form (thing)
+  thing)
+
+(defmethod assume-form ((object qobject))
+  (copy-qobject (qt::qobject-class object) object))
 
 (defmethod assume-form ((brush abstract-brush))
   (apply #'make-instance
@@ -113,7 +123,7 @@
          (loop with args
                for field in (class-fields (class-of brush))
                do (destructuring-bind (name &key (slot name) &allow-other-keys) field
-                    (push (slot-value brush slot) args)
+                    (push (assume-form (slot-value brush slot)) args)
                     (push (slot-initarg (class-of brush) slot) args))
                finally (return args))))
 
