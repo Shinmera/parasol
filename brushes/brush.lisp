@@ -74,11 +74,6 @@
   ((%name :initform "Unnamed Brush" :accessor name))
   (:metaclass brush-class))
 
-(defmethod assume-form ((brush abstract-brush))
-  (make-instance (class-name (class-of brush))
-                 :base-color (#_new QColor (color *window*))
-                 :point-distance (point-distance brush)))
-
 (defmethod draw-curve ((brush abstract-brush) painter curve from to)
   (#_setColor (#_brush painter) (base-color brush))
   (#_setColor (#_pen painter) (base-color brush))
@@ -90,6 +85,22 @@
   (let ((len (* p 10)))
     (with-objects ((point (#_new QPointF x y)))
       (#_drawEllipse painter point len len))))
+
+(defun slot-initarg (class slot)
+  (first (c2mop:slot-definition-initargs
+          (find slot (c2mop:class-slots class)
+                :key #'c2mop:slot-definition-name))))
+
+(defmethod assume-form ((brush abstract-brush))
+  (apply #'make-instance
+         (class-name (class-of brush))
+         :base-color (#_new QColor (color *window*))
+         (loop with args
+               for field in (class-fields (class-of brush))
+               do (destructuring-bind (name &key (slot name) &allow-other-keys) field
+                    (push (slot-value brush slot) args)
+                    (push (slot-initarg (class-of brush) slot) args))
+               finally (return args))))
 
 (defmethod finalize ((brush abstract-brush))
   (maybe-delete-qobject (base-color brush)))
