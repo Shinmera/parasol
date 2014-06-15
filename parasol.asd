@@ -25,7 +25,9 @@
                              (:file "linear")))
                (:module "brushes"
                 :components ((:file "brush")
-                             (:file "texture-brush")))
+                             (:file "texture-brush")
+                             (:file "rotational-brush")
+                             (:file "compositing-brush")))
                (:module "document"
                 :components ((:file "stroke")
                              (:file "layer")
