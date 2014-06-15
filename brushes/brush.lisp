@@ -8,7 +8,8 @@
 (named-readtables:in-readtable :qt)
 
 (defclass brush-class (standard-class)
-  ((fields :initform () :initarg :fields :accessor class-fields)))
+  ((direct-fields :initform () :initarg :fields :accessor class-direct-fields)
+   (fields :initform () :accessor class-fields)))
 
 (defmethod c2mop:validate-superclass ((class brush-class) (superclass t))
   nil)
@@ -22,16 +23,28 @@
 (defmethod c2mop:validate-superclass ((class brush-class) (superclass brush-class))
   t)
 
+(defun compute-fields (class &key (direct-superclasses (c2mop:class-direct-superclasses class))
+                               (fields (class-direct-fields class)))
+  (append (loop with superfields
+                for superclass in direct-superclasses
+                do (loop for field in (when (typep superclass 'brush-class)
+                                        (class-fields superclass))
+                         unless (or (find (car field) superfields :key #'car)
+                                    (find (car field) fields :key #'car))
+                           do (push field superfields))
+                finally (return superfields))
+          (remove :remove fields :test #'find)))
+
+(defun cascade-field-changes (class)
+  (setf (class-fields class) (compute-fields class))
+  (loop for sub-class in (c2mop:class-direct-subclasses class)
+        when (and (typep sub-class 'brush-class)
+                  (c2mop:class-finalized-p sub-class))
+          do (cascade-field-changes sub-class)))
+
 (defun initialize-brush-class (class next-method &rest args &key direct-superclasses fields &allow-other-keys)
-  (let ((fields (append (loop with superfields
-                              for superclass in direct-superclasses
-                              do (loop for field in (class-fields superclass)
-                                       unless (or (find (car field) superfields :key #'car)
-                                                  (find (car field) fields :key #'car))
-                                         do (push field superfields))
-                              finally (return superfields))
-                        (remove :remove fields :test #'find))))
-    
+  (let ((computed-fields (compute-fields class :fields fields :direct-superclasses direct-superclasses)))
+    (setf (class-fields class) computed-fields)
     (apply next-method
            class
            :allow-other-keys t
@@ -44,12 +57,18 @@
 (defmethod reinitialize-instance :around ((class brush-class) &rest args)
   (apply #'initialize-brush-class class #'call-next-method args))
 
+(defmethod c2mop:finalize-inheritance :after ((class brush-class))
+  (dolist (super (c2mop:class-direct-superclasses class))
+    (unless (c2mop:class-finalized-p super)
+      (c2mop:finalize-inheritance super)))
+  (cascade-field-changes class))
+
 (defclass abstract-brush ()
   ((%name :initform "Abstract Brush" :accessor name)
    (%base-color :initarg :base-color :initform NIL :accessor base-color)
    (%point-distance :initarg :point-distance :initform 2 :accessor point-distance))
   (:metaclass brush-class)
-  (:fields (point-distance :type :integer :range (0.01 200.0))))
+  (:fields (point-distance :type :float :range (0.01 200.0) :slot %point-distance)))
 
 (defclass brush (abstract-brush)
   ((%name :initform "Unnamed Brush" :accessor name))
@@ -80,12 +99,7 @@
     (unless (member opt allowed)
       (error "~a is not a valid option." opt))))
 
-(defgeneric build-brush-element (type name &key range &allow-other-keys)
-  (:method ((type (eql :integer)) name &key range))
-  (:method ((type (eql :float)) name &key range))
-  (:method ((type (eql :boolean)) name &key))
-  (:method ((type (eql :file)) name &key))
-  (:method ((type (eql :string)) name &key)))
+(defgeneric build-brush-element (type name &key range &allow-other-keys))
 
 (defgeneric brush-ui (brush)
   (:method ((brush abstract-brush))
@@ -103,8 +117,7 @@
           (draw-point (cdr (assoc :draw-point options))))
       (error-on-not-found (mapcar #'car options) '(:fields :slots :superclasses :documentation :finalize :draw :draw-point))
       (dolist (field fields)
-        (destructuring-bind (name &key default type range) field
-          (declare (ignore default))
+        (destructuring-bind (name &key type range &allow-other-keys) field
           (unless type (error "Field ~a has no type definition." name))
           (ecase type (:integer) (:float) (:file) (:string) (:boolean))
           (if range
