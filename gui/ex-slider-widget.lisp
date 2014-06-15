@@ -14,14 +14,14 @@
    (%max :initform 100 :initarg :max :accessor exs-max)
    (%min :initform 0 :initarg :min :accessor exs-min)
    (%step :initform 1 :initarg :step :accessor exs-step)
-   (%default :initform 0 :initarg :default :accessor exs-default)
-   (%on-change :initform #'(lambda (x) (declare (ignore x))) :initarg :on-change :accessor exs-on-change)
-   (%on-release :initform #'(lambda (x) (declare (ignore x))) :initarg :on-release :accessor exs-on-release))
+   (%default :initform 0 :initarg :default :accessor exs-default))
   (:metaclass qt-class)
   (:qt-superclass "QWidget")
   (:slots ("update(int)" exs-update)
           ("release()" exs-release)
-          ("reset()" exs-reset)))
+          ("reset()" exs-reset))
+  (:signals ("valueChanged(int)")
+            ("onRelease(int)")))
 
 (defmethod initialize-instance :after ((widget ex-slider-widget) &key)
   (new widget)
@@ -51,12 +51,15 @@
 (defmethod exs-update ((widget ex-slider-widget) value)
   (when (or (/= (#_value (exs-slider widget)) value)
             (/= (#_value (exs-spin-box widget)) value))
+    (when (and (= (#_value (exs-spin-box widget)) value)
+               (/= (#_value (exs-slider widget)) value))
+      (emit-signal widget "onRelease(int)" value))
     (#_setValue (exs-slider widget) value)
     (#_setValue (exs-spin-box widget) value)
-    (funcall (exs-on-change widget) value)))
+    (emit-signal widget "valueChanged(int)" value)))
 
 (defmethod exs-release ((widget ex-slider-widget))
-  (funcall (exs-on-release widget) (#_value (exs-slider widget))))
+  (emit-signal widget "onRelease(int)" (#_value (exs-slider widget))))
 
 (defmethod exs-reset ((widget ex-slider-widget))
   (#_setValue (exs-slider widget) (exs-default widget))
@@ -75,6 +78,4 @@
         (exs-max widget) NIL
         (exs-min widget) NIL
         (exs-step widget) NIL
-        (exs-default widget) NIL
-        (exs-on-change widget) NIL
-        (exs-on-release widget) NIL))
+        (exs-default widget) NIL))
