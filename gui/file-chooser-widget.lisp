@@ -30,7 +30,7 @@
     (connect (chooser-button widget) "clicked()" widget "chooseFile()")))
 
 (defmethod file-chooser-choose ((widget file-chooser-widget))
-  (let ((path (#_QFileDialog::getOpenFileName widget "Choose File" (uiop:native-namestring (file widget)) (filters widget))))
+  (let ((path (#_QFileDialog::getOpenFileName widget "Choose File" (uiop:native-namestring (or (file widget) (user-homedir-pathname))) (filters widget))))
     (when (< 0 (length path))
       (setf (file widget) (uiop:parse-native-namestring path))
       (#_setText (chooser-label widget) path)
