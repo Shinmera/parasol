@@ -10,6 +10,7 @@
 (defparameter *compositing-mode-map*
   (let ((map (make-hash-table :test 'equalp)))
     (loop for (key val) in '(("Normal" 0)
+                             ("Erase" 8)
                              ("Lock Alpha" 9)
                              ("Multiply" 13)
                              ("Screen" 14)
@@ -29,7 +30,7 @@
   ((%name :initform "Compositing Brush" :accessor name)
    (%mode :initform 0 :initarg :mode :accessor mode))
   (:metaclass brush-class)
-  (:fields (mode :type :choice :choices ("Normal" "Lock Alpha" "Multiply" "Screen" "Overlay" "Darken" "Lighten" "Dodge" "Burn" "Hard Light" "Soft Light" "Difference" "Exclusion") :slot %mode
+  (:fields (mode :type :choice :choices ("Normal" "Erase" "Lock Alpha" "Multiply" "Screen" "Overlay" "Darken" "Lighten" "Dodge" "Burn" "Hard Light" "Soft Light" "Difference" "Exclusion") :slot %mode
                  :setter #'(lambda (slot value)
                              (set-brush-slot slot (gethash value *compositing-mode-map*))))))
 
