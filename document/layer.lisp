@@ -60,7 +60,7 @@
                             required-height
                             (progn (decf off-y required-height)
                                    (+ (height layer) required-height))))))
-      (format T "~a Fitting ~a,~a with new bounds ~a,~a ~a/~a~%" layer x y off-x off-y width height)
+      (v:debug :layer "~a Fitting ~a,~a with new bounds ~a,~a ~a/~a~%" layer x y off-x off-y width height)
       (let* ((pixmap (#_new QImage width height (#_QImage::Format_ARGB32_Premultiplied)))
              (painter (#_new QPainter pixmap))
              (transparent (#_new QColor 0 0 0 0)))

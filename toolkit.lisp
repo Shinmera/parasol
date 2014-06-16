@@ -34,7 +34,7 @@
 ;; Qt helper stuff
 (defgeneric copy-qobject (qclass instance)
   (:method :before (qclass instance)
-    (format T "~& Copying QObject: ~a~%" instance))
+    (v:debug :cleanup "Copying QObject: ~a" instance))
   ;; QImage
   (:method ((qclass (eql 11848)) instance) 
     (#_copy instance))
@@ -55,9 +55,9 @@
 (defun maybe-delete-qobject (object)
   (if (typep object 'abstract-qobject)
       (when (qobject-alive-p object)
-        (format T "~& Deleting QObject: ~a~%" object)
+        (v:debug :cleanup "Deleting QObject: ~a" object)
         (optimized-delete object))
-      (format T "~& Deleting QObject: WARN Tried to delete non-qobject ~a~%" object)))
+      (v:debug :cleanup "Deleting QObject: WARN Tried to delete non-qobject ~a" object)))
 
 (defun finalize-and-delete (object)
   (finalize object)

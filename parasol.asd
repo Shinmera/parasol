@@ -51,4 +51,5 @@
   :depends-on (:qt
                :cl-opengl
                :uiop
-               :closer-mop))
+               :closer-mop
+               :verbose))

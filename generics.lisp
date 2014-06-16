@@ -68,7 +68,7 @@ FINALIZE call as well, making them too unsafe to use.
 Unless overridden, this is a NO-OP.")
   (:method (object))
   (:method :before (object)
-    (format T "~& Finalizing: ~a~%" object)))
+    (v:debug :cleanup "Finalizing: ~a" object)))
 
 (defgeneric destroy (object)
   (:documentation "Requests that the object be destroyed.

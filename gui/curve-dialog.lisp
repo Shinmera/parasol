@@ -68,7 +68,6 @@
   (let ((class-name (find-symbol (string-upcase name) "PARASOL")))
     (when class-name
       (let ((curve (make-curve class-name)))
-        (format T "NEW CURVE: ~a~%" curve)
         (setf (point-distance curve) (#_value (distance dialog)))
         (record-point curve 20  150 0 0 0)
         (record-point curve 100 220 0 0 0.5)
