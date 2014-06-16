@@ -17,50 +17,70 @@
   (new widget))
 
 (defclass layer-widget ()
-  ((%list-widget :accessor list-widget))
+  ((%list-widget :accessor list-widget)
+   (%opacity :accessor opacity)
+   (%mode :accessor mode))
   (:metaclass qt-class)
   (:qt-superclass "QWidget")
   (:slots ("addLayer()" add-layer)
           ("removeLayer()" remove-layer)
-          ("activateLayer(int)" activate-layer)))
+          ("activateLayer(int)" activate-layer)
+          ("changeMode(const QString)" change-mode)
+          ("changeOpacity(double)" change-opacity)))
 
 (defmethod initialize-instance :after ((widget layer-widget) &key)
   (new widget)
   (let ((layout (#_new QGridLayout))
         (list (make-instance 'layer-list-widget))
         (button-add (#_new QPushButton "+"))
-        (button-remove (#_new QPushButton "-")))
+        (button-remove (#_new QPushButton "-"))
+        (mode (#_new QComboBox))
+        (opacity (make-instance 'ex-slider-widget :max 1.0 :step 0.1 :divisor 100)))
+    (setf (list-widget widget) list
+          (opacity widget) opacity
+          (mode widget) mode)
     (#_setDragDropMode list (#_QAbstractItemView::InternalMove))
     (#_setSelectionMode list (#_QAbstractItemView::SingleSelection))
+    (loop for key being the hash-keys of *compositing-mode-map*
+          do (#_addItem mode key))
     (#_addWidget layout (#_new QLabel "Layers") 0 0 1 2)
     (#_addWidget layout list 1 0 1 2)
-    (#_addWidget layout button-add 2 0)
-    (#_addWidget layout button-remove 2 1)
+    (#_addWidget layout opacity 2 0 1 2)
+    (#_addWidget layout mode 3 0 1 2)
+    (#_addWidget layout button-add 4 0)
+    (#_addWidget layout button-remove 4 1)
     (#_setLayout widget layout)
     (connect button-add "clicked()" widget "addLayer()")
     (connect button-remove "clicked()" widget "removeLayer()")
     (connect list "currentRowChanged(int)" widget "activateLayer(int)")
-    (setf (list-widget widget) list)))
+    (connect opacity "valueChanged(double)" widget "changeOpacity(double)")
+    (connect mode "currentIndexChanged(const QString)" widget "changeMode(const QString)")))
 
 (defun update-layer-widget ()
   (with-objects ((size (#_new QSize 10 30)))
-    (let ((widget (list-widget (layer-widget *window*)))
-          (document (current-document *window*)))
-      (#_clear widget)
+    (let* ((widget (layer-widget *window*))
+           (list (list-widget widget))
+           (document (current-document *window*)))
+      (#_clear list)
       ;; insert reverse
       (loop for i downfrom (1- (length (layers document))) to 0
             for layer = (aref (layers document) i)
             do (let ((item (#_new QListWidgetItem (name layer))))
                  (#_setSizeHint item size)
-                 (#_addItem widget item)))
-      (when (< (#_currentRow widget) 0)
-        (#_setCurrentRow widget 0)))))
+                 (#_addItem list item)))
+      (#_setCurrentRow list (min (- (length (layers document))
+                                    (active-layer-index (canvas document)))
+                                 (1- (length (layers document)))))
+      (setf (value (opacity widget)) (opacity (active-layer document)))
+      (#_setCurrentIndex (mode widget) (position (mode (active-layer document))
+                                                 *compositing-mode-list*
+                                                 :key #'second)))))
 
 ;; Hook into document change
 (defmethod make-active :after ((document document))
   (update-layer-widget))
 
-(defmethod add-layer ((widget layer-widget) &key name mode)
+(defmethod add-layer ((widget layer-widget) &key name)
   (declare (ignore name mode))
   (add-layer (current-document *window*))
   (update-layer-widget))
@@ -77,9 +97,23 @@
 
 (defmethod activate-layer ((widget layer-widget) index)
   (unless (< index 0)
-    ;; Reverse index again
-    (setf (active-layer (current-document *window*))
-          (- (length (layers (current-document *window*))) 1 index))))
+    (let ((document (current-document *window*)))
+      ;; Reverse index again
+      (setf (active-layer document)
+            (- (length (layers document)) 1 index))
+      (setf (value (opacity widget)) (opacity (active-layer document)))
+      (#_setCurrentIndex (mode widget) (position (mode (active-layer document))
+                                                 *compositing-mode-list*
+                                                 :key #'second)))))
+
+(defmethod change-opacity ((widget layer-widget) opacity)
+  (setf (opacity (active-layer (current-document *window*))) opacity)
+  (#_update (current-document *window*)))
+
+(defmethod change-mode ((widget layer-widget) mode-name)
+  (let ((mode-int (gethash mode-name *compositing-mode-map*)))
+    (setf (mode (active-layer (current-document *window*))) mode-int))
+  (#_update (current-document *window*)))
 
 (defmethod drop-event ((widget layer-list-widget) event)
   ;; We can't call the qt-superclass' method here, unfortunately.
@@ -94,5 +128,4 @@
     (#_setCurrentRow widget insert-row)))
 
 (defmethod finalize ((widget layer-widget))
-  (maybe-delete-qobject (list-widget widget))
-  (setf (list-widget widget) NIL))
+  (cleanup (widget) list-widget mode opacity))
