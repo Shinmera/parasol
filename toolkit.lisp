@@ -89,3 +89,22 @@
        (let ((,transform (#_new QTransform (#_worldTransform ,painter))))
          ,@body
          (#_setWorldTransform ,painter ,transform)))))
+
+(defparameter *compositing-mode-map*
+  (let ((map (make-hash-table :test 'equalp)))
+    (loop for (key val) in '(("Normal" 0)
+                             ("Erase" 8)
+                             ("Lock Alpha" 9)
+                             ("Multiply" 13)
+                             ("Screen" 14)
+                             ("Overlay" 15)
+                             ("Darken" 16)
+                             ("Lighten" 17)
+                             ("Dodge" 18)
+                             ("Burn" 19)
+                             ("Hard Light" 20)
+                             ("Soft Light" 21)
+                             ("Difference" 22)
+                             ("Exclusion" 23))
+          do (setf (gethash key map) val))
+    map))
