@@ -8,6 +8,8 @@
 (named-readtables:in-readtable :qt)
 
 (defvar *curve-type* 'linear)
+;; We need full stroke caching, unfortunately.
+;; Otherwise composition modes and clipping and such cannot be implemented properly.
 
 (defclass stroke ()
   ((%curve :initform (make-curve *curve-type*) :accessor curve)
@@ -29,7 +31,7 @@
     (let ((point-amount (point-amount (curve stroke))))
       (when (< 0 point-amount)
         (draw-curve (brush stroke) painter (curve stroke) (last-index stroke) point-amount)
-        (setf (last-index stroke) (1- point-amount))))))
+        (setf (last-index stroke) point-amount)))))
 
 (defmethod record-point ((stroke stroke) x y xt yt p)
   (record-point (curve stroke) (float x) (float y) xt yt p))
