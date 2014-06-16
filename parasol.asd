@@ -28,6 +28,7 @@
                              (:file "texture-brush")
                              (:file "rotational-brush")
                              (:file "compositing-brush")
+                             (:file "soft-brush")
                              (:file "complex-brush")))
                (:module "document"
                 :components ((:file "stroke")
