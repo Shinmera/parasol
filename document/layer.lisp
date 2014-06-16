@@ -22,7 +22,7 @@
    (%strokes :initform (make-array *presample-history* :adjustable T :fill-pointer 0) :accessor strokes)
    (%history-size :initform 0 :accessor history-size)
    (%mode :initarg :mode :initform 0 :accessor mode)
-   (%opacity :initarg :opacity :initform 255 :accessor opacity)
+   (%opacity :initarg :opacity :initform 1.0 :accessor opacity)
    (%name :initarg :name :accessor name)))
 
 (defmethod print-object ((layer layer) stream)
@@ -129,8 +129,8 @@
 
 (defmethod draw ((layer layer) painter)
   (when (pixmap layer)
-    (#_setCompositionMode painter (mode layer))
     (#_setOpacity painter (opacity layer))
+    (#_setCompositionMode painter (mode layer))
     (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
 
 (defmethod finalize ((layer layer))
