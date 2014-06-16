@@ -91,7 +91,7 @@
 
 (defmethod draw-curve ((brush abstract-brush) painter curve from to)
   (#_setColor (#_brush painter) (base-color brush))
-  (#_setColor (#_pen painter) (base-color brush))
+  (#_setStyle (#_pen painter) (#_Qt::NoPen))
   (map-points curve #'(lambda (x y xt yt p)
                         (with-transform (painter)
                           (with-objects ((point (#_new QPointF x y)))
