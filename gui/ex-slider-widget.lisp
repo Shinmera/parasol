@@ -93,6 +93,10 @@
 (defmethod value ((widget ex-slider-widget))
   (#_value (exs-spin-box widget)))
 
+(defmethod (setf value) (value (widget ex-slider-widget))
+  (#_setValue (exs-spin-box widget) value)
+  (#_setValue (exs-slider widget) (round (* (exs-divisor widget) value))))
+
 (defmethod finalize ((widget ex-slider-widget))
   (maybe-delete-qobject (exs-slider widget))
   (maybe-delete-qobject (exs-spin-box widget))
