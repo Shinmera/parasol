@@ -31,7 +31,8 @@
              ("tabletEvent" tablet-event)
              ("mousePressEvent" mouse-press-event)
              ("mouseReleaseEvent" mouse-release-event)
-             ("mouseMoveEvent" mouse-move-event)))
+             ("mouseMoveEvent" mouse-move-event)
+             ("resizeEvent" resize-event)))
 
 (defmethod print-object ((document document) stream)
   (print-unreadable-object (document stream :type T :identity T)
@@ -41,6 +42,9 @@
 (defmethod initialize-instance :after ((document document) &key)
   (new document)
   (setf (canvas document) (make-instance 'canvas :document document)))
+
+(defmethod resize-event ((widget document) event)
+  (resize-canvas (canvas widget) (#_width widget) (#_height widget)))
 
 (defmethod tablet-event ((widget document) event)
   (if (enum= (#_type event) (#_QEvent::TabletRelease))
@@ -133,11 +137,14 @@
 (defmethod layers ((widget document))
   (layers (canvas widget)))
 
-(defmethod add-layer ((widget document) &key name mode)
-  (add-layer (canvas widget) :name name :mode mode))
+(defmethod add-layer ((widget document) &key name)
+  (add-layer (canvas widget) :name name))
 
 (defmethod remove-layer ((widget document) &optional index)
   (remove-layer (canvas widget) index))
+
+(defmethod active-layer ((widget document))
+  (active-layer (canvas widget)))
 
 (defmethod (setf active-layer) (index (widget document))
   (setf (active-layer (canvas widget)) index))

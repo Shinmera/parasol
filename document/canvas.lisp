@@ -13,15 +13,19 @@
    (%offset-y :initform 0 :accessor offset-y)
    (%document :initarg :document :initform (error "Document required.") :accessor document)
    (%active-layer-index :initform 0 :accessor active-layer-index)
-   (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)))
+   (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
+   (%buffer :initform () :accessor buffer)))
 
 (defmethod initialize-instance :after ((canvas canvas) &key)
   (setf (background canvas) (merge-pathnames "background.png" *graphics*))
+  (resize-canvas canvas (#_width (document canvas)) (#_height (document canvas)))
   (add-layer canvas))
 
-(defgeneric resize-canvas (canvas width height &optional x-offset y-offset)
-  (:method ((canvas canvas) width height &optional (x-offset 0) (y-offset 0))
-    ))
+;; Fix this shit for moving and all; currently it's only a hack.
+(defgeneric resize-canvas (canvas width height)
+  (:method ((canvas canvas) width height)
+    (when (buffer canvas) (maybe-delete-qobject (buffer canvas)))
+    (setf (buffer canvas) (#_new QImage width height (#_QImage::Format_ARGB32_Premultiplied)))))
 
 (defgeneric scale-canvas (canvas width height)
   (:method ((canvas canvas) width height)
@@ -52,9 +56,13 @@
 
 (defmethod draw ((canvas canvas) painter)
   (#_fillRect painter (#_rect (document canvas)) (bg-brush canvas))
-  (#_translate painter (offset-x canvas) (offset-y canvas))
-  (loop for layer across (layers canvas)
-        do (draw layer painter)))
+  (with-objects ((painter (#_new QPainter (buffer canvas)))
+                 (transparent (#_new QColor 0 0 0 0)))
+    (#_fill (buffer canvas) transparent)
+    (loop for layer across (layers canvas)
+          do (draw layer painter))
+    (#_end painter))
+  (#_drawImage painter (offset-x canvas) (offset-y canvas) (buffer canvas)))
 
 (defun remove-canvas-background (canvas)
   (let ((bg-brush (bg-brush canvas)))
