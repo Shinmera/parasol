@@ -32,14 +32,13 @@
   (finalize-and-delete (gradient brush))
   (call-next-method))
 
-(defmethod draw-point ((brush soft-brush) painter x y xt yt p)
+(defmethod draw-point :around ((brush soft-brush) painter x y xt yt p)
   (declare (ignore xt yt))
   (let ((len (* p (brush-size brush))))
     (#_setCenterRadius (gradient brush) len)
-    (with-objects ((point (#_new QPointF 0 0))
-                   (qbrush (#_new QBrush (gradient brush))))
+    (with-objects ((qbrush (#_new QBrush (gradient brush))))
       (#_setBrush painter qbrush)
-      (#_drawEllipse painter point len len))))
+      (call-next-method))))
 
 (defclass softened-brush (soft-brush brush)
   ()
