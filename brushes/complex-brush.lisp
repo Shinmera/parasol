@@ -7,7 +7,7 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(defclass complex-brush (brush rotational-brush compositing-brush)
+(defclass complex-brush (brush rotational-brush compositing-brush soft-brush)
   ((%brush-size :initarg :brush-size :initform 10 :accessor brush-size)
    (%point-opacity :initarg :point-opacity :initform 1.0 :accessor point-opacity))
   (:metaclass brush-class)
