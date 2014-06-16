@@ -34,10 +34,9 @@ This draw information may be stale. You should relay on DRAW instead of using th
 Note that not all objects keep track of their parent, even if they are strictly related."))
 
 ;; Common functions
-(defgeneric add-layer (object &key name mode)
-  (:documentation "Add a new layer with NAME and MODE.
-NAME defaults to \"Layer D\" where D is the current count of layers.
-MODE defaults to SOURCE-OVER."))
+(defgeneric add-layer (object &key name)
+  (:documentation "Add a new layer with NAME.
+NAME defaults to \"Layer D\" where D is the current count of layers."))
 
 (defgeneric remove-layer (object &optional index)
   (:documentation "Remove a layer."))

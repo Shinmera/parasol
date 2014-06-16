@@ -78,8 +78,8 @@
   (setf (bg-brush canvas)
         (#_new QBrush brush-parameter)))
 
-(defmethod add-layer ((canvas canvas) &key name mode)
-  (let ((layer (make-instance 'layer :name (or name (format NIL "Layer ~d" (length (layers canvas)))) :mode mode)))
+(defmethod add-layer ((canvas canvas) &key name)
+  (let ((layer (make-instance 'layer :name (or name (format NIL "Layer ~d" (length (layers canvas)))))))
     (vector-push-extend layer (layers canvas))
     layer)
   (#_update (document canvas)))

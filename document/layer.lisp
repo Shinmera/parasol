@@ -21,7 +21,8 @@
    (%painter :initform NIL :accessor painter)
    (%strokes :initform (make-array *presample-history* :adjustable T :fill-pointer 0) :accessor strokes)
    (%history-size :initform 0 :accessor history-size)
-   (%mode :initarg :mode :accessor mode)
+   (%mode :initarg :mode :initform 0 :accessor mode)
+   (%opacity :initarg :opacity :initform 255 :accessor opacity)
    (%name :initarg :name :accessor name)))
 
 (defmethod print-object ((layer layer) stream)
@@ -113,6 +114,9 @@
     (loop for stroke across (strokes layer)
           do (draw stroke (painter layer)))))
 
+;; These need to become much much snappier.
+;; Suggested strategy: Cache chunks of history items and break up when needed.
+;; A library that offers this would be a good idea.
 (defmethod undo ((layer layer))
   (when (< 0 (fill-pointer (strokes layer)))
     (decf (fill-pointer (strokes layer)))
@@ -125,6 +129,8 @@
 
 (defmethod draw ((layer layer) painter)
   (when (pixmap layer)
+    (#_setCompositionMode painter (mode layer))
+    (#_setOpacity painter (opacity layer))
     (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
 
 (defmethod finalize ((layer layer))
