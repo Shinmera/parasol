@@ -75,4 +75,5 @@
     (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
 
 (defmethod finalize ((layer expanding-layer))
+  (when (painter layer) (#_end (painter layer)))
   (cleanup (layer) painter pixmap))
