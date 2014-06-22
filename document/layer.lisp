@@ -11,6 +11,7 @@
 
 (defclass layer (expanding-layer)
   ((%strokes :initform (make-array *presample-history* :adjustable T :fill-pointer 0) :accessor strokes)
+   (%current-stroke :initform NIL :accessor current-stroke)
    (%history-size :initform 0 :accessor history-size)
    (%mode :initarg :mode :initform 0 :accessor mode)
    (%opacity :initarg :opacity :initform 1.0 :accessor opacity)
@@ -23,19 +24,21 @@
 
 (defmethod start-stroke ((layer layer) type x y x-tilt y-tilt pressure)
   (truncate-history layer)
-  (vector-push-extend (make-instance 'stroke) (strokes layer))
+  (setf (current-stroke layer) (make-instance 'stroke))
   (record-point layer x y x-tilt y-tilt pressure)
   layer)
 
 (defmethod record-point ((layer layer) x y x-tilt y-tilt pressure)
   (assure-suitable-size layer x y)
-  (let ((stroke (elt (strokes layer) (1- (fill-pointer (strokes layer))))))
-    (record-point stroke x y x-tilt y-tilt pressure)
-    (draw-incremental stroke (painter layer)))
+  (record-point (current-stroke layer) x y x-tilt y-tilt pressure)
   layer)
 
 (defmethod end-stroke ((layer layer))
-  )
+  (let ((stroke (current-stroke layer)))
+    (vector-push-extend stroke (strokes layer))
+    (with-transform ((painter layer))
+      (draw stroke (painter layer))))
+  (setf (current-stroke layer) NIL))
 
 (defmethod truncate-history ((layer layer))
   (loop for i from (fill-pointer (strokes layer))
@@ -69,13 +72,17 @@
   (when (pixmap layer)
     (#_setOpacity painter (opacity layer))
     (#_setCompositionMode painter (mode layer))
-    (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
+    (if (current-stroke layer)
+        (progn
+          (with-objects ((tempimg (#_new QImage (pixmap layer)))
+                         (temppaint (#_new QPainter tempimg)))
+            (#_translate temppaint (- (offset-x layer)) (- (offset-y layer)))
+            (draw (current-stroke layer) temppaint)
+            (#_drawImage painter (offset-x layer) (offset-y layer) tempimg)))
+        (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer)))))
 
 (defmethod finalize ((layer layer))
-  (maybe-delete-qobject (painter layer))
-  (maybe-delete-qobject (pixmap layer))
+  (cleanup (layer) current-stroke)
   (loop for stroke across (strokes layer)
         do (finalize stroke))
-  (setf (painter layer) NIL
-        (pixmap layer) NIL
-        (strokes layer) NIL))
+  (call-next-method))
