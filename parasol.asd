@@ -31,7 +31,8 @@
                              (:file "soft-brush")
                              (:file "complex-brush")))
                (:module "document"
-                :components ((:file "stroke")
+                :components ((:file "expanding-layer")
+                             (:file "stroke")
                              (:file "layer")
                              (:file "document")
                              (:file "canvas")))

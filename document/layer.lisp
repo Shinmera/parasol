@@ -7,19 +7,10 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(defparameter *layer-block-size* 500)
-(defparameter *layer-block-border* 200)
 (defparameter *presample-history* 20)
 
-(defclass layer ()
-  ((%width :initform 0 :accessor width)
-   (%height :initform 0 :accessor height)
-   (%offset-x :initform 0 :accessor offset-x)
-   (%offset-y :initform 0 :accessor offset-y)
-
-   (%pixmap :initform NIL :accessor pixmap)
-   (%painter :initform NIL :accessor painter)
-   (%strokes :initform (make-array *presample-history* :adjustable T :fill-pointer 0) :accessor strokes)
+(defclass layer (expanding-layer)
+  ((%strokes :initform (make-array *presample-history* :adjustable T :fill-pointer 0) :accessor strokes)
    (%history-size :initform 0 :accessor history-size)
    (%mode :initarg :mode :initform 0 :accessor mode)
    (%opacity :initarg :opacity :initform 1.0 :accessor opacity)
@@ -29,59 +20,6 @@
   (print-unreadable-object (layer stream :type T :identity T)
     (format stream "~a" (name layer)))
   layer)
-
-(defmethod initialize-instance :after ((layer layer) &key))
-
-(defmethod assure-suitable-size ((layer layer) x y)
-  ;; First stroke. We can optimize by moving our canvas closer.
-  (when (= (width layer) 0)
-    (setf (offset-x layer) (+ x (/ *layer-block-size* 2))
-          (offset-y layer) (+ y (/ *layer-block-size* 2))))
-  (unless (and (< (+ (offset-x layer)
-                     *layer-block-border*)
-                  x
-                  (- (+ (offset-x layer) (width layer))
-                     *layer-block-border*))
-               (< (+ (offset-y layer)
-                     *layer-block-border*)
-                  y
-                  (- (+ (offset-y layer) (height layer))
-                     *layer-block-border*)))
-    (let* ((off-x (offset-x layer))
-           (off-y (offset-y layer))
-           (required-width  (* *layer-block-size* (ceiling (/ (+ (abs (- x off-x)) *layer-block-border*) *layer-block-size*))))
-           (required-height (* *layer-block-size* (ceiling (/ (+ (abs (- y off-y)) *layer-block-border*) *layer-block-size*))))
-           (width (max (width layer)
-                       (if (<= (+ off-x *layer-block-size*) x)
-                           required-width
-                           (progn (decf off-x required-width)
-                                  (+ (width layer) required-width)))))
-           (height (max (height layer)
-                        (if (<= (+ off-y *layer-block-size*) y)
-                            required-height
-                            (progn (decf off-y required-height)
-                                   (+ (height layer) required-height))))))
-      (v:debug :layer "~a Fitting ~a,~a with new bounds ~a,~a ~a/~a~%" layer x y off-x off-y width height)
-      (let* ((pixmap (#_new QImage width height (#_QImage::Format_ARGB32_Premultiplied)))
-             (painter (#_new QPainter pixmap))
-             (transparent (#_new QColor 0 0 0 0)))
-        (#_fill pixmap transparent)
-        (when (pixmap layer)
-          (#_drawImage painter
-                       (- (offset-x layer) off-x)
-                       (- (offset-y layer) off-y)
-                       (pixmap layer))
-          (maybe-delete-qobject (pixmap layer)))
-        (#_setRenderHint painter (#_QPainter::Antialiasing))
-        (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
-        (#_translate painter (- off-x) (- off-y))
-        (#_setStyle (#_brush painter) (#_Qt::SolidPattern))
-        (setf (pixmap layer) pixmap
-              (painter layer) painter
-              (offset-x layer) off-x
-              (offset-y layer) off-y
-              (width layer) width
-              (height layer) height)))))
 
 (defmethod start-stroke ((layer layer) type x y x-tilt y-tilt pressure)
   (truncate-history layer)
@@ -108,12 +46,6 @@
              (setf (aref (strokes layer) i) NIL))
   (setf (history-size layer) (fill-pointer (strokes layer))))
 
-(defmethod recache ((layer layer))
-  (with-objects ((transparent (#_new QColor 0 0 0 0)))
-    (#_fill (pixmap layer) transparent)
-    (loop for stroke across (strokes layer)
-          do (draw stroke (painter layer)))))
-
 ;; These need to become much much snappier.
 ;; Suggested strategy: Cache chunks of history items and break up when needed.
 ;; A library that offers this would be a good idea.
@@ -126,6 +58,12 @@
   (when (< (fill-pointer (strokes layer)) (history-size layer))
     (incf (fill-pointer (strokes layer)))
     (recache layer)))
+
+(defmethod recache ((layer layer))
+  (with-objects ((transparent (#_new QColor 0 0 0 0)))
+    (#_fill (pixmap layer) transparent)
+    (loop for stroke across (strokes layer)
+          do (draw stroke (painter layer)))))
 
 (defmethod draw ((layer layer) painter)
   (when (pixmap layer)
