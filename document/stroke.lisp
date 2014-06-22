@@ -11,7 +11,7 @@
 ;; We need full stroke caching, unfortunately.
 ;; Otherwise composition modes and clipping and such cannot be implemented properly.
 
-(defclass stroke ()
+(defclass stroke (expanding-layer)
   ((%curve :initform (make-curve *curve-type*) :accessor curve)
    (%brush :initform (assume-form (current-brush *window*)) :accessor brush)
    (%last-index :initform 0 :accessor last-index)))
@@ -21,9 +21,8 @@
         (point-distance (brush stroke))))
 
 (defmethod draw ((stroke stroke) painter)
-  "Redraws the full STROKE using the PAINTER object."
-  (setf (last-index stroke) 0)
-  (draw-incremental stroke painter))
+  (#_translate painter (offset-x stroke) (offset-y stroke))
+  (draw-whole (brush stroke) painter (pixmap stroke)))
 
 (defgeneric draw-incremental (stroke painter)
   (:documentation "Only draws new STROKE parts that have not been drawn before using the PAINTER.")
@@ -34,10 +33,10 @@
         (setf (last-index stroke) point-amount)))))
 
 (defmethod record-point ((stroke stroke) x y xt yt p)
-  (record-point (curve stroke) (float x) (float y) xt yt p))
+  (assure-suitable-size stroke x y)
+  (record-point (curve stroke) (float x) (float y) xt yt p)
+  (draw-incremental stroke (painter stroke)))
 
 (defmethod finalize ((stroke stroke))
-  (finalize (curve stroke))
-  (finalize (brush stroke))
-  (setf (curve stroke) NIL
-        (brush stroke) NIL))
+  (cleanup (stroke) curve brush)
+  (call-next-method))
