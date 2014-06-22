@@ -89,6 +89,9 @@
   ((%name :initform "Unnamed Brush" :accessor name))
   (:metaclass brush-class))
 
+(defmethod draw-whole ((brush abstract-brush) painter pixmap)
+  (#_drawImage painter 0 0 pixmap))
+
 (defmethod draw-curve ((brush abstract-brush) painter curve from to)
   (#_setColor (#_brush painter) (base-color brush))
   (#_setStyle (#_pen painter) (#_Qt::NoPen))
