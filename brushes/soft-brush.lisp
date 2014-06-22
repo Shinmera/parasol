@@ -8,8 +8,7 @@
 (named-readtables:in-readtable :qt)
 
 (defclass soft-brush (abstract-brush)
-  ((%brush-size :initarg :brush-size :initform 10 :accessor brush-size)
-   (%hardness :initarg :hardness :initform 0.5 :accessor hardness)
+  ((%hardness :initarg :hardness :initform 0.5 :accessor hardness)
    (%gradient :initform NIL :accessor gradient))
   (:metaclass brush-class)
   (:fields (brush-size :type :float :range (0.01 200.0 1.0) :slot %brush-size)

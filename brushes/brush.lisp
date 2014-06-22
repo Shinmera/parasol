@@ -81,6 +81,7 @@
 (defclass abstract-brush ()
   ((%name :initform "Abstract Brush" :accessor name)
    (%base-color :initarg :base-color :initform NIL :accessor base-color)
+   (%brush-size :initarg :brush-size :initform 10 :accessor brush-size)
    (%point-distance :initarg :point-distance :initform 2 :accessor point-distance))
   (:metaclass brush-class)
   (:fields (point-distance :type :float :range (0.1 200.0 0.5) :slot %point-distance)))
@@ -104,7 +105,7 @@
 
 (defmethod draw-point ((brush abstract-brush) painter x y xt yt p)
   (declare (ignore xt yt))
-  (let ((len (* p 10)))
+  (let ((len (* p (brush-size brush))))
     (with-objects ((point (#_new QPointF 0 0)))
       (#_drawEllipse painter point len len))))
 
