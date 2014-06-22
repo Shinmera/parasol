@@ -55,20 +55,23 @@
   (end-stroke (active-layer canvas)))
 
 (defmethod draw ((canvas canvas) painter)
-  (#_fillRect painter (#_rect (document canvas)) (bg-brush canvas))
+  (with-objects ((transform (#_new QTransform)))
+    (#_translate  transform (offset-x canvas) (offset-y canvas))
+    (#_setTransform (bg-brush canvas) transform)
+    (#_fillRect painter (#_rect (document canvas)) (bg-brush canvas)))
   (with-objects ((painter (#_new QPainter (buffer canvas)))
                  (transparent (#_new QColor 0 0 0 0)))
     (#_fill (buffer canvas) transparent)
+    (#_translate painter (offset-x canvas) (offset-y canvas))
     (loop for layer across (layers canvas)
           do (draw layer painter))
     (#_end painter))
-  (#_drawImage painter (offset-x canvas) (offset-y canvas) (buffer canvas)))
+  (#_drawImage painter 0 0 (buffer canvas)))
 
 (defun remove-canvas-background (canvas)
   (let ((bg-brush (bg-brush canvas)))
     (when bg-brush
       (maybe-delete-qobject (#_textureImage bg-brush))
-      ;;(maybe-delete-qobject (#_color bg-brush))
       (maybe-delete-qobject bg-brush))))
 
 (defmethod (setf background) ((file pathname) (canvas canvas))
