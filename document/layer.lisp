@@ -23,6 +23,7 @@
   layer)
 
 (defmethod start-stroke ((layer layer) type x y x-tilt y-tilt pressure)
+  (v:debug :layer "~a Starting stroke" layer)
   (truncate-history layer)
   (setf (current-stroke layer) (make-instance 'stroke))
   (record-point layer x y x-tilt y-tilt pressure)
@@ -34,6 +35,7 @@
   layer)
 
 (defmethod end-stroke ((layer layer))
+  (v:debug :layer "~a Ending stroke" layer)
   (let ((stroke (current-stroke layer)))
     (vector-push-extend stroke (strokes layer))
     (with-transform ((painter layer))
@@ -55,18 +57,23 @@
 (defmethod undo ((layer layer))
   (when (< 0 (fill-pointer (strokes layer)))
     (decf (fill-pointer (strokes layer)))
+    (v:debug :layer "~a History now at ~a/~a"
+             layer (fill-pointer (strokes layer)) (1+ (history-size layer)))
     (recache layer)))
 
 (defmethod redo ((layer layer))
-  (when (< (fill-pointer (strokes layer)) (history-size layer))
+  (when (<= (fill-pointer (strokes layer)) (history-size layer))
     (incf (fill-pointer (strokes layer)))
+    (v:debug :layer "~a History now at ~a/~a"
+             layer (fill-pointer (strokes layer)) (1+ (history-size layer)))
     (recache layer)))
 
 (defmethod recache ((layer layer))
   (with-objects ((transparent (#_new QColor 0 0 0 0)))
     (#_fill (pixmap layer) transparent)
     (loop for stroke across (strokes layer)
-          do (draw stroke (painter layer)))))
+          do (with-transform ((painter layer))
+               (draw stroke (painter layer))))))
 
 (defmethod draw ((layer layer) painter)
   (when (pixmap layer)
