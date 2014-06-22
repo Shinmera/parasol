@@ -15,7 +15,7 @@
                  :setter #'(lambda (slot value)
                              (set-brush-slot slot (gethash value *compositing-mode-map*))))))
 
-(defmethod draw-curve :around ((brush compositing-brush) painter curve from to)
+(defmethod draw-whole :around ((brush compositing-brush) painter pixmap)
   (let ((old-mode (#_compositionMode painter)))
     (#_setCompositionMode painter (mode brush))
     (call-next-method)
