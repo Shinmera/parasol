@@ -21,8 +21,9 @@
                (:file "generics")
                (:module "curves"
                 :components ((:file "curve")
-                             (:file "spline")
-                             (:file "linear")))
+                             (:file "linear")
+                             (:file "cubic")
+                             (:file "base")))
                (:module "brushes"
                 :components ((:file "brush")
                              (:file "texture-brush")

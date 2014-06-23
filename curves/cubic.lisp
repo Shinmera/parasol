@@ -6,26 +6,26 @@
 
 (in-package #:org.tymoonnext.parasol)
 
-(defvar *spline-adjust-buffer* 500)
-(defvar *spline-from-hack* 0)
+(defvar *cubic-spline-adjust-buffer* 500)
+(defvar *cubic-spline-from-hack* 0)
 
-(defclass spline (curve)
+(defclass cubic (curve)
   ((%spline-data :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor spline-data)
    (%interpolated :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor interpolated)))
 
-(defmethod print-object ((spline spline) stream)
+(defmethod print-object ((spline cubic) stream)
   (print-unreadable-object (spline stream :type T :identity T)
     (format stream "(~d/~d)" (length (data spline)) (length (aref (data spline) 0))))
   spline)
 
-(defmethod (setf point-distance) (point-distance (spline spline))
+(defmethod (setf point-distance) (point-distance (spline cubic))
   (setf (slot-value spline '%point-distance)
         point-distance)
   (when (/= (length (distances spline)) 0)
     (setf (point-amount spline)
           (1+ (floor (/ (aref (distances spline) (1- (length (distances spline))))
                           point-distance)))))
-  (calculate-spline-interpolation spline :from *spline-from-hack*))
+  (calculate-spline-interpolation spline :from *cubic-spline-from-hack*))
 
 (defun calculate-spline-distances (spline &key (from 0))
   (let* ((data (data spline))
@@ -181,7 +181,7 @@
                               (interpolate-spline spline data spline-data (* j point-distance))))))))
 
 (defgeneric add-data-point (spline x y &rest additional-data)
-  (:method ((spline spline) x y &rest additional-data)
+  (:method ((spline cubic) x y &rest additional-data)
     (let ((new-data (cons x (cons y additional-data)))
           (len (length (aref (data spline) 0))))
       (unless (= (length new-data) (length (data spline)))
@@ -198,7 +198,7 @@
           (when (<= 0 newpos)
             (calculate-spline-distances spline :from newpos)
             (calculate-spline-data spline :from newpos)
-            (let ((*spline-from-hack* newpos))
+            (let ((*cubic-spline-from-hack* newpos))
               (setf (point-distance spline) (point-distance spline)))))))
     spline))
 
@@ -222,20 +222,20 @@
     (error "FIELD-COUNT must be >=2."))
   (apply #'make-spline (loop repeat field-count collect #1A())))
 
-(defmethod make-curve ((type (eql 'spline)))
+(defmethod make-curve ((type (eql 'cubic)))
   (make-empty-spline 5))
 
-(defmethod record-point ((spline spline) x y x-tilt y-tilt pressure)
+(defmethod record-point ((spline cubic) x y x-tilt y-tilt pressure)
   (add-data-point spline x y x-tilt y-tilt pressure))
 
-(defmethod point-data ((spline spline) pos)
+(defmethod point-data ((spline cubic) pos)
   (list (aref (aref (interpolated spline) 0) pos)
         (aref (aref (interpolated spline) 1) pos)
         (aref (aref (interpolated spline) 2) pos)
         (aref (aref (interpolated spline) 3) pos)
         (aref (aref (interpolated spline) 4) pos)))
 
-(defmethod map-points ((spline spline) function &key from to)
+(defmethod map-points ((spline cubic) function &key from to)
   (unless from (setf from 0))
   (unless to (setf to (point-amount spline)))
   (let ((xs (aref (interpolated spline) 0))
