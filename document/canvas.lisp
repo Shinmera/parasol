@@ -33,10 +33,6 @@
   (:method ((canvas canvas) width height)
     ))
 
-(defgeneric save-canvas (canvas path format)
-  (:method ((canvas canvas) (path pathname) format)
-    ))
-
 (defmethod start-stroke ((canvas canvas) type x y x-tilt y-tilt pressure)
   (push-color *window*)
   (start-stroke (active-layer canvas)
