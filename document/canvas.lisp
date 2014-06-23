@@ -14,10 +14,12 @@
    (%document :initarg :document :initform (error "Document required.") :accessor document)
    (%active-layer-index :initform 0 :accessor active-layer-index)
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
-   (%buffer :initform () :accessor buffer)))
+   (%buffer :initform () :accessor buffer)
+   (%cutoff :initform NIL :accessor cutoff)))
 
 (defmethod initialize-instance :after ((canvas canvas) &key)
-  (setf (background canvas) (merge-pathnames "background.png" *graphics*))
+  (setf (background canvas) (merge-pathnames "background.png" *graphics*)
+        (cutoff canvas) (make-instance 'cutoff :canvas canvas))
   (resize-canvas canvas (#_width (document canvas)) (#_height (document canvas)))
   (add-layer canvas))
 
@@ -66,7 +68,8 @@
     (loop for layer across (layers canvas)
           do (draw layer painter))
     (#_end painter))
-  (#_drawImage painter 0 0 (buffer canvas)))
+  (#_drawImage painter 0 0 (buffer canvas))
+  (draw (cutoff canvas) painter))
 
 (defun remove-canvas-background (canvas)
   (let ((bg-brush (bg-brush canvas)))
@@ -139,6 +142,26 @@
 (defmethod redo ((canvas canvas))
   (redo (active-layer canvas))
   (#_update (document canvas)))
+
+(defmethod find-real-size ((canvas canvas))
+  (loop with (fx fy lx ly) = `(,most-positive-fixnum ,most-positive-fixnum
+                               ,most-negative-fixnum ,most-negative-fixnum)
+        for layer across (layers canvas)
+        for (cfx cfy clx cly) = (find-real-size layer)
+        do (when (< cfx fx) (setf fx cfx))
+           (when (< cfy fy) (setf fy cfy))
+           (when (> clx lx) (setf lx clx))
+           (when (> cly ly) (setf ly cly))
+        finally (return (list fx fy lx ly))))
+
+(defmethod fit-cutoff ((canvas canvas))
+  (destructuring-bind (fx fy lx ly) (find-real-size canvas)
+    (let ((x fx) (y fy) (w (- lx fx)) (h (- ly fy))
+          (c (cutoff canvas)))
+      (setf (offset-x c) x
+            (offset-y c) y
+            (width c) w
+            (height c) h))))
 
 (defmethod finalize ((canvas canvas))
   (remove-canvas-background canvas)

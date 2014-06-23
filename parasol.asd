@@ -36,6 +36,7 @@
                              (:file "stroke")
                              (:file "layer")
                              (:file "document")
+                             (:file "cutoff")
                              (:file "canvas")))
                (:module "gui"
                 :components ((:file "ex-slider-widget")
