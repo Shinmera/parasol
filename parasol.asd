@@ -38,6 +38,8 @@
                              (:file "document")
                              (:file "cutoff")
                              (:file "canvas")))
+               (:module "file-formats"
+                :components ((:file "file-format")))
                (:module "gui"
                 :components ((:file "ex-slider-widget")
                              (:file "file-chooser-widget")
