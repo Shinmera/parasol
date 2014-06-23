@@ -13,6 +13,14 @@
   ((%spline-data :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor spline-data)
    (%interpolated :initform (make-array 5 :adjustable T :fill-pointer 0) :accessor interpolated)))
 
+(defun ensure-length (vector required-length)
+  (cond ((< (array-dimension vector 0) required-length)
+         (adjust-array vector (+ required-length *cubic-spline-adjust-buffer*)
+                       :fill-pointer required-length))
+        ((< (fill-pointer vector) required-length)
+         (setf (fill-pointer vector) required-length)))
+  vector)
+
 (defmethod print-object ((spline cubic) stream)
   (print-unreadable-object (spline stream :type T :identity T)
     (format stream "(~d/~d)" (length (data spline)) (length (aref (data spline) 0))))
@@ -187,8 +195,8 @@
       (unless (= (length new-data) (length (data spline)))
         (error "Wrong amount of data points! Required: ~d" (length (data spline))))
       (when (or (= 0 len)
-                (and (/= x (idata (data spline) 0 (1- len)))
-                     (/= y (idata (data spline) 1 (1- len)))))
+                (/= x (idata (data spline) 0 (1- len)))
+                (/= y (idata (data spline) 1 (1- len))))
         (loop for data in new-data
               for i from 0
               do (vector-push-extend (float data) (elt (data spline) i)))

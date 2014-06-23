@@ -23,14 +23,6 @@
           do (setf (aref new i) (aref array i)))
     new))
 
-(defun ensure-length (vector required-length)
-  (cond ((< (array-dimension vector 0) required-length)
-         (adjust-array vector (+ required-length *spline-adjust-buffer*)
-                       :fill-pointer required-length))
-        ((< (fill-pointer vector) required-length)
-         (setf (fill-pointer vector) required-length)))
-  vector)
-
 ;; Qt helper stuff
 (defgeneric copy-qobject (qclass instance)
   (:method :before (qclass instance)
