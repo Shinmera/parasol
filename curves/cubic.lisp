@@ -25,9 +25,9 @@
     (setf (point-amount spline)
           (1+ (floor (/ (aref (distances spline) (1- (length (distances spline))))
                           point-distance)))))
-  (calculate-spline-interpolation spline :from *cubic-spline-from-hack*))
+  (calculate-cubic-spline-interpolation spline :from *cubic-spline-from-hack*))
 
-(defun calculate-spline-distances (spline &key (from 0))
+(defun calculate-cubic-spline-distances (spline &key (from 0))
   (let* ((data (data spline))
          (distances (distances spline))
          (len (length (aref data 0))))
@@ -96,7 +96,7 @@
                      (setf (aref distances i)
                            (+ (aref distances (1- i)) distance)))))))))
 
-(defun calculate-spline-data (spline &key (from 0))
+(defun calculate-cubic-spline-data (spline &key (from 0))
   (let* ((data (data spline))
          (len (length (aref data 0)))
          (datacount (length data)))
@@ -134,7 +134,7 @@
                                (aref c (1+ i)))
                             (aref u i)))))))))
 
-(defun interpolate-spline (spline x c distance)
+(defun interpolate-cubic-spline (spline x c distance)
   (let ((distances (distances spline)))
     (if (< (length distances) 2)
         0.0
@@ -166,7 +166,7 @@
                            dx dx)
                         6)))))))))
 
-(defun calculate-spline-interpolation (spline &key (from 0))
+(defun calculate-cubic-spline-interpolation (spline &key (from 0))
   (let ((len (length (aref (data spline) 0)))
         (point-amount (point-amount spline))
         (point-distance (point-distance spline)))
@@ -178,7 +178,7 @@
                (loop for j from (* from (floor (/ point-amount len))) below point-amount
                      do 
                         (setf (aref inter j)
-                              (interpolate-spline spline data spline-data (* j point-distance))))))))
+                              (interpolate-cubic-spline spline data spline-data (* j point-distance))))))))
 
 (defgeneric add-data-point (spline x y &rest additional-data)
   (:method ((spline cubic) x y &rest additional-data)
@@ -196,14 +196,14 @@
         ;; recalculate three last
         (let ((newpos (- (length (aref (data spline) 0)) 3)))
           (when (<= 0 newpos)
-            (calculate-spline-distances spline :from newpos)
-            (calculate-spline-data spline :from newpos)
+            (calculate-cubic-spline-distances spline :from newpos)
+            (calculate-cubic-spline-data spline :from newpos)
             (let ((*cubic-spline-from-hack* newpos))
               (setf (point-distance spline) (point-distance spline)))))))
     spline))
 
-(defun make-spline (x y &rest additional-data)
-  (let ((spline (make-instance 'spline)))
+(defun make-cubic-spline (x y &rest additional-data)
+  (let ((spline (make-instance 'cubic)))
     (let ((len (length x)))
       (loop for data in (cons x (cons y additional-data))
             do (when (/= len (length data))
@@ -212,18 +212,18 @@
                (vector-push-extend (make-array len :element-type 'float :initial-element 0.0 :adjustable T :fill-pointer T) (spline-data spline))
                (vector-push-extend (make-array len :element-type 'float :initial-element 0.0 :adjustable T :fill-pointer T) (interpolated spline)))
       (setf (distances spline)     (make-array len :element-type 'float :initial-element 0.0 :adjustable T :fill-pointer T)))
-    (calculate-spline-distances spline)
-    (calculate-spline-data spline)
+    (calculate-cubic-spline-distances spline)
+    (calculate-cubic-spline-data spline)
     (setf (point-distance spline) 2)
     spline))
 
-(defun make-empty-spline (&optional (field-count 2))
+(defun make-empty-cubic-spline (&optional (field-count 2))
   (when (< field-count 2)
     (error "FIELD-COUNT must be >=2."))
-  (apply #'make-spline (loop repeat field-count collect #1A())))
+  (apply #'make-cubic-spline (loop repeat field-count collect #1A())))
 
 (defmethod make-curve ((type (eql 'cubic)))
-  (make-empty-spline 5))
+  (make-empty-cubic-spline 5))
 
 (defmethod record-point ((spline cubic) x y x-tilt y-tilt pressure)
   (add-data-point spline x y x-tilt y-tilt pressure))
