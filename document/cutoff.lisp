@@ -42,4 +42,4 @@
                   (+ (offset-y c) (offset-y canvas) (height c))
                   (width c)
                   (- (#_height (document canvas)) (+ (offset-y c) (offset-y canvas) (height c)))
-                  (color c))))))
+                  (color c)))))
