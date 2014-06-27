@@ -39,7 +39,8 @@
                              (:file "document")
                              (:file "cutoff")))
                (:module "file-formats"
-                :components ((:file "file-format")))
+                :components ((:file "file-format")
+                             (:file "png")))
                (:module "gui"
                 :components ((:file "ex-slider-widget")
                              (:file "file-chooser-widget")
