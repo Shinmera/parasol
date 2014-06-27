@@ -13,33 +13,33 @@
    (%width :initform 0 :accessor width)
    (%height :initform 0 :accessor height)
    (%color :initform (#_new QColor 0 0 0 200) :accessor color)
-   (%canvas :initform (error "Canvas required") :initarg :canvas :accessor canvas)))
+   (%document :initform (error "Document required") :initarg :document :accessor document)))
 
 (defmethod draw ((c cutoff) painter)
   (when (and (< 0 (width c))
              (< 0 (height c)))
-    (let ((canvas (canvas c)))
+    (let ((d (document c)))
       (#_fillRect painter
                   0
                   0
-                  (+ (offset-x c) (offset-x canvas))
-                  (#_height (document canvas))
+                  (+ (offset-x c) (offset-x d))
+                  (#_height d)
                   (color c))
       (#_fillRect painter
-                  (+ (offset-x c) (offset-x canvas) (width c))
+                  (+ (offset-x c) (offset-x d) (width c))
                   0
-                  (- (#_width (document canvas)) (+ (offset-x c) (offset-x canvas) (width c)))
-                  (#_height (document canvas))
+                  (- (#_width d) (+ (offset-x c) (offset-x d) (width c)))
+                  (#_height d)
                   (color c))
       (#_fillRect painter
-                  (+ (offset-x c) (offset-x canvas))
+                  (+ (offset-x c) (offset-x d))
                   0
                   (width c)
-                  (+ (offset-y c) (offset-y canvas))
+                  (+ (offset-y c) (offset-y d))
                   (color c))
       (#_fillRect painter
-                  (+ (offset-x c) (offset-x canvas))
-                  (+ (offset-y c) (offset-y canvas) (height c))
+                  (+ (offset-x c) (offset-x d))
+                  (+ (offset-y c) (offset-y d) (height c))
                   (width c)
-                  (- (#_height (document canvas)) (+ (offset-y c) (offset-y canvas) (height c)))
+                  (- (#_height d) (+ (offset-y c) (offset-y d) (height c)))
                   (color c)))))

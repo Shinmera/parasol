@@ -69,7 +69,7 @@
                  (#_setSizeHint item size)
                  (#_addItem list item)))
       (#_setCurrentRow list (min (- (length (layers document))
-                                    (active-layer-index (canvas document)))
+                                    (active-layer-index document))
                                  (1- (length (layers document)))))
       (setf (value (opacity widget)) (opacity (active-layer document)))
       (#_setCurrentIndex (mode widget) (position (mode (active-layer document))
