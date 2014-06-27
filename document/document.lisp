@@ -280,7 +280,7 @@
   (#_update document))
 
 (defmethod render-region ((document document))
-  ;;(fit-cutoff document) ;; Fix to honour user-defined cutoffs
+  (fit-cutoff document) ;; Fix to honour user-defined cutoffs
   (let* ((c (cutoff document))
          (image (#_new QImage (width c) (height c) (#_QImage::Format_ARGB32_Premultiplied))))
     (with-painter (painter image)
