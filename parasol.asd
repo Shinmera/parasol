@@ -32,7 +32,8 @@
                              (:file "soft-brush")
                              (:file "complex-brush")))
                (:module "document"
-                :components ((:file "expanding-layer")
+                :components ((:file "raster-item")
+                             (:file "expanding-layer")
                              (:file "stroke")
                              (:file "layer")
                              (:file "document")

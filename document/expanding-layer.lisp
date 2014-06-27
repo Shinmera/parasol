@@ -10,14 +10,8 @@
 (defparameter *layer-block-size* 500)
 (defparameter *layer-block-border* 200)
 
-(defclass expanding-layer ()
-  ((%width :initform 0 :accessor width)
-   (%height :initform 0 :accessor height)
-   (%offset-x :initform 0 :accessor offset-x)
-   (%offset-y :initform 0 :accessor offset-y)
-
-   (%pixmap :initform NIL :accessor pixmap)
-   (%painter :initform NIL :accessor painter)))
+(defclass expanding-layer (raster-item)
+  ())
 
 (defmethod assure-suitable-size ((layer expanding-layer) x y)
   ;; First stroke. We can optimize by moving our canvas closer.
@@ -69,11 +63,3 @@
               (offset-y layer) off-y
               (width layer) width
               (height layer) height)))))
-
-(defmethod draw ((layer expanding-layer) painter)
-  (when (pixmap layer)
-    (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer))))
-
-(defmethod finalize ((layer expanding-layer))
-  (when (painter layer) (#_end (painter layer)))
-  (cleanup (layer) painter pixmap))
