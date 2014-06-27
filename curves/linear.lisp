@@ -40,16 +40,16 @@
   (let* ((dist (distances curve))
          (pointd (point-distance curve))
          (len (length (aref (data curve) 0))))
-    (when (< 2 len)
+    (when (< 1 len)
       (loop with i = from
-            with seglen = (aref dist 0)
+            with seglen = (aref dist i)
             for cdist = (remainder curve)
               then (+ cdist pointd)
             do (loop while (>= cdist seglen)
                      do (incf i)
                         (setf cdist (- cdist seglen))
                         (if (< i (1- len))
-                            (setf seglen (elt dist i))
+                            (setf seglen (aref dist i))
                             (return)))
             while (< i (1- len))
             do (loop for int across (interpolated curve)
@@ -69,7 +69,7 @@
         for i from 0
         do (vector-push-extend (float data) (elt (data curve) i)))
   (calculate-linear-distances curve)
-  (recalculate-linear-interpolations curve :from (- (length (aref (data curve) 0)) 3)))
+  (recalculate-linear-interpolations curve :from (- (length (aref (data curve) 0)) 2)))
 
 (defmethod make-curve ((type (eql 'linear)))
   (make-instance 'linear))
