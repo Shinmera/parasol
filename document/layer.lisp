@@ -40,6 +40,10 @@
   (setf (current-stroke layer) NIL))
 
 (defmethod push-history-item ((layer layer) (item raster-item))
+  (assure-suitable-size layer (offset-x item) (offset-y item))
+  (assure-suitable-size layer
+                        (+ (offset-x item) (width item))
+                        (+ (offset-y item) (height item)))
   (vector-push-extend item (strokes layer))
   (with-transform ((painter layer))
     (draw item (painter layer))))
