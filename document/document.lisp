@@ -66,6 +66,9 @@
 (defmethod make-active ((widget document))
   )
 
+(defmethod (setf modified) :after (new-val (document document))
+  (set-document-title (documents-widget *window*) document (format NIL "~a ~:[~;*~]" (name document) new-val)))
+
 ;;; Stroke stuff
 (defmethod tablet-event ((widget document) event)
   (if (enum= (#_type event) (#_QEvent::TabletRelease))
@@ -274,6 +277,15 @@
             (offset-y c) y
             (width c) w
             (height c) h))))
+
+(defmethod render-region ((document document))
+  (fit-cutoff document) ;; Fix to honour user-defined cutoffs
+  (let* ((c (cutoff document))
+         (image (#_new QImage (width c) (height c) (#_QImage::Format_ARGB32_Premultiplied))))
+    (with-painter (painter image)
+      (#_translate painter (- (offset-x c)) (- (offset-y c)))
+      (draw document painter))
+    image))
 
 ;;; Cleanup stuff
 (defmethod finalize ((document document))
