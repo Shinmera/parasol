@@ -17,9 +17,7 @@
    (%painter :initform NIL :initarg :painter :accessor painter)))
 
 (defmethod initialize-instance :after ((item raster-item) &key)
-  (when (and (not (width item))
-             (not (height item))
-             (pixmap item))
+  (when (pixmap item)
     (setf (width item) (#_width (pixmap item))
           (height item) (#_height (pixmap item)))))
 
