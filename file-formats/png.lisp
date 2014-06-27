@@ -17,7 +17,7 @@
         (error "Unknown error saving image."))))
 
 (defmethod load-document ((file-format png) document pathname)
-  (let ((image (#_QImage::load (uiop:native-namestring pathname "png"))))
+  (let ((image (#_new QImage (uiop:native-namestring pathname) "png")))
     (if image
         (push-history-item (active-layer document) (make-instance 'raster-item :pixmap image))
         (error "Unknown error loading image."))))
