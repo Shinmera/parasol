@@ -95,20 +95,19 @@
         (#_drawImage painter (offset-x layer) (offset-y layer) (pixmap layer)))))
 
 (defmethod find-real-size ((layer layer))
-  ;; THIS IS BUSTED
+  ;; THIS IS INEXCUSABLY INEFFICIENT
   (loop with (fx fy lx ly) = `(,most-positive-fixnum ,most-positive-fixnum
                                ,most-negative-fixnum ,most-negative-fixnum)
         for x from 0 below (width layer)
-        for y from 0 below (height layer)
-        for rgb of-type (unsigned-byte 32) = (#_pixel (pixmap layer) x y)
-        do (when (/= (ldb (byte 8 24) rgb) 0)
-             ;; I would've liked to use QGlobalSpace::qAlpha above, but apparently
-             ;; that isn't possible in CommonQt for unknown reasons, so we hard-code it.
-             (format T "~&F ~a ~a ~a~%" x y (ldb (byte 8 24) rgb))
-             (When (< x fx) (setf fx x))
-             (when (< y fy) (setf fy y))
-             (when (> x lx) (setf lx x))
-             (when (> y ly) (setf ly y)))
+        do (loop for y from 0 below (height layer)
+                 for rgb of-type (unsigned-byte 32) = (#_pixel (pixmap layer) x y)
+                 do (when (/= (ldb (byte 8 24) rgb) 0)
+                      ;; I would've liked to use QGlobalSpace::qAlpha above, but apparently
+                      ;; that isn't possible in CommonQt for unknown reasons, so we hard-code it.
+                      (When (< x fx) (setf fx x))
+                      (when (< y fy) (setf fy y))
+                      (when (> x lx) (setf lx x))
+                      (when (> y ly) (setf ly y))))
         finally (return (list (+ fx (offset-x layer))
                               (+ fy (offset-y layer))
                               (+ lx (offset-x layer))
