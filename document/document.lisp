@@ -260,7 +260,7 @@
 ;;; Cutoff stuff
 (defmethod find-real-size ((document document))
   (loop with (fx fy lx ly) = `(,most-positive-fixnum ,most-positive-fixnum
-                                                     ,most-negative-fixnum ,most-negative-fixnum)
+                               ,most-negative-fixnum ,most-negative-fixnum)
         for layer across (layers document)
         for (cfx cfy clx cly) = (find-real-size layer)
         do (when (< cfx fx) (setf fx cfx))
@@ -276,15 +276,17 @@
       (setf (offset-x c) x
             (offset-y c) y
             (width c) w
-            (height c) h))))
+            (height c) h)))
+  (#_update document))
 
 (defmethod render-region ((document document))
-  (fit-cutoff document) ;; Fix to honour user-defined cutoffs
+  ;;(fit-cutoff document) ;; Fix to honour user-defined cutoffs
   (let* ((c (cutoff document))
          (image (#_new QImage (width c) (height c) (#_QImage::Format_ARGB32_Premultiplied))))
     (with-painter (painter image)
       (#_translate painter (- (offset-x c)) (- (offset-y c)))
-      (draw document painter))
+      (loop for layer across (layers document)
+            do (draw layer painter)))
     image))
 
 ;;; Cleanup stuff
