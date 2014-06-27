@@ -108,8 +108,9 @@
 (defmethod open-document ((window main-window) &key name (path NIL psp))
   (let ((document (make-instance 'document :name (or name "Untitled"))))
     (when psp
-      (load-document NIL document path)
-      (unless name (setf (name document) (pathname-name (file document)))))
+      (if (load-document NIL document path)
+          (unless name (setf (name document) (pathname-name (file document))))
+          (return-from open-document (finalize document))))
     (#_addTab (documents-widget window) document (name document))
     (#_setCurrentWidget (documents-widget window) document)
     document))
@@ -122,7 +123,10 @@
 
 (defun mw-save (window)
   (when (current-document window)
-    (save-document nil (current-document window) (file (current-document window)))))
+    (handler-case
+        (save-document nil (current-document window) (file (current-document window)))
+      (error (err)
+        (#_QMessageBox::critical *window* "Error" (format NIL "Error: ~a" err))))))
 
 (defun mw-save-as (window)
   (when (current-document window)
