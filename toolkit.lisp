@@ -82,6 +82,11 @@
          ,@body
          (#_setWorldTransform ,painter ,transform)))))
 
+(defmacro with-painter ((painter-var target-form) &body body)
+  `(with-objects ((,painter-var (#_new QPainter ,target-form)))
+     ,@body
+     (#_end ,painter-var)))
+
 (defparameter *compositing-mode-list*
   '(("Normal" 0)
     ("Erase" 8)
