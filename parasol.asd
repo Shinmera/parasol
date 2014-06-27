@@ -36,8 +36,7 @@
                              (:file "stroke")
                              (:file "layer")
                              (:file "document")
-                             (:file "cutoff")
-                             (:file "canvas")))
+                             (:file "cutoff")))
                (:module "file-formats"
                 :components ((:file "file-format")))
                (:module "gui"
