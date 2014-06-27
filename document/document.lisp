@@ -31,7 +31,10 @@
    (%active-layer-index :initform 0 :accessor active-layer-index)
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
    (%buffer :initform () :accessor buffer)
-   (%cutoff :initform NIL :accessor cutoff))
+   (%cutoff :initform NIL :accessor cutoff)
+
+   (%modified :initform NIL :accessor modified)
+   (%file :initform NIL :initarg :file :accessor file))
   (:metaclass qt-class)
   (:qt-superclass "QWidget")
   (:override ("paintEvent" paint-event)
@@ -152,7 +155,8 @@
   document)
 
 (defmethod end-stroke ((document document))
-  (end-stroke (active-layer document)))
+  (end-stroke (active-layer document))
+  (setf (modified document) T))
 
 ;;; Painting stuff
 (defmethod paint-event ((widget document) event)
@@ -281,5 +285,16 @@
         document NIL))
 
 (defmethod destroy ((widget document))
-  ;; add checks
-  )
+  (if (modified widget)
+      (qtenumcase (#_QMessageBox::critical widget "Unsaved Changes" "There are unsaved changes!<br />"
+                                           (logior (qt:enum-value (#_QMessageBox::Save))
+                                                   (qt:enum-value (#_QMessageBox::Cancel))
+                                                   (qt:enum-value (#_QMessageBox::Discard)))
+                                           (#_QMessageBox::Cancel))
+        ((#_QMessageBox::Discard)
+         T)
+        ((#_QMessageBox::Cancel)
+         NIL)
+        ((#_QMessageBox::Save)
+         (save-document NIL widget NIL)))
+      T))
