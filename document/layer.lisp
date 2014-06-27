@@ -36,11 +36,13 @@
 
 (defmethod end-stroke ((layer layer))
   (v:debug :layer "~a Ending stroke" layer)
-  (let ((stroke (current-stroke layer)))
-    (vector-push-extend stroke (strokes layer))
-    (with-transform ((painter layer))
-      (draw stroke (painter layer))))
+  (push-history-item layer (current-stroke layer))
   (setf (current-stroke layer) NIL))
+
+(defmethod push-history-item ((layer layer) (item raster-item))
+  (vector-push-extend item (strokes layer))
+  (with-transform ((painter layer))
+    (draw item (painter layer))))
 
 (defmethod truncate-history ((layer layer))
   (loop for i from (fill-pointer (strokes layer))
