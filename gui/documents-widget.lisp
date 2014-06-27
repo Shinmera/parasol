@@ -36,6 +36,9 @@
 (defmethod current-document ((widget documents-widget))
   (#_currentWidget widget))
 
+(defmethod set-document-title ((widget documents-widget) (document document) title)
+  (#_setTabText widget (#_indexOf widget document) title))
+
 (defmethod finalize ((widget documents-widget))
   (loop for i from 0 below (#_count widget)
         for document = (#_widget widget i)
