@@ -13,7 +13,7 @@
 (defmethod save-document ((file-format png) document pathname)
   (with-objects ((image (render-region document)))
     (if (#_save image (uiop:native-namestring pathname) "png" 100)
-        T
+        (not (setf (modified document) NIL))
         (error "Unknown error saving image."))))
 
 (defmethod load-document ((file-format png) document pathname)
