@@ -7,7 +7,7 @@
 (in-package #:parasol)
 (named-readtables:in-readtable :qt)
 
-(define-file-format png
+(define-file-format (png "png" "Portable Network Graphics (*.png)")
   (:save (document pathname)
     (with-objects ((image (render-region document)))
       (if (#_save image (uiop:native-namestring pathname) "png" 100)
@@ -20,7 +20,7 @@
           (push-history-item (active-layer document) (make-instance 'raster-item :pixmap image))
           (error "Unknown error loading image.")))))
 
-(define-file-format jpg
+(define-file-format (jpg "jpg" "JPEG (*.jpg *.jpeg)")
   (:save (document pathname)
     (with-objects ((image (render-region document)))
       (if (#_save image (uiop:native-namestring pathname) "jpg" 100)
@@ -33,7 +33,7 @@
           (push-history-item (active-layer document) (make-instance 'raster-item :pixmap image))
           (error "Unknown error loading image.")))))
 
-(define-file-format bmp
+(define-file-format (bmp "bmp" "Bitmap (*.bmp)")
   (:save (document pathname)
     (with-objects ((image (render-region document)))
       (if (#_save image (uiop:native-namestring pathname) "bmp" 100)
