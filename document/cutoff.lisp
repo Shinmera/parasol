@@ -13,11 +13,13 @@
    (%width :initform 0 :accessor width)
    (%height :initform 0 :accessor height)
    (%color :initform (#_new QColor 0 0 0 200) :accessor color)
-   (%document :initform (error "Document required") :initarg :document :accessor document)))
+   (%document :initform (error "Document required") :initarg :document :accessor document)
+   (%user-defined :initform NIL :accessor user-defined)))
 
 (defmethod draw ((c cutoff) painter)
   (when (and (< 0 (width c))
-             (< 0 (height c)))
+             (< 0 (height c))
+             (user-defined c))
     (let ((d (document c)))
       (#_fillRect painter
                   0
@@ -43,3 +45,6 @@
                   (width c)
                   (- (#_height d) (+ (offset-y c) (offset-y d) (height c)))
                   (color c)))))
+
+(defmethod (setf user-defined) :after (new-value (cutoff cutoff))
+  (#_update (document cutoff)))
