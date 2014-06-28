@@ -27,7 +27,10 @@
           ("save()" mw-save)
           ("saveAs()" mw-save-as)
           ("about()" mw-about)
-          ("curve()" mw-curve))
+          ("curve()" mw-curve)
+          ("dragCutoff()" mw-drag-cutoff)
+          ("clearCutoff()" mw-clear-cutoff)
+          ("moveCanvas()" mw-move-canvas))
   (:override ("keyReleaseEvent" key-release-event)
              ("mousePressEvent" mouse-press-event)))
 
@@ -108,7 +111,19 @@
   (let ((help (#_addMenu (#_menuBar window) "Help")))
     (let ((about (#_new QAction "About" window)))
       (connect about "triggered()" window "about()")
-      (#_addAction help about))))
+      (#_addAction help about)))
+
+  ;; Build toolbars
+  (let ((screen (#_addToolBar window "Screen")))
+    (let ((drag-cutoff (#_new QAction "Drag Cutoff" window))
+          (clear-cutoff (#_new QAction "Clear Cutoff" window))
+          (move-canvas (#_new QAction "Move Canvas" window)))
+      (connect drag-cutoff "triggered()" window "dragCutoff()")
+      (connect clear-cutoff "triggered()" window "clearCutoff()")
+      (connect move-canvas "triggered()" window "moveCanvas()")
+      (#_addAction screen drag-cutoff)
+      (#_addAction screen clear-cutoff)
+      (#_addAction screen move-canvas))))
 
 (defmethod open-document ((window main-window) &key name (path NIL psp))
   (let ((document (make-instance 'document :name (or name "Untitled"))))
@@ -120,6 +135,7 @@
     (#_setCurrentWidget (documents-widget window) document)
     document))
 
+;; Menu functions
 (defun mw-new (window)
   (open-document window :name (format NIL "Untitled - ~d" (#_count (documents-widget window)))))
 
@@ -158,6 +174,17 @@
                                   (asdf:system-maintainer parasol)
                                   (asdf:system-license parasol)))))
 
+;; Toolbar functions
+(defun mw-drag-cutoff (window)
+  (setf (mode (current-document window)) :cutoff))
+
+(defun mw-clear-cutoff (window)
+  (setf (user-defined (cutoff (current-document window))) NIL))
+
+(defun mw-move-canvas (window)
+  (setf (mode (current-document window)) :move))
+
+;; Other guff
 (defmethod mouse-press-event ((window main-window) event)
   (let ((focused (#_QApplication::focusWidget)))
     (when (qt:qtypep focused (find-qclass "QLineEdit"))
