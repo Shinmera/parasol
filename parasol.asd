@@ -18,6 +18,7 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
+               (:file "indent")
                (:file "generics")
                (:module "curves"
                 :components ((:file "curve")
@@ -40,7 +41,7 @@
                              (:file "cutoff")))
                (:module "file-formats"
                 :components ((:file "file-format")
-                             (:file "png")))
+                             (:file "basic")))
                (:module "gui"
                 :components ((:file "ex-slider-widget")
                              (:file "file-chooser-widget")
