@@ -69,6 +69,9 @@
 (defmethod (setf modified) :after (new-val (document document))
   (set-document-title (documents-widget *window*) document (format NIL "~a ~:[~;*~]" (name document) new-val)))
 
+(defmethod (setf name) :after (new-val (document document))
+  (set-document-title (documents-widget *window*) document (format NIL "~a ~:[~;*~]" new-val (modified document))))
+
 ;;; Stroke stuff
 (defmethod tablet-event ((widget document) event)
   (if (enum= (#_type event) (#_QEvent::TabletRelease))
@@ -85,20 +88,28 @@
 (defmethod mouse-press-event ((widget document) event)
   (qtenumcase (#_button event)
     ((#_Qt::LeftButton)
-     (if (tab-event widget)
-         (progn
-           (setf (mode widget) :tablet)
-           (let ((event (tab-event widget)))
-             (start-stroke widget
-                           (pointer event)
-                           (x event) (y event)
-                           (x-tilt event) (y-tilt event)
-                           (pressure event))))
-         (progn
-           (setf (mode widget) :mouse)
-           (start-stroke widget
-                         2 (#_x event) (#_y event)
-                         0 0 *mouse-pressure*))))
+     (case (mode widget)
+       (:cutoff
+        (setf (offset-x (cutoff widget)) (- (#_x event) (offset-x widget))
+              (offset-y (cutoff widget)) (- (#_y event) (offset-y widget))))
+       (:move
+        (setf (car (last-mouse widget)) (#_x event)
+              (cdr (last-mouse widget)) (#_y event)))
+       (T
+        (if (tab-event widget)
+            (progn
+              (setf (mode widget) :tablet)
+              (let ((event (tab-event widget)))
+                (start-stroke widget
+                              (pointer event)
+                              (x event) (y event)
+                              (x-tilt event) (y-tilt event)
+                              (pressure event))))
+            (progn
+              (setf (mode widget) :mouse)
+              (start-stroke widget
+                            2 (#_x event) (#_y event)
+                            0 0 *mouse-pressure*))))))
     ((#_Qt::RightButton)
      (cycle-color *window*))
     ((#_Qt::MiddleButton)
@@ -129,6 +140,11 @@
              (- (#_y event) (cdr last)))
        (setf (car last) (#_x event)
              (cdr last) (#_y event)))
+     (#_update widget))
+    (:cutoff
+     (let ((c (cutoff widget)))
+       (setf (width c) (- (- (#_x event) (offset-x c)) (offset-x widget))
+             (height c) (- (- (#_y event) (offset-y c)) (offset-y widget))))
      (#_update widget)))
   (#_ignore event))
 
@@ -136,7 +152,9 @@
   (case (mode widget)
     ((:tablet :mouse)
      (end-stroke widget)
-     (#_update widget)))
+     (#_update widget))
+    ((:cutoff)
+     (setf (user-defined (cutoff widget)) T)))
   (setf (mode widget) NIL
         (tab-event widget) NIL)
   (#_ignore event))
@@ -280,9 +298,11 @@
   (#_update document))
 
 (defmethod render-region ((document document))
-  (fit-cutoff document) ;; Fix to honour user-defined cutoffs
   (let* ((c (cutoff document))
          (image (#_new QImage (width c) (height c) (#_QImage::Format_ARGB32_Premultiplied))))
+    (#_fill image (#_Qt::transparent))
+    (unless (user-defined c)
+      (fit-cutoff document))
     (with-painter (painter image)
       (#_translate painter (- (offset-x c)) (- (offset-y c)))
       (loop for layer across (layers document)
