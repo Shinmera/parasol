@@ -91,7 +91,8 @@
      (case (mode widget)
        (:cutoff
         (setf (offset-x (cutoff widget)) (- (#_x event) (offset-x widget))
-              (offset-y (cutoff widget)) (- (#_y event) (offset-y widget))))
+              (offset-y (cutoff widget)) (- (#_y event) (offset-y widget))
+              (user-defined (cutoff widget)) T))
        (:move
         (setf (car (last-mouse widget)) (#_x event)
               (cdr (last-mouse widget)) (#_y event)))
@@ -143,8 +144,8 @@
      (#_update widget))
     (:cutoff
      (let ((c (cutoff widget)))
-       (setf (width c) (- (- (#_x event) (offset-x c)) (offset-x widget))
-             (height c) (- (- (#_y event) (offset-y c)) (offset-y widget))))
+       (setf (width c) (- (#_x event) (offset-x c) (offset-x widget)))
+       (setf (height c) (- (#_y event) (offset-y c) (offset-y widget))))
      (#_update widget)))
   (#_ignore event))
 
