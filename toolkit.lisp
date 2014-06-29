@@ -26,7 +26,7 @@
 ;; Qt helper stuff
 (defgeneric copy-qobject (qclass instance)
   (:method :before (qclass instance)
-    (v:debug :cleanup "Copying QObject: ~a" instance))
+    (v:trace :cleanup "Copying QObject: ~a" instance))
   ;; QImage
   (:method ((qclass (eql 11848)) instance) 
     (#_copy instance))
@@ -47,9 +47,9 @@
 (defun maybe-delete-qobject (object)
   (if (typep object 'abstract-qobject)
       (when (qobject-alive-p object)
-        (v:debug :cleanup "Deleting QObject: ~a" object)
+        (v:trace :cleanup "Deleting QObject: ~a" object)
         (optimized-delete object))
-      (v:debug :cleanup "Deleting QObject: WARN Tried to delete non-qobject ~a" object)))
+      (v:trace :cleanup "Deleting QObject: WARN Tried to delete non-qobject ~a" object)))
 
 (defun finalize-and-delete (object)
   (finalize object)
@@ -67,6 +67,13 @@
                      do (push NIL stuff)
                         (push `(,accessor ,instance) stuff)
                      finally (return stuff))))))
+
+(defmacro with-cleanup-on-error ((&rest cleanup-vars) (&rest error-types) &body body)
+  `(handler-bind (((or ,@error-types)
+                    #'(lambda (err)
+                        (v:debug :cleanup "WITH-CLEANUP-ON-ERROR triggered due to ~a. Cleaning up ~a" err ',cleanup-vars)
+                        ,@(loop for var in cleanup-vars collect `(finalize-and-delete ,var)))))
+     ,@body))
 
 (defmacro with-dialog ((var instance-form) &body setup-forms)
   `(with-objects ((,var ,instance-form))
@@ -108,3 +115,15 @@
     (loop for (key val) in *compositing-mode-list*
           do (setf (gethash key map) val))
     map))
+
+(defun make-temporary-directory-name ()
+  (format NIL "parasol-~10,'0d-~10,'0d" (get-universal-time) (random 10000000000)))
+
+(defmacro with-temporary-directory ((pathname-value &key (base-dir (uiop:temporary-directory))
+                                                      (sub-dir (make-temporary-directory-name))) &body body)
+  `(let ((,pathname-value (merge-pathnames (uiop:ensure-directory-pathname ,sub-dir) ,base-dir)))
+     (unwind-protect
+          (progn
+            (ensure-directories-exist ,pathname-value)
+            ,@body)
+       (uiop:delete-directory-tree ,pathname-value :validate (constantly T) :if-does-not-exist :ignore))))
