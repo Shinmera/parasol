@@ -17,7 +17,8 @@
   (:load (document pathname)
     (let ((image (#_new QImage (uiop:native-namestring pathname) "png")))
       (if image
-          (push-history-item (active-layer document) (make-instance 'raster-item :pixmap image))
+          (push-history-item (make-instance 'raster-item :pixmap image)
+                             (active-layer document))
           (error "Unknown error loading image.")))))
 
 (define-file-format (jpg "jpg" "JPEG (*.jpg *.jpeg)")
@@ -30,7 +31,8 @@
   (:load (document pathname)
     (let ((image (#_new QImage (uiop:native-namestring pathname) "jpg")))
       (if image
-          (push-history-item (active-layer document) (make-instance 'raster-item :pixmap image))
+          (push-history-item (make-instance 'raster-item :pixmap image)
+                             (active-layer document))
           (error "Unknown error loading image.")))))
 
 (define-file-format (bmp "bmp" "Bitmap (*.bmp)")
@@ -43,5 +45,6 @@
   (:load (document pathname)
     (let ((image (#_new QImage (uiop:native-namestring pathname) "bmp")))
       (if image
-          (push-history-item (active-layer document) (make-instance 'raster-item :pixmap image))
+          (push-history-item (make-instance 'raster-item :pixmap image)
+                             (active-layer document))
           (error "Unknown error loading image.")))))

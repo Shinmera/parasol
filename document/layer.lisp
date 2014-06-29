@@ -36,10 +36,10 @@
 
 (defmethod end-stroke ((layer layer))
   (v:debug :layer "~a Ending stroke" layer)
-  (push-history-item layer (current-stroke layer))
+  (push-history-item (current-stroke layer) layer)
   (setf (current-stroke layer) NIL))
 
-(defmethod push-history-item ((layer layer) (item raster-item))
+(defmethod push-history-item ((item raster-item) (layer layer))
   (assure-suitable-size layer (offset-x item) (offset-y item))
   (assure-suitable-size layer
                         (+ (offset-x item) (width item))
