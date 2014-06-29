@@ -60,4 +60,7 @@
                :cl-opengl
                :uiop
                :closer-mop
-               :verbose))
+               :verbose
+               :zip
+               :lquery
+               :parse-float))

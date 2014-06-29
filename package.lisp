@@ -6,5 +6,5 @@
 
 (defpackage #:parasol
   (:nicknames #:org.tymoonnext.parasol)
-  (:use #:cl #:qt)
+  (:use #:cl #:qt #:parse-float)
   (:export #:main))
