@@ -15,6 +15,7 @@
 
 (defmethod assure-suitable-size ((layer expanding-layer) x y)
   ;; First stroke. We can optimize by moving our canvas closer.
+  (setf x (round x) y (round y))
   (when (= (width layer) 0)
     (setf (offset-x layer) (+ x (/ *layer-block-size* 2))
           (offset-y layer) (+ y (/ *layer-block-size* 2))))
