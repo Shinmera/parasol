@@ -86,9 +86,8 @@
     (#_setOpacity painter (opacity layer))
     (#_setCompositionMode painter (mode layer))
     (if (current-stroke layer)
-        (progn
-          (with-objects ((tempimg (#_new QImage (pixmap layer)))
-                         (temppaint (#_new QPainter tempimg)))
+        (with-objects ((tempimg (#_new QImage (pixmap layer))))
+          (with-painter (temppaint tempimg)
             (#_translate temppaint (- (offset-x layer)) (- (offset-y layer)))
             (draw (current-stroke layer) temppaint)
             (#_drawImage painter (offset-x layer) (offset-y layer) tempimg)))
