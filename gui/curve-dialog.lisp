@@ -43,7 +43,7 @@
         (distance (#_new QDoubleSpinBox))
         (button-ok (#_new QPushButton "Ok"))
         (button-cancel (#_new QPushButton "Cancel"))
-        (button-refresh (#_new QPushButton (#_QIcon::fromTheme "view-refresh") "")))
+        (button-refresh (#_new QPushButton (#_QIcon::fromTheme "view-refresh") "Refresh")))
     (setf (picker dialog) picker
           (canvas dialog) canvas
           (distance dialog) distance
