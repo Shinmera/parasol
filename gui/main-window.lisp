@@ -118,9 +118,9 @@
 
   ;; Build toolbars
   (let ((screen (#_addToolBar window "Screen")))
-    (let ((drag-cutoff (#_new QAction "Drag Cutoff" window))
-          (clear-cutoff (#_new QAction "Clear Cutoff" window))
-          (move-canvas (#_new QAction "Move Canvas" window))
+    (let ((drag-cutoff (#_new QAction (icon "cutoff-drag") "Drag Cutoff" window))
+          (clear-cutoff (#_new QAction (icon "cutoff-clear") "Clear Cutoff" window))
+          (move-canvas (#_new QAction (icon "canvas-move") "Move Canvas" window))
 
           (zoom-in (#_new QAction (#_QIcon::fromTheme "zoom-in") "+" window))
           (zoom-out (#_new QAction (#_QIcon::fromTheme "zoom-out") "-" window))
