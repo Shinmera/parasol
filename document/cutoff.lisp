@@ -21,30 +21,17 @@
              (< 0 (height c))
              (user-defined c))
     (let ((d (document c)))
-      (#_fillRect painter
-                  0
-                  0
-                  (+ (offset-x c) (offset-x d))
-                  (#_height d)
-                  (color c))
-      (#_fillRect painter
-                  (+ (offset-x c) (offset-x d) (width c))
-                  0
-                  (- (#_width d) (+ (offset-x c) (offset-x d) (width c)))
-                  (#_height d)
-                  (color c))
-      (#_fillRect painter
-                  (+ (offset-x c) (offset-x d))
-                  0
-                  (width c)
-                  (+ (offset-y c) (offset-y d))
-                  (color c))
-      (#_fillRect painter
-                  (+ (offset-x c) (offset-x d))
-                  (+ (offset-y c) (offset-y d) (height c))
-                  (width c)
-                  (- (#_height d) (+ (offset-y c) (offset-y d) (height c)))
-                  (color c)))))
+      (with-objects ((img (#_new QImage (#_width d) (#_height d) (#_QImage::Format_ARGB32_Premultiplied))))
+        (#_fill img (color c))
+        (with-painter (painter img)
+          (#_setCompositionMode painter (#_QPainter::CompositionMode_Clear))
+          (#_fillRect painter
+                      (round (+ (offset-x d) (* (zoom d) (offset-x c))))
+                      (round (+ (offset-y d) (* (zoom d) (offset-y c))))
+                      (round (* (zoom d) (width c)))
+                      (round (* (zoom d) (height c)))
+                      (color c)))
+        (#_drawImage painter 0 0 img)))))
 
 (defmethod (setf user-defined) :after (new-value (cutoff cutoff))
   (#_update (document cutoff)))
