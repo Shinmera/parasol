@@ -28,6 +28,7 @@
    (%bg-brush :initform NIL :initarg :bg-brush :accessor bg-brush)
    (%offset-x :initform 0 :accessor offset-x)
    (%offset-y :initform 0 :accessor offset-y)
+   (%zoom :initform 1.0 :accessor zoom)
    (%active-layer-index :initform 0 :accessor active-layer-index)
    (%layers :initform (make-array 0 :adjustable T :fill-pointer 0) :accessor layers)
    (%buffer :initform () :accessor buffer)
@@ -71,6 +72,9 @@
 
 (defmethod (setf name) :after (new-val (document document))
   (set-document-title (documents-widget *window*) document (format NIL "~a ~:[~;*~]" new-val (modified document))))
+
+(defmethod (setf zoom) :after (new-val (document document))
+  (#_update document))
 
 ;;; Stroke stuff
 (defmethod tablet-event ((widget document) event)
@@ -164,15 +168,19 @@
   (push-color *window*)
   (start-stroke (active-layer document)
                 type
-                (- x (offset-x document))
-                (- y (offset-y document))
+                (/ (- x (offset-x document))
+                   (zoom document))
+                (/ (- y (offset-y document))
+                   (zoom document))
                 x-tilt y-tilt pressure)
   document)
 
 (defmethod record-point ((document document) x y x-tilt y-tilt pressure)
   (record-point (active-layer document)
-                (- x (offset-x document))
-                (- y (offset-y document))
+                (/ (- x (offset-x document))
+                   (zoom document))
+                (/ (- y (offset-y document))
+                   (zoom document))
                 x-tilt y-tilt pressure)
   document)
 
@@ -187,14 +195,28 @@
     (#_end painter)))
 
 (defmethod draw ((document document) painter)
-  (with-objects ((transform (#_new QTransform)))
-    (#_translate  transform (offset-x document) (offset-y document))
-    (#_setTransform (bg-brush document) transform)
-    (#_fillRect painter (#_rect document) (bg-brush document)))
+  (with-transform (painter)
+    (with-objects ((transform (#_new QTransform)))
+      (#_translate  transform
+                    (/ (offset-x document)
+                       (zoom document))
+                    (/ (offset-y document)
+                       (zoom document)))
+      (#_setTransform (bg-brush document) transform)
+      (#_scale painter (zoom document) (zoom document))
+      (#_fillRect painter 0 0
+                  (round (/ (#_width document)
+                            (zoom document)))
+                  (round (/ (#_height document)
+                            (zoom document)))
+                  (bg-brush document))))
   (with-objects ((painter (#_new QPainter (buffer document)))
                  (transparent (#_new QColor 0 0 0 0)))
     (#_fill (buffer document) transparent)
-    (#_translate painter (offset-x document) (offset-y document))
+    (#_translate painter
+                 (offset-x document)
+                 (offset-y document))
+    (#_scale painter (zoom document) (zoom document))
     (loop for layer across (layers document)
           do (draw layer painter))
     (#_end painter))

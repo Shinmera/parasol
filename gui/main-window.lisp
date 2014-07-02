@@ -30,7 +30,10 @@
           ("curve()" mw-curve)
           ("dragCutoff()" mw-drag-cutoff)
           ("clearCutoff()" mw-clear-cutoff)
-          ("moveCanvas()" mw-move-canvas))
+          ("moveCanvas()" mw-move-canvas)
+          ("zoomIn()" mw-zoom-in)
+          ("zoomOut()" mw-zoom-out)
+          ("zoomRestore()" mw-zoom-restore))
   (:override ("keyReleaseEvent" key-release-event)
              ("mousePressEvent" mouse-press-event)))
 
@@ -117,13 +120,24 @@
   (let ((screen (#_addToolBar window "Screen")))
     (let ((drag-cutoff (#_new QAction "Drag Cutoff" window))
           (clear-cutoff (#_new QAction "Clear Cutoff" window))
-          (move-canvas (#_new QAction "Move Canvas" window)))
+          (move-canvas (#_new QAction "Move Canvas" window))
+
+          (zoom-in (#_new QAction (#_QIcon::fromTheme "zoom-in") "+" window))
+          (zoom-out (#_new QAction (#_QIcon::fromTheme "zoom-out") "-" window))
+          (zoom-restore (#_new QAction (#_QIcon::fromTheme "zoom-original") "1.0" window)))
       (connect drag-cutoff "triggered()" window "dragCutoff()")
       (connect clear-cutoff "triggered()" window "clearCutoff()")
       (connect move-canvas "triggered()" window "moveCanvas()")
+      (connect zoom-in "triggered()" window "zoomIn()")
+      (connect zoom-out "triggered()" window "zoomOut()")
+      (connect zoom-restore "triggered()" window "zoomRestore()")
       (#_addAction screen drag-cutoff)
       (#_addAction screen clear-cutoff)
-      (#_addAction screen move-canvas))))
+      (#_addAction screen move-canvas)
+      (#_addSeparator screen)
+      (#_addAction screen zoom-in)
+      (#_addAction screen zoom-out)
+      (#_addAction screen zoom-restore))))
 
 (defmethod open-document ((window main-window) &key name (path NIL psp))
   (let ((document (make-instance 'document :name (or name "Untitled"))))
@@ -183,6 +197,18 @@
 
 (defun mw-move-canvas (window)
   (setf (mode (current-document window)) :move))
+
+(defun mw-zoom-in (window)
+  (incf (zoom (current-document window))
+        (zoom (current-document window))))
+
+(defun mw-zoom-out (window)
+  (when (< 0.01 (zoom (current-document window)))
+    (decf (zoom (current-document window))
+          (/ (zoom (current-document window)) 2))))
+
+(defun mw-zoom-restore (window)
+  (setf (zoom (current-document window)) 1.0))
 
 ;; Other guff
 (defmethod mouse-press-event ((window main-window) event)
