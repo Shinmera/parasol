@@ -127,3 +127,6 @@
             (ensure-directories-exist ,pathname-value)
             ,@body)
        (uiop:delete-directory-tree ,pathname-value :validate (constantly T) :if-does-not-exist :ignore))))
+
+(defun icon (name)
+  (#_new QIcon (uiop:native-namestring (merge-pathnames (format NIL "~a.png" name) *graphics*))))
