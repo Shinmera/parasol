@@ -19,6 +19,7 @@
   :components ((:file "package")
                (:file "toolkit")
                (:file "indent")
+               (:file "queue")
                (:file "generics")
                (:module "curves"
                 :components ((:file "curve")
@@ -63,4 +64,5 @@
                :verbose
                :zip
                :lquery
-               :parse-float))
+               :parse-float
+               :bordeaux-threads))
