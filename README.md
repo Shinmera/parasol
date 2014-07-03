@@ -17,7 +17,7 @@ Rough roadmap:
  * TODO Efficient history algorithm
  * DONE Cutoff/Crop support
  * DONE OpenRaster save/load
- * TODO Zoom support
+ * DONE Zoom support
  * TODO Global history
  * TODO Texture-blended brushes
  * TODO Brush setting presets
@@ -29,6 +29,7 @@ Rough roadmap:
  * TODO Optimization
  * TODO Multi-Platform testing
  * TODO Multi-Implementation testing
+ * TODO Perspective and modelling tools
  
 And probably loads more.
 
