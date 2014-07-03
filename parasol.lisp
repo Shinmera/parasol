@@ -9,9 +9,10 @@
 
 (defun main ()
   (ensure-smoke :qtopengl)
-  (progn
-    (make-qapplication)
-    (with-objects ((window (make-instance 'main-window)))
-      (#_show window)
-      (#_exec *qapplication*)
-      (finalize window))))
+  (make-qapplication)
+  (with-objects ((window (make-instance 'main-window)))
+    ;; Until I figure out what the hell is up
+    (#_QIcon::setThemeName "Faenza")
+    (#_show window)
+    (#_exec *qapplication*)
+    (finalize window)))
