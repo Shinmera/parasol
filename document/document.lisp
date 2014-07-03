@@ -64,7 +64,8 @@
 
 (defmethod resize-canvas ((document document) width height)
   (when (buffer document) (maybe-delete-qobject (buffer document)))
-  (setf (buffer document) (#_new QImage width height (#_QImage::Format_ARGB32_Premultiplied))))
+  (setf (buffer document) (#_new QImage width height (#_QImage::Format_ARGB32_Premultiplied)))
+  (update-buffer document))
 
 (defmethod resize-event ((widget document) event)
   (resize-canvas widget (#_width widget) (#_height widget)))
@@ -110,16 +111,12 @@
             (progn
               (setf (mode widget) :tablet)
               (let ((event (tab-event widget)))
-                (start-stroke widget
-                              (pointer event)
-                              (x event) (y event)
-                              (x-tilt event) (y-tilt event)
-                              (pressure event))))
+                (queue-push (list :start (pointer event) (x event) (y event) (x-tilt event) (y-tilt event) (pressure event))
+                            (point-queue widget))))
             (progn
               (setf (mode widget) :mouse)
-              (start-stroke widget
-                            2 (#_x event) (#_y event)
-                            0 0 *mouse-pressure*))))))
+              (queue-push (list :start 2 (#_x event) (#_y event) 0 0 *mouse-pressure*)
+                          (point-queue widget)))))))
     ((#_Qt::RightButton)
      (cycle-color *window*))
     ((#_Qt::MiddleButton)
@@ -132,17 +129,10 @@
   (case (mode widget)
     (:tablet
      (let ((event (tab-event widget)))
-       ;; (record-point widget
-       ;;               (x event) (y event)
-       ;;               (x-tilt event) (y-tilt event)
-       ;;               (pressure event))
-       (queue-push (list (x event) (y event) (x-tilt event) (y-tilt event) (pressure event))
+       (queue-push (list T (x event) (y event) (x-tilt event) (y-tilt event) (pressure event))
                    (point-queue widget))))
     (:mouse
-     ;; (record-point widget
-     ;;               (#_x event) (#_y event)
-     ;;               0 0 *mouse-pressure*)
-     (queue-push (list (#_x event) (#_y event) 0 0 *mouse-pressure*)
+     (queue-push (list T (#_x event) (#_y event) 0 0 *mouse-pressure*)
                  (point-queue widget)))
     (:move
      (let ((last (last-mouse widget)))
@@ -160,26 +150,31 @@
   (#_ignore event))
 
 (defun document-event-update-loop (widget)
-  (v:info :document "Event update loop start.")
-  (loop while (lock widget)
-        for points = (bt:with-lock-held ((lock widget))
-                       (prog1 (queue-list (point-queue widget))
-                         (queue-clear (point-queue widget))))
-        do (when points
-             (loop for point in points
-                   do (if (eql point :end)
-                          (end-stroke widget)
-                          (apply #'record-point widget point)))
-             (update-buffer widget)
-             (#_update widget))
-           (sleep 1/60)
-           (bt:thread-yield))
-  (v:info :document "Event update loop end."))
+  (v:debug :document "Event update loop start.")
+  (unwind-protect
+       (loop while (lock widget)
+             for points = (bt:with-lock-held ((lock widget))
+                            (prog1 (queue-list (point-queue widget))
+                              (queue-clear (point-queue widget))))
+             do (when points
+                  (loop for point in points
+                        do (case (car point)
+                             (:end
+                              (apply #'end-stroke widget (cdr point)))
+                             (:start
+                              (apply #'start-stroke widget (cdr point)))
+                             (T
+                              (apply #'record-point widget (cdr point)))))
+                  (update-buffer widget)
+                  (#_update widget))
+                (sleep 1/60)
+                (bt:thread-yield))
+    (v:debug :document "Event update loop end.")))
 
 (defmethod mouse-release-event ((widget document) event)
   (case (mode widget)
     ((:tablet :mouse)
-     (queue-push :end (point-queue widget)))
+     (queue-push '(:end) (point-queue widget)))
     ((:cutoff)
      (setf (user-defined (cutoff widget)) T)))
   (setf (mode widget) NIL
@@ -229,6 +224,8 @@
     (#_end painter)))
 
 (defmethod draw ((document document) painter)
+  ;; We can't have this in update-buffer because it would interfere
+  ;; with layer compositing modes. Oh well.
   (with-transform (painter)
     (with-objects ((transform (#_new QTransform)))
       (#_translate  transform
@@ -269,6 +266,7 @@
     (vector-pop (layers document))
     (when (= (length (layers document)) 0)
       (add-layer document))
+    (update-buffer document)
     (#_update document)))
 
 (defmethod move-layer ((document document) index)
@@ -285,6 +283,7 @@
     ;; Push in
     (setf (aref layers index) layer
           (active-layer-index document) index))
+  (update-buffer document)
   (#_update document))
 
 (defmethod move ((document document) x y)
@@ -294,10 +293,12 @@
 ;;; History stuff
 (defmethod undo ((document document))
   (undo (active-layer document))
+  (update-buffer document)
   (#_update document))
 
 (defmethod redo ((document document))
   (redo (active-layer document))
+  (update-buffer document)
   (#_update document))
 
 ;;; Background stuff
