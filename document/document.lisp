@@ -35,7 +35,11 @@
    (%cutoff :initform NIL :accessor cutoff)
 
    (%modified :initform NIL :accessor modified)
-   (%file :initform NIL :initarg :file :accessor file))
+   (%file :initform NIL :initarg :file :accessor file)
+
+   (%lock :initform (bt:make-lock) :accessor lock)
+   (%point-queue :initform (make-queue) :accessor point-queue)
+   (%updater-thread :accessor updater-thread))
   (:metaclass qt-class)
   (:qt-superclass "QWidget")
   (:override ("paintEvent" paint-event)
@@ -55,7 +59,8 @@
   (setf (background document) (merge-pathnames "background.png" *graphics*)
         (cutoff document) (make-instance 'cutoff :document document))
   (resize-canvas document (#_width document) (#_height document))
-  (add-layer document))
+  (add-layer document)
+  (setf (updater-thread document) (bt:make-thread #'(lambda () (document-event-update-loop document)))))
 
 (defmethod resize-canvas ((document document) width height)
   (when (buffer document) (maybe-delete-qobject (buffer document)))
@@ -121,23 +126,24 @@
      (setf (mode widget) :move)
      (setf (car (last-mouse widget)) (#_x event)
            (cdr (last-mouse widget)) (#_y event))))
-  (#_update widget)
   (#_ignore event))
 
 (defmethod mouse-move-event ((widget document) event)
   (case (mode widget)
     (:tablet
      (let ((event (tab-event widget)))
-       (record-point widget
-                     (x event) (y event)
-                     (x-tilt event) (y-tilt event)
-                     (pressure event)))
-     (#_update widget))
+       ;; (record-point widget
+       ;;               (x event) (y event)
+       ;;               (x-tilt event) (y-tilt event)
+       ;;               (pressure event))
+       (queue-push (list (x event) (y event) (x-tilt event) (y-tilt event) (pressure event))
+                   (point-queue widget))))
     (:mouse
-     (record-point widget
-                   (#_x event) (#_y event)
-                   0 0 *mouse-pressure*)
-     (#_update widget))
+     ;; (record-point widget
+     ;;               (#_x event) (#_y event)
+     ;;               0 0 *mouse-pressure*)
+     (queue-push (list (#_x event) (#_y event) 0 0 *mouse-pressure*)
+                 (point-queue widget)))
     (:move
      (let ((last (last-mouse widget)))
        (move widget
@@ -153,11 +159,27 @@
      (#_update widget)))
   (#_ignore event))
 
+(defun document-event-update-loop (widget)
+  (v:info :document "Event update loop start.")
+  (loop while (lock widget)
+        for points = (bt:with-lock-held ((lock widget))
+                       (prog1 (queue-list (point-queue widget))
+                         (queue-clear (point-queue widget))))
+        do (when points
+             (loop for point in points
+                   do (if (eql point :end)
+                          (end-stroke widget)
+                          (apply #'record-point widget point)))
+             (update-buffer widget)
+             (#_update widget))
+           (sleep 1/60)
+           (bt:thread-yield))
+  (v:info :document "Event update loop end."))
+
 (defmethod mouse-release-event ((widget document) event)
   (case (mode widget)
     ((:tablet :mouse)
-     (end-stroke widget)
-     (#_update widget))
+     (queue-push :end (point-queue widget)))
     ((:cutoff)
      (setf (user-defined (cutoff widget)) T)))
   (setf (mode widget) NIL
@@ -194,6 +216,18 @@
     (draw widget painter)
     (#_end painter)))
 
+(defmethod update-buffer ((document document))
+  (with-objects ((painter (#_new QPainter (buffer document)))
+                 (transparent (#_new QColor 0 0 0 0)))
+    (#_fill (buffer document) transparent)
+    (#_translate painter
+                 (offset-x document)
+                 (offset-y document))
+    (#_scale painter (zoom document) (zoom document))
+    (loop for layer across (layers document)
+          do (draw layer painter))
+    (#_end painter)))
+
 (defmethod draw ((document document) painter)
   (with-transform (painter)
     (with-objects ((transform (#_new QTransform)))
@@ -210,16 +244,6 @@
                   (round (/ (#_height document)
                             (zoom document)))
                   (bg-brush document))))
-  (with-objects ((painter (#_new QPainter (buffer document)))
-                 (transparent (#_new QColor 0 0 0 0)))
-    (#_fill (buffer document) transparent)
-    (#_translate painter
-                 (offset-x document)
-                 (offset-y document))
-    (#_scale painter (zoom document) (zoom document))
-    (loop for layer across (layers document)
-          do (draw layer painter))
-    (#_end painter))
   (#_drawImage painter 0 0 (buffer document))
   (draw (cutoff document) painter))
 
@@ -339,7 +363,11 @@
         do (finalize layer))
   (setf (bg-brush document) NIL
         (layers document) NIL
-        document NIL))
+        (lock document) NIL
+        (point-queue document) NIL)
+  (bt:thread-yield)
+  (when (bt:thread-alive-p (updater-thread document))
+    (bt:destroy-thread (updater-thread document))))
 
 (defmethod destroy ((widget document))
   (if (modified widget)
