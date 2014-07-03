@@ -48,7 +48,7 @@
 
 (defmethod load-document ((file-format null) (document document) (pathname null))
   (let ((path (#_QFileDialog::getOpenFileName *window* "Choose File" (uiop:native-namestring (user-homedir-pathname))
-                                              (format NIL "~{~a~^;;~}" (file-formats-filter)))))
+                                              (format NIL "~{~a~^;;~};;Any File (*)" (file-formats-filter)))))
     (when (< 0 (length path))
       (handler-case
           (progn (load-document nil document (uiop:parse-native-namestring path)) T)
