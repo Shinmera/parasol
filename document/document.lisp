@@ -80,6 +80,7 @@
   (set-document-title (documents-widget *window*) document (format NIL "~a ~:[~;*~]" new-val (modified document))))
 
 (defmethod (setf zoom) :after (new-val (document document))
+  (update-buffer document)
   (#_update document))
 
 ;;; Stroke stuff
@@ -141,6 +142,7 @@
              (- (#_y event) (cdr last)))
        (setf (car last) (#_x event)
              (cdr last) (#_y event)))
+     (update-buffer widget)
      (#_update widget))
     (:cutoff
      (let ((c (cutoff widget)))
