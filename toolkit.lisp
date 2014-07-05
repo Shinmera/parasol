@@ -86,13 +86,15 @@
         (transform (gensym "TRANSFORM")))
     `(let ((,painter ,painter-form))
        (let ((,transform (#_new QTransform (#_worldTransform ,painter))))
-         ,@body
-         (#_setWorldTransform ,painter ,transform)))))
+         (unwind-protect
+              (progn ,@body)
+           (#_setWorldTransform ,painter ,transform))))))
 
 (defmacro with-painter ((painter-var target-form) &body body)
   `(with-objects ((,painter-var (#_new QPainter ,target-form)))
-     ,@body
-     (#_end ,painter-var)))
+     (unwind-protect
+          (progn ,@body)
+       (#_end ,painter-var))))
 
 (defparameter *compositing-mode-list*
   '(("Normal" 0)
