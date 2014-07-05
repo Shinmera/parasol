@@ -207,21 +207,18 @@
 
 ;;; Painting stuff
 (defmethod paint-event ((widget document) event)
-  (with-objects ((painter (#_new QPainter widget)))
-    (draw widget painter)
-    (#_end painter)))
+  (with-painter (painter widget)
+    (draw widget painter)))
 
 (defmethod update-buffer ((document document))
-  (with-objects ((painter (#_new QPainter (buffer document)))
-                 (transparent (#_new QColor 0 0 0 0)))
-    (#_fill (buffer document) transparent)
+  (with-painter (painter (buffer document))
+    (#_fill (buffer document) (#_Qt::transparent))
     (#_translate painter
                  (offset-x document)
                  (offset-y document))
     (#_scale painter (zoom document) (zoom document))
     (loop for layer across (layers document)
-          do (draw layer painter))
-    (#_end painter)))
+          do (draw layer painter))))
 
 (defmethod draw ((document document) painter)
   ;; We can't have this in update-buffer because it would interfere
