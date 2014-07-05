@@ -8,6 +8,25 @@
 (named-readtables:in-readtable :qt)
 
 (defvar *graphics* (merge-pathnames "graphics/" (asdf:system-source-directory :parasol)))
+(defvar *on-start* (make-hash-table))
+
+(defmacro eval-on-qt-start ((identifier) &body forms)
+  (assert (symbolp identifier))
+  `(setf (gethash ',identifier *on-start*)
+         (list NIL #'(lambda () ,@forms))))
+
+(defun run-qt-startup-hook (identifier &key force)
+  (let ((entry (gethash identifier *on-start*)))
+    (when entry
+      (destructuring-bind (started func) entry
+        (when (or force (not started))
+          (v:info :qt-startup "Running startup hook ~a" identifier)
+          (funcall func)
+          (setf (first entry) T))))))
+
+(defun run-qt-startup-hooks ()
+  (loop for key being the hash-keys of *on-start*
+        do (run-qt-startup-hook key)))
 
 ;; Curve helper stuff
 (defun idata (var data-slot pos)
@@ -95,6 +114,33 @@
      (unwind-protect
           (progn ,@body)
        (#_end ,painter-var))))
+
+(defvar *glformat* NIL)
+(defun make-gl-pixbuf (width height)
+  (#_new QGLPixelBuffer width height *glformat*))
+
+(eval-on-qt-start (define-glformat)
+  (unless *glformat*
+    (setf *glformat* (#_new QGLFormat))
+    (#_setAlpha *glformat* T)
+    (#_setSampleBuffers *glformat* T)))
+
+(defvar *color-cache-map* (make-hash-table))
+(defun cached-color (name)
+  (gethash name *color-cache-map*))
+(defmethod (setf cached-color) (name r g b &optional (a 255))
+  (when (gethash name *color-cache-map*)
+    (maybe-delete-qobject (gethash name *color-cache-map*)))
+  (setf (gethash name *color-cache-map*)
+        (#_new QColor r g b a)))
+
+(eval-on-qt-start (define-colors)
+  (setf (cached-color 0 0 0 0) 'transparent
+        (cached-color 255 0 0) 'red
+        (cached-color 0 255 0) 'green
+        (cached-color 0 0 255) 'blue
+        (cached-color 0 0 0) 'black
+        (cached-color 255 255 255) 'white))
 
 (defparameter *compositing-mode-list*
   '(("Normal" 0)

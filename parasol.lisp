@@ -10,6 +10,7 @@
 (defun main ()
   (ensure-smoke :qtopengl)
   (make-qapplication)
+  (run-qt-startup-hooks)
   (with-objects ((window (make-instance 'main-window)))
     ;; Until I figure out what the hell is up
     (#_QIcon::setThemeName "Faenza")
