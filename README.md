@@ -30,6 +30,7 @@ Rough roadmap:
  * TODO Multi-Platform testing
  * TODO Multi-Implementation testing
  * TODO Perspective and modelling tools
+ * TODO Brush components brush with pipeline UI
  
 And probably loads more.
 
