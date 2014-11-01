@@ -15,5 +15,6 @@
   :homepage "https://github.com/Shinmera/parasol"
   :serial T
   :components ((:file "package")
-               (:file "compat"))
+               (:file "compat")
+               (:file "queue"))
   :depends-on (:qtools))
