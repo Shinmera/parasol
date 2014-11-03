@@ -8,14 +8,18 @@
 ;; This file is used for various system and compatibility
 ;; checks to make sure parasol has what it needs to run.
 
-#-:ccl (warn "Parasol is only supported on CCL. Proceed at your own risk.")
+(defvar *qapplication*)
+(defun test-compatibility ()
+  #-:ccl (warn "Parasol is only supported on CCL. Proceed at your own risk.")
 
-;; We have to init here.
-(defvar *qapplication* (make-qapplication))
+  ;; We have to init here.
+  (setf *qapplication* (make-qapplication))
 
-;; QThread needs to be compiled in manually.
-;; We might want to provide functions to do that...
-(assert (find-qclass "QThread") () "SmokeQt needs to be compiled with QThread class support.")
+  ;; QThread needs to be compiled in manually.
+  ;; We might want to provide functions to do that...
+  (assert (find-qclass "QThread") () "SmokeQt needs to be compiled with QThread class support.")
 
-;; We need OpenGL support for better drawing.
-(ensure-smoke :qtopengl)
+  ;; We need OpenGL support for better drawing.
+  (ensure-smoke :qtopengl))
+
+(test-compatibility)
