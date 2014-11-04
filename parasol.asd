@@ -16,5 +16,6 @@
   :serial T
   :components ((:file "package")
                (:file "compat")
-               (:file "queue"))
+               (:module "widgets"
+                :components ((:file "main-window"))))
   :depends-on (:qtools))
