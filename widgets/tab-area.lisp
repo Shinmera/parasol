@@ -8,7 +8,18 @@
 (named-readtables:in-readtable :qtools)
 
 (with-widget-environment
-  (define-widget welcome-tab (QWidget)
+  (define-widget tab (QWidget)
+    ((parent :initarg :parent :initform (error "Parent required.") :accessor parent)))
+
+  (defmethod index ((tab tab))
+    (#_indexOf (parent tab) tab))
+
+  (defmethod finalize ((tab tab))
+    (#_removeTab (parent tab) (index tab))
+    (call-next-method)))
+
+(with-widget-environment
+  (define-widget welcome-tab (QWidget tab)
     ())
 
   (define-subwidget label (#_new QLabel "Welcome to Parasol.")
@@ -22,19 +33,26 @@
   (define-widget tab-area (QTabWidget)
     ())
 
-  (define-slot tab-change (widget (index int))
+  (define-subwidget welcome (make-instance 'welcome-tab))
+
+  (define-slot change-tab (widget (index int))
     (declare (connected widget (current-changed int)))
+    (declare (method))
     (let ((tab (#_widget widget index)))
       (v:info :parasol "Switching to tab ~s" tab)))
 
-  (define-slot tab-close (widget (index int))
+  (defmethod change-tab ((widget tab-area) (tab tab))
+    (#_setCurrentWidget widget tab))
+
+  (define-slot close-tab (widget (index int))
     (declare (connected widget (tab-close-requested int)))
+    (declare (method))
     (let ((tab (#_widget widget index)))
       (v:info :parasol "Removing tab ~s" tab)
-      (#_removeTab widget index)
       (finalize tab)))
 
-  (define-subwidget welcome (make-instance 'welcome-tab))
+  (defmethod close-tab ((widget tab-area) (tab tab))
+    (finalize tab))
 
   (define-initializer widget 100
     (#_setMovable widget T)
