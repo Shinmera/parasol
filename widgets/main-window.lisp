@@ -13,7 +13,12 @@
   (define-widget main-window ("QMainWindow")
     ())
 
-  (defmethod initialize-instance :after ((window main-window) &key)
+  (define-subwidget tab-area (make-instance 'tab-area))
+  (define-subwidget gizmo-bar (make-instance 'gizmo-bar))
+  (define-subwidget central-splitter (#_new QSplitter (#_Qt::Horizontal))
+    (#_setCentralWidget widget central-splitter))
+
+  (define-initializer window 100
     (unless (boundp '*window*)
       (error "Tried to create a main window without the proper context!"))
     (when *window*
@@ -21,7 +26,13 @@
     (setf *window* window)
 
     (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
-    (#_resize window 500 500)))
+    (#_resize window 500 500)
+
+    (#_addWidget central-splitter tab-area)
+    (#_addWidget central-splitter gizmo-bar)
+
+    (#_setStretchFactor central-splitter 0 1)
+    (#_setStretchFactor central-splitter 1 0)))
 
 (defun main ()
   (let ((*window*))

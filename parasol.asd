@@ -17,5 +17,7 @@
   :components ((:file "package")
                (:file "compat")
                (:module "widgets"
-                :components ((:file "main-window"))))
-  :depends-on (:qtools))
+                :components ((:file "main-window")
+                             (:file "documents")
+                             (:file "gizmo-bar"))))
+  :depends-on (:verbose :qtools))
