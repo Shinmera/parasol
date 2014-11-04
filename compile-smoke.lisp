@@ -56,7 +56,9 @@
     (with-file-changing (stream (merge-pathnames "qtcore/smokeconfig.xml" dir))
       (let* ((plump:*tag-dispatchers* plump:*xml-tags*)
              (lquery:*lquery-master-document* (plump:parse stream)))
-        (lquery:$ "classList" (append "<class>QThread</class>"))
+        (lquery:$ "classList"
+                  (append "<class>QThread</class>")
+                  (append "<class>Qt</class>"))
         (lquery:$ (serialize) (node))))
     
     (print "Building...")
