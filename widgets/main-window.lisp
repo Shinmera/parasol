@@ -5,7 +5,24 @@
 |#
 
 (in-package #:org.shirakumo.parasol)
+(named-readtables:in-readtable :qtools)
 
-(define-widget main-window ("QMainWindow")
-  ()
-  )
+(defvar *window*)
+
+(with-widget-environment
+  (define-widget main-window ("QMainWindow")
+    ())
+
+  (defmethod initialize-instance :after ((window main-window) &key)
+    (unless (boundp '*window*)
+      (error "Tried to create a main window without the proper context!"))
+    (when *window*
+      (error "A main window instance is already active!"))
+    (setf *window* window)
+
+    (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
+    (#_resize window 500 500)))
+
+(defun main ()
+  (let ((*window*))
+    (with-main-window (window (make-instance 'main-window)))))

@@ -8,7 +8,7 @@
 ;; This file is used for various system and compatibility
 ;; checks to make sure parasol has what it needs to run.
 
-(defvar *qapplication*)
+(defvar *qapplication* NIL)
 (defun test-compatibility ()
   #-:ccl (warn "Parasol is only supported on CCL. Proceed at your own risk.")
 
