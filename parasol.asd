@@ -16,6 +16,13 @@
   :serial T
   :components ((:file "package")
                (:file "compat")
+               (:file "array")
+               (:module "document"
+                :components ((:file "metadata")
+                             (:file "primitives")
+                             (:file "history")
+                             (:file "layer")
+                             (:file "document")))
                (:module "widgets"
                 :components ((:file "main-window")
                              (:file "documents")
