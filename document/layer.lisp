@@ -10,31 +10,31 @@
   ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables)
    (current-drawable :initform NIL :accessor current-drawable)))
 
-(defmethod insert (drawable layer &optional position)
+(defgeneric insert (drawable layer &optional position)
   (:method ((drawable drawable) (layer meta-layer) &optional position)
     (if position
         (vector-push-extend-position drawable (drawables layer) position)
         (vector-push-extend drawable (drawables layer)))))
 
-(defmethod extract (drawable layer)
+(defgeneric extract (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
     (extract (find drawable (drawables layer)) layer))
 
   (:method ((index fixnum) (layer meta-layer))
     (vector-pop-position (drawables layer) index)))
 
-(defmethod drawable-at (index layer)
+(defgeneric drawable-at (index layer)
   (:method ((index fixnum) (layer meta-layer))
     (aref (drawables layer) index)))
 
-(defmethod activate (drawable layer)
+(defgeneric activate (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
     (setf (current-drawable layer) drawable))
 
   (:method ((index fixnum) (layer meta-layer))
     (activate (drawable-at index layer) layer)))
 
-(defmethod size (layer)
+(defgeneric size (layer)
   (:method ((layer meta-layer))
     (length (drawables layer))))
 

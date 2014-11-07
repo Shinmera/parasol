@@ -5,6 +5,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.parasol)
+(named-readtables:in-readtable :qtools)
 
 (defclass drawable ()
   ())

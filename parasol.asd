@@ -25,6 +25,8 @@
                              (:file "document")))
                (:module "widgets"
                 :components ((:file "main-window")
-                             (:file "documents")
-                             (:file "gizmo-bar"))))
+                             (:file "gizmo-bar")
+                             ;(:file "tab-area")
+                             ;(:file "document-view")
+                             )))
   :depends-on (:verbose :qtools))

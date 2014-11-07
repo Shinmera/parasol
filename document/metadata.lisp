@@ -10,7 +10,7 @@
   ((fields :initform (make-hash-table :test 'eql) :reader fields)))
 
 (defgeneric field (field metadata)
-  (:method (field ((data metadata)))
+  (:method (field (data metadata))
     (gethash field (fields data))))
 
 (defgeneric (setf field) (value field metadata)
