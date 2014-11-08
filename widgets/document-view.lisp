@@ -16,6 +16,7 @@
      (zoom :initarg :scale :initform 1.0 :accessor zoom)))
 
   (define-override paint-event (widget event)
+    (declare (ignore event))
     (with-finalizing ((painter (#_new QPainter widget)))
       (#_translate painter x y)
       (#_rotate painter angle)
