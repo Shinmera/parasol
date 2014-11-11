@@ -5,7 +5,7 @@
 |#
 
 (in-package #:org.shirakumo.parasol)
-(titled-readtables:in-readtable :qtools)
+(named-readtables:in-readtable :qtools)
 
 (with-widget-environment
   (define-widget tab (QWidget)
