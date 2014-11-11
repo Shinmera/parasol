@@ -14,9 +14,17 @@
     ())
 
   (define-subwidget tab-area (make-instance 'tab-area))
+
   (define-subwidget gizmo-bar (make-instance 'gizmo-bar))
+
   (define-subwidget central-splitter (#_new QSplitter (#_Qt::Horizontal))
-    (#_setCentralWidget widget central-splitter))
+    (#_setCentralWidget widget central-splitter)
+
+    (#_addWidget central-splitter tab-area)
+    (#_addWidget central-splitter gizmo-bar)
+
+    (#_setStretchFactor central-splitter 0 1)
+    (#_setStretchFactor central-splitter 1 0))
 
   (define-initializer window 100
     (unless (boundp '*window*)
@@ -26,13 +34,40 @@
     (setf *window* window)
 
     (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
-    (#_resize window 500 500)
+    (#_resize window 500 500))
 
-    (#_addWidget central-splitter tab-area)
-    (#_addWidget central-splitter gizmo-bar)
+  (define-menu File
+    (:item (New (ctrl n))
+      (change-tab tab-area (add-tab tab-area 'document-view)))
+    (:item (Load (ctrl l)))
+    (:item (Save (ctrl s)))
+    (:item (Save-As (ctrl alt s)))
+    (:separator)
+    (:item (Quit (ctrl q))
+      (#_close widget)))
 
-    (#_setStretchFactor central-splitter 0 1)
-    (#_setStretchFactor central-splitter 1 0)))
+  (define-menu Edit
+    (:separator)
+    (:item Keychords
+      (#_exec (make-widget 'qtools:keychord-editor (widget))))
+    (:item Settings))
+
+  (define-menu Help
+    (:item About
+      (let ((system (asdf:find-system :parasol)))
+        (with-finalizing ((box (#_new QMessageBox widget)))
+          (#_setText box (format NIL "~a<br />
+The source code is openly available and licensed under ~a.<br />
+<br />
+Homepage: <a href=\"~a~:*\">~a</a><br />
+Author: ~a<br />
+Version: ~a"
+                                 (asdf:system-description system)
+                                 (asdf:system-license system)
+                                 (asdf:system-homepage system)
+                                 (asdf:system-author system)
+                                 (asdf:component-version system)))
+          (#_exec box))))))
 
 (defun main ()
   (let ((*window*))
