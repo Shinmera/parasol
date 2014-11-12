@@ -18,7 +18,8 @@
                (:file "compat")
                (:file "array")
                (:module "document"
-                :components ((:file "metadata")
+                :components ((:file "image-op")
+                             (:file "metadata")
                              (:file "primitives")
                              (:file "history")
                              (:file "layer")
