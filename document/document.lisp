@@ -8,3 +8,11 @@
 
 (defclass document (metadata meta-layer history)
   ())
+
+(defmethod initialize-instance :after ((document document) &key)
+  (insert (make-instance 'adaptive-layer) document))
+
+(defmethod draw ((document document) target)
+  (loop for drawable across (drawables document)
+        do (draw drawable target)))
+
