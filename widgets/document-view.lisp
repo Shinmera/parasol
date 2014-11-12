@@ -13,6 +13,11 @@
      (angle :initarg :angle :initform 0 :accessor angle)
      (zoom :initarg :scale :initform 1.0 :accessor zoom)))
 
+  (define-initializer widget 100
+    (unless (document widget)
+      (setf (document widget)
+            (make-instance 'document))))
+
   (define-override paint-event (widget event)
     (declare (ignore event))
     (with-finalizing ((painter (#_new QPainter widget)))

@@ -5,6 +5,7 @@
 |#
 
 (in-package #:org.shirakumo.parasol)
+(named-readtables:in-readtable :qtools)
 
 (defclass meta-layer ()
   ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables)
