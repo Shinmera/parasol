@@ -33,24 +33,29 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
             (progn ,@body)
          (translate-away ,pos ,tr)))))
 
-(defclass buffered ()
+(defclass buffered (drawable)
   ((buffer :initarg :buffer :accessor buffer)))
 
 (defmethod initialize-instance :after ((buffer buffered) &key)
   (unless buffer
     (error "Buffer not initialized!")))
 
+(defgeneric draw-buffer (buffered target))
+
 (defgeneric rebuffer (buffered)
   (:method ((buffered buffered))
     (with-finalizing ((painter (#_new QPainter (buffer buffered))))
       (#_eraseRect painter 0 0 (#_width (buffer buffered)) (#_height (buffer buffered)))
-      (draw buffered painter))))
+      (draw-buffer buffered painter))))
 
 (defgeneric rebuffer-copy (buffered)
   (:method ((buffered buffered))
     (let* ((old (buffer buffered))
            (new (#_new QImage (#_size old) (#_format old))))
       (with-finalizing ((painter (#_new QPainter new)))
-        (draw buffered painter))
+        (draw-buffer buffered painter))
       (setf (buffer buffered) new)
       (finalize old))))
+
+(defmethod draw ((buffered buffered) target)
+  (#_drawImage target 0 0 (buffer buffered)))
