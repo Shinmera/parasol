@@ -38,7 +38,17 @@
   (:method ((layer meta-layer))
     (length (drawables layer))))
 
-(defclass layer (meta-layer buffered positioned metadata)
-  ((opacity :initarg :opacity :initform 1 :accessor opacity)
+(defclass layer (meta-layer buffered metadata)
+  ((opacity :initarg :opacity :initform 1.0 :accessor opacity)
    (mode :initarg :mode :initform 0 #|source-over|# :accessor mode)
    (visible :initarg :visible :initform T :accessor visible)))
+
+(defmethod draw :around ((layer layer) target)
+  (when (visible layer)
+    (#_setCompositionMode target (mode layer))
+    (#_setOpacity target (opacity layer))
+    (call-next-method)))
+
+(defmethod draw-buffer ((layer layer) target)
+  (loop for drawable across (drawables layer)
+        do (draw drawable target)))
