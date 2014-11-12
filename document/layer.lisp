@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.parasol)
 
-(defclass meta-layer (drawable)
+(defclass meta-layer ()
   ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables)
    (current-drawable :initform NIL :accessor current-drawable)))
 
@@ -52,3 +52,6 @@
 (defmethod draw-buffer ((layer layer) target)
   (loop for drawable across (drawables layer)
         do (draw drawable target)))
+
+(defclass adaptive-layer (layer)
+  ())
