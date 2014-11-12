@@ -46,11 +46,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
       (call-next-method))))
 
 (defclass buffered (drawable)
-  ((buffer :initarg :buffer :accessor buffer)))
-
-(defmethod initialize-instance :after ((buffer buffered) &key)
-  (unless buffer
-    (error "Buffer not initialized!")))
+  ((buffer :initarg :buffer :initform NIL :accessor buffer)))
 
 (defgeneric draw-buffer (buffered target)
   (:method :around ((drawable drawable) target)
@@ -73,4 +69,5 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
       (finalize old))))
 
 (defmethod draw ((buffered buffered) target)
-  (#_drawImage target 0 0 (buffer buffered)))
+  (when (buffer buffered)
+    (#_drawImage target 0 0 (buffer buffered))))
