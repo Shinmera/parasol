@@ -7,11 +7,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (in-package #:org.shirakumo.parasol)
 (named-readtables:in-readtable :qtools)
 
-(defclass drawable ()
-  ())
-
-(defgeneric draw (drawable target))
-
 (defclass positioned ()
   ((x :initarg :x :initform 0 :accessor x)
    (y :initarg :y :initform 0 :accessor y)))
@@ -24,7 +19,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:method ((pos positioned) (transform qobject))
     #_translate transfrom (- (x pos)) (- (y pos))))
 
-(defmacro with-translation ((positioned transform) &body body)
+(defmacro with-translation-to ((positioned transform) &body body)
   (let ((pos (gensym "POSITIONED"))
         (tr (gensym "TRANSFORM")))
     `(let ((,pos ,positioned) (,tr ,transform))
@@ -33,6 +28,23 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
             (progn ,@body)
          (translate-away ,pos ,tr)))))
 
+(defmacro with-translation-away ((positioned transform) &body body)
+  (let ((pos (gensym "POSITIONED"))
+        (tr (gensym "TRANSFORM")))
+    `(let ((,pos ,positioned) (,tr ,transform))
+       (translate-away ,pos ,tr)
+       (unwind-protect
+            (progn ,@body)
+         (translate-to ,pos ,tr)))))
+
+(defclass drawable (positioned)
+  ())
+
+(defgeneric draw (drawable target)
+  (:method :around ((drawable drawable) target)
+    (with-translation-to (drawable target)
+      (call-next-method))))
+
 (defclass buffered (drawable)
   ((buffer :initarg :buffer :accessor buffer)))
 
@@ -40,7 +52,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (unless buffer
     (error "Buffer not initialized!")))
 
-(defgeneric draw-buffer (buffered target))
+(defgeneric draw-buffer (buffered target)
+  (:method :around ((drawable drawable) target)
+    (with-translation-away (drawable target)
+      (call-next-method))))
 
 (defgeneric rebuffer (buffered)
   (:method ((buffered buffered))
