@@ -8,17 +8,16 @@
 (named-readtables:in-readtable :qtools)
 
 (with-widget-environment
-  (define-widget document-view (QWidget tab)
+  (define-widget document-view (QWidget tab positioned)
     ((document :initarg :document :initform NIL :accessor document :finalized T)
-     (x :initarg :x :initform 0 :accessor x)
-     (y :initarg :y :initform 0 :accessor y)
      (angle :initarg :angle :initform 0 :accessor angle)
      (zoom :initarg :scale :initform 1.0 :accessor zoom)))
 
   (define-override paint-event (widget event)
     (declare (ignore event))
     (with-finalizing ((painter (#_new QPainter widget)))
-      (#_translate painter x y)
+      (translate-away widget painter)
+      ;; origin fix...
       (#_rotate painter angle)
       (#_scale painter zoom zoom)
       (draw document painter)))
