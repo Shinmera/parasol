@@ -19,6 +19,15 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:method ((pos positioned) (transform qobject))
     #_translate transfrom (- (x pos)) (- (y pos))))
 
+(defmacro with-transformation ((painter) &body body)
+  (let ((paint (gensym "PAINTER")))
+    `(let* ((,paint ,painter))
+       (unwind-protect
+            (progn
+              (#_save ,paint)
+              ,@body)
+         (#_restore ,paint)))))
+
 (defmacro with-translation-to ((positioned transform) &body body)
   (let ((pos (gensym "POSITIONED"))
         (tr (gensym "TRANSFORM")))
