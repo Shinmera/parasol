@@ -21,11 +21,16 @@
   (define-override paint-event (widget event)
     (declare (ignore event))
     (with-finalizing ((painter (#_new QPainter widget)))
-      (translate-away widget painter)
-      ;; origin fix...
-      (#_rotate painter angle)
-      (#_scale painter zoom zoom)
-      (draw document painter)))
+      (#_setRenderHint painter (#_QPainter::Antialiasing))
+      (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
+      (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
+      (#_fillRect painter (#_rect widget) (#_Qt::white))
+      (with-transformation (painter)
+        (translate-away widget painter)
+        ;; origin fix...
+        (#_rotate painter angle)
+        (#_scale painter zoom zoom)
+        (draw document painter))))
 
   (define-override tablet-event (widget event)
     (#_ignore event))
