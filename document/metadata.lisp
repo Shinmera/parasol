@@ -20,3 +20,10 @@
 (defmacro define-metadata-accessor (accessor &optional (field accessor))
   `(defmethod ,accessor ((data metadata))
      (gethash ,(intern (string field) "KEYWORD") (fields data))))
+
+(defgeneric matches (metadata field &optional value)
+  (:method ((data metadata) field &optional (value NIL v-p))
+    (multiple-value-bind (val found) (field field data)
+      (when found
+        (or (not v-p)
+            (equal value val))))))
