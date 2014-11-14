@@ -13,7 +13,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    (icon :initform NIL :initarg :icon :accessor tool-icon)
    (label :initform NIL :initarg :label :accessor tool-label)
    (description :initform NIL :initarg :description :accessor tool-description))
-  (:description "Metaclass for tools that operate on the document. Required for special tool options definition."))
+  (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
 (defmethod c2mop:validate-superclass ((class tool-class) (superclass t))
   nil)

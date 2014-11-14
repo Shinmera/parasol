@@ -16,13 +16,13 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
      (slot :initarg :slot :initform NIL :accessor slot))
     (:documentation "Tool options are widgets that the user can interact with to change the tool's settings."))
 
-  (define-slot change (tool-option (new-value bool int double string))
+  (define-slot change (tool-option (new-value bool int double "const QString&"))
     (declare (method))
     (when (on-change option)
       (setf new-value (funcall (on-change option) (parent option) option new-value)))
     (when (slot option)
       (setf (slot-value (tool option) (slot option)) new-value)))
 
-  (define-initalizer option 100
+  (define-initializer option 100
     (unless (label option)
       (setf (label option) (capitalize-on #\- (class-name (class-of option)) #\Space T)))))

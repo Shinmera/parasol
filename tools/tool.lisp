@@ -50,13 +50,13 @@
   (:method ((tool tool))))
 
 (defgeneric begin (tool pen)
-  (:method ((tool tool))))
+  (:method ((tool tool) pen)))
 
 (defgeneric move (tool pen)
-  (:method ((tool tool))))
+  (:method ((tool tool) pen)))
 
 (defgeneric end (tool pen)
-  (:method ((tool tool))))
+  (:method ((tool tool) pen)))
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-tool (name direct-superclasses direct-slots &body options)
