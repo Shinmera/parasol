@@ -48,11 +48,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (when (loop for superclass in direct-superclasses
                 never (typep superclass 'tool-option))
       (push 'tool-option direct-superclasses))
-    (unless (getf options :label)
+    (unless (assoc :label options)
       (push (list :label label) options))
-    (unless (getf options :description)
+    (unless (assoc :description options)
       (push (list :description description) options))
-    `(define-widget ,name (,qt-class ,direct-superclasses)
+    `(define-widget ,name (,qt-class ,@direct-superclasses)
        ,direct-slots
        ,@options)))
 

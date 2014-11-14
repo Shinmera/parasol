@@ -70,9 +70,9 @@
     (when (loop for superclass in direct-superclasses
                 never (typep superclass 'tool))
       (push 'tool direct-superclasses))
-    (unless (getf options :label)
+    (unless (assoc :label options)
       (push (list :label label) options))
-    (unless (getf options :description)
+    (unless (assoc :description options)
       (push (list :description description) options))
     `(defclass ,name ,direct-superclasses
        ,direct-slots
