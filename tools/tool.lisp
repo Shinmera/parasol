@@ -60,7 +60,7 @@
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-tool (name direct-superclasses direct-slots &body options)
-  (destructuring-bind (name &optional (label (capitalize-on #\- name #\ ))
+  (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
                                       (description ""))
       (if (listp name) name (list name))
     (unless (find 'tool direct-superclasses)
