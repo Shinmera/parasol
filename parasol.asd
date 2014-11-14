@@ -24,6 +24,10 @@
                              (:file "history")
                              (:file "layer")
                              (:file "document")))
+               (:module "tools"
+                :components ((:file "tool-option")
+                             (:file "tool-class")
+                             (:file "tool")))
                (:module "widgets"
                 :components ((:file "main-window")
                              (:file "gizmo-bar")
