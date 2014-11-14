@@ -42,6 +42,10 @@
       (#_setText tool (tool-label tool)))
   (connect! tool (toggled bool) tool (change bool)))
 
+(defmethod finalize :after ((tool tool))
+  (dolist (option (tool-options tool))
+    (finalize option)))
+
 ;; Tool method stubs
 (defgeneric select (tool)
   (:method ((tool tool))))
@@ -63,7 +67,8 @@
   (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
                                       (description ""))
       (if (listp name) name (list name))
-    (unless (find 'tool direct-superclasses)
+    (when (loop for superclass in direct-superclasses
+                never (typep superclass 'tool))
       (push 'tool direct-superclasses))
     (unless (getf options :label)
       (push (list :label label) options))
@@ -71,4 +76,5 @@
       (push (list :description description) options))
     `(defclass ,name ,direct-superclasses
        ,direct-slots
+       (:metaclass tool-class)
        ,@options)))
