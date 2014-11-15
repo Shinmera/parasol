@@ -34,7 +34,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (unless (and type (find-class type))
     (error "No class of name ~s found for tool option ~s on ~s."
            type name class))
-  (unless (typep (find-class type) 'tool-option)
+  (unless (c2mop:subclassp (find-class type) (find-class 'tool-option))
     (error "The class ~s specified for the type of the tool option ~s on ~s is not a subclass of TOOL-OPTION."
            type name class))
   (etypecase label (null) (string))
@@ -42,9 +42,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 ;; During initialisation we just make sure the options are proper.
 (defun initialize-tool-class (class next-method &rest args &key options &allow-other-keys)
+  (apply next-method class :allow-other-keys T args)
+  (c2mop:finalize-inheritance class)
   (dolist (option options)
-    (apply #'check-option class option))
-  (apply next-method class :allow-other-keys T args))
+    (apply #'check-option class option)))
 
 (defmethod initialize-instance :around ((class tool-class) &rest initargs)
   (apply #'initialize-tool-class class #'call-next-method initargs))
@@ -78,7 +79,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (defun cascade-option-changes (class)
   (setf (tool-effective-options class) (compute-effective-options class))
   (loop for sub-class in (c2mop:class-direct-subclasses class)
-        when (and (typep sub-class 'brush-class)
+        when (and (typep sub-class 'tool-class)
                   (c2mop:class-finalized-p sub-class))
         do (cascade-option-changes sub-class)))
 
