@@ -48,19 +48,24 @@
 
 ;; Tool method stubs
 (defgeneric select (tool)
-  (:method ((tool tool))))
+  (:method ((tool tool))
+    (v:debug :tool "[STUB] (SELECT ~s)" tool)))
 
 (defgeneric deselect (tool)
-  (:method ((tool tool))))
+  (:method ((tool tool))
+    (v:debug :tool "[STUB] (DESELECT ~s)" tool)))
 
 (defgeneric begin (tool pen)
-  (:method ((tool tool) pen)))
+  (:method ((tool tool) pen)
+    (v:debug :tool "[STUB] (BEGIN ~s ~s)" tool pen)))
 
 (defgeneric move (tool pen)
-  (:method ((tool tool) pen)))
+  (:method ((tool tool) pen)
+    (v:debug :tool "[STUB] (MOVE ~s ~s)" tool pen)))
 
 (defgeneric end (tool pen)
-  (:method ((tool tool) pen)))
+  (:method ((tool tool) pen)
+    (v:debug :tool "[STUB] (END ~s ~s)" tool pen)))
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-tool (name direct-superclasses direct-slots &body options)
