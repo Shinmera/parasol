@@ -16,7 +16,6 @@
      (default :initarg :default :initform 0)))
 
   (define-initializer widget 100
-    (#_setToolTip widget (description widget))
     (#_setRange widget min max)
     (#_setSingleStep widget step)
     (#_setValue widget default)
@@ -31,7 +30,6 @@
      (default :initarg :default :initform 0.0)))
 
   (define-initializer widget 100
-    (#_setToolTip widget (description widget))
     (#_setRange widget min max)
     (#_setSingleStep widget step)
     (#_setValue widget default)
@@ -44,7 +42,6 @@
 
   (define-initializer widget 100
     (#_setText widget (label widget))
-    (#_setToolTip widget (description widget))
     (#_setDown widget default)
     (connect! widget (toggled bool) widget (change bool))))
 
@@ -58,7 +55,6 @@
 
   (define-initializer widget 100
     (#_setText widget default)
-    (#_setToolTip widget (description widget))
     (connect! widget (return-pressed) widget (on-return))))
 
 ;; Ranged slider
@@ -76,7 +72,6 @@
     (#_setRange widget min max)
     (#_setTickInterval widget step)
     (#_setValue widget default)
-    (#_setToolTip widget (description widget))
     (connect! widget (slider-released) widget (on-release))))
 
 ;; Color picker
