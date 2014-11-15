@@ -7,11 +7,17 @@
 (in-package #:org.shirakumo.parasol)
 (named-readtables:in-readtable :qtools)
 
+(defvar *mouse-pressure* 0.5)
+
 (with-widget-environment
   (define-widget document-view (QWidget tab positioned)
     ((document :initarg :document :initform NIL :accessor document :finalized T)
      (angle :initarg :angle :initform 0 :accessor angle)
-     (zoom :initarg :scale :initform 1.0 :accessor zoom)))
+     (zoom :initarg :scale :initform 1.0 :accessor zoom)
+     (mirror-x :initarg :mirror-x :initform NIL :accessor mirror-x)
+     (mirror-y :initarg :mirror-y :initform NIL :accessor mirror-y)
+     (pen :initform NIL :accessor pen)
+     (%tablet-input :initform NIL)))
 
   (define-initializer widget 100
     (unless (document widget)
@@ -29,17 +35,52 @@
         (translate-away widget painter)
         ;; origin fix...
         (#_rotate painter angle)
-        (#_scale painter zoom zoom)
+        (#_scale painter
+                 (if mirror-x (- zoom) zoom)
+                 (if mirror-y (- zoom) zoom))
         (draw document painter))))
 
   (define-override tablet-event (widget event)
+    (setf pen
+          (make-instance
+           'pen
+           :pointer (#_pointerType event)
+           :device (#_device event)
+           :before pen
+           :x (#_x event)
+           :y (#_y event)
+           :z (#_z event)
+           :x-tilt (#_xTilt event)
+           :y-tilt (#_yTilt event)
+           :rotation (#_rotation event)
+           :pressure (#_pressure event)
+           :tangential-pressure (#_tangentialPressure event))
+          %tablet-input T)
+    (#_ignore event))
+
+  (defun maybe-update-pen (widget event)
+    (unless (slot-value widget '%tablet-input)
+      (setf (pen widget)
+            (make-instance
+             'pen
+             :pointer 1
+             :device 0
+             :before (pen widget)
+             :x (#_x event)
+             :y (#_y event)
+             :pressure *mouse-pressure*))))
+
+  (defun process-mouse (widget event func)
+    (maybe-update-pen widget event)
+    (when (tool *window*)
+      (funcall func (tool *window*) (pen widget)))
     (#_ignore event))
 
   (define-override mouse-move-event (widget event)
-    (#_ignore event))
+    (process-mouse widget event #'move))
 
   (define-override mouse-press-event (widget event)
-    (#_ignore event))
+    (process-mouse widget event #'begin))
 
   (define-override mouse-release-event (widget event)
-    (#_ignore event)))
+    (process-mouse widget event #'end)))
