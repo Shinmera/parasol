@@ -11,7 +11,7 @@
 
 (with-widget-environment
   (define-widget main-window ("QMainWindow")
-    ())
+    ((tool :initform NIL :accessor tool)))
 
   (define-subwidget tab-area (make-instance 'tab-area))
 
