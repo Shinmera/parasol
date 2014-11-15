@@ -6,6 +6,22 @@
 
 (in-package #:org.shirakumo.parasol)
 
+(defun pointer-name (int)
+  (ecase int
+    (0 :unknown)
+    (1 :pen)
+    (2 :cursor)
+    (3 :eraser)))
+
+(defun device-name (int)
+  (ecase int
+    (0 :unknown)
+    (1 :puck)
+    (2 :stylus)
+    (3 :airbrush)
+    (4 :4d-mouse)
+    (6 :rotation-stylus)))
+
 (defclass pen ()
   ((pointer :initarg :pointer :accessor pointer)
    (device :initarg :device :accessor device)
@@ -32,6 +48,13 @@
    :pressure 0
    :tangential-pressure 0
    :real-time (get-internal-real-time)))
+
+(defmethod print-object ((pen pen) stream)
+  (print-unreadable-object (pen stream :type T)
+    (with-pen-values (pen)
+      (format stream "~a:~a ~a/~a (~a)"
+              (device-name device) (pointer-name pointer)
+              x y real-time))))
 
 (defun diff (slot pen)
   (if (before pen)
@@ -63,4 +86,16 @@
                     (,pressure pressure)
                     (,tangential-pressure tangential-pressure)
                     (,real-time real-time)) ,pen
+     (declare (ignorable ,pointer
+                         ,device
+                         ,before
+                         ,x
+                         ,y
+                         ,z
+                         ,x-tilt
+                         ,y-tilt
+                         ,rotation
+                         ,pressure
+                         ,tangential-pressure
+                         ,real-time))
      ,@body))
