@@ -19,6 +19,7 @@
                (:file "array")
                (:module "document"
                 :components ((:file "image-op")
+                             (:file "pen")
                              (:file "metadata")
                              (:file "primitives")
                              (:file "history")
