@@ -17,7 +17,8 @@
    (y-tilt :initarg :y-tilt :accessor y-titlt)
    (rotation :initarg :rotation :accessor rotation)
    (pressure :initarg :pressure :accessor pressure)
-   (tangential-pressure :initarg :tangential-pressure :accessor tangential-pressure))
+   (tangential-pressure :initarg :tangential-pressure :accessor tangential-pressure)
+   (real-time :initarg :real-time :accessor real-time))
   (:default-initargs
    :pointer 0
    :device 0
@@ -29,7 +30,8 @@
    :y-tilt 0
    :rotation 0
    :pressure 0
-   :tangential-pressure 0))
+   :tangential-pressure 0
+   :real-time (get-internal-real-time)))
 
 (defun diff (slot pen)
   (if (before pen)
@@ -47,7 +49,8 @@
                                      (y-tilt 'y-tilt)
                                      (rotation 'rotation)
                                      (pressure 'pressure)
-                                     (tangential-pressure 'tangential-pressure)) &body body)
+                                     (tangential-pressure 'tangential-pressure)
+                                     (real-time 'real-time)) &body body)
   `(with-accessors ((,pointer pointer)
                     (,device device)
                     (,before before)
@@ -58,5 +61,6 @@
                     (,y-tilt y-tilt)
                     (,rotation rotation)
                     (,pressure pressure)
-                    (,tangential-pressure tangential-pressure)) ,pen
+                    (,tangential-pressure tangential-pressure)
+                    (,real-time real-time)) ,pen
      ,@body))
