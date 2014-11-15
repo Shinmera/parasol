@@ -29,7 +29,8 @@
                 :components ((:file "tool-option")
                              (:file "default-options")
                              (:file "tool-class")
-                             (:file "tool")))
+                             (:file "tool")
+                             (:file "brush-tool")))
                (:module "widgets"
                 :components ((:file "main-window")
                              (:file "gizmo-bar")
