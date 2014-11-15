@@ -16,30 +16,17 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
      (slot :initarg :slot :initform NIL :accessor slot))
     (:documentation "Tool options are widgets that the user can interact with to change the tool's settings."))
 
-  (define-slot change (tool-option (new-value bool int double "const QString&"))
+  (define-slot change (option (new-value bool int double "const QString&"))
     (declare (method))
-    (when (on-change option)
-      (setf new-value (funcall (on-change option) (parent option) option new-value)))
-    (when (slot option)
-      (setf (slot-value (tool option) (slot option)) new-value)))
+    (when on-change
+      (setf new-value (funcall on-change tool option new-value)))
+    (when slot
+      (setf (slot-value tool slot) new-value)))
 
   (define-initializer option 100
-    (unless (label option)
-      (setf (label option) (capitalize-on #\- (class-name (class-of option)) #\Space T)))))
-
-(defmacro define-tool (name direct-superclasses direct-slots &body options)
-  (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
-                                      (description ""))
-      (if (listp name) name (list name))
-    (unless (find 'tool direct-superclasses)
-      (push 'tool direct-superclasses))
-    (unless (getf options :label)
-      (push (list :label label) options))
-    (unless (getf options :description)
-      (push (list :description description) options))
-    `(defclass ,name ,direct-superclasses
-       ,direct-slots
-       ,@options)))
+    (unless label
+      (setf label (capitalize-on #\- (class-name (class-of option)) #\Space T)))
+    (#_setToolTip option (format NIL "~a~@[: ~a~]" label description))))
 
 (defmacro define-tool-option (name (qt-class &rest direct-superclasses) direct-slots &body options)
   (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
