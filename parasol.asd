@@ -27,6 +27,7 @@
                              (:file "document")))
                (:module "tools"
                 :components ((:file "tool-option")
+                             (:file "default-options")
                              (:file "tool-class")
                              (:file "tool")))
                (:module "widgets"
