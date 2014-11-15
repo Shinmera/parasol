@@ -15,6 +15,11 @@
   (:documentation "Superclass for all document-manipulating tools.")
   (:slots ("change(bool)" change)))
 
+(defmethod print-object ((tool tool) stream)
+  (print-unreadable-object (tool stream :type T)
+    (format stream "~s" (tool-label tool)))
+  tool)
+
 (defmethod change ((tool tool) activated)
   (if activated
       (select tool)
