@@ -28,7 +28,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   t)
 
 (defun check-option (class name &key label description type slot &allow-other-keys)
-  (when (and slot (not (find slot (c2mop:class-slots class) :key #'c2mop:slot-definition-name)))
+  (when (and slot (not (find (eval slot) (c2mop:class-slots class) :key #'c2mop:slot-definition-name)))
     (error "Cannot find an effective slot named ~s on class ~s, but it is set as the target slot for tool option ~s."
            slot class name))
   (unless (and type (find-class type))

@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.parasol)
 (named-readtables:in-readtable :qtools)
 
-(defclass tool ()
+(defclass tool (widget)
   ((options :initform (make-hash-table :test 'eql) :reader tool-options))
   (:metaclass tool-class)
   (:qt-superclass "QPushButton")
@@ -32,11 +32,15 @@
   ;; Instantiate all the options
   (loop for option in (tool-effective-options (class-of tool))
         do (destructuring-bind (name &rest args &key type &allow-other-keys) option
-             (remf args :type)
-             (setf (gethash name (tool-options tool))
-                   (apply #'make-instance type :tool tool args))))
+             (let ((args (copy-list args)))
+               (remf args :type)
+               (loop for cons on args by #'cddr
+                     do (setf (cadr cons) (eval (cadr cons))))
+               (setf (gethash name (tool-options tool))
+                     (apply #'make-instance type :tool tool args)))))
+  ;; Default init
   (#_setCheckable tool T)
-  (#_setTooltip (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
+  (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
   (if (tool-icon tool)
       (#_setIcon tool (tool-icon tool))
       (#_setText tool (tool-label tool)))
