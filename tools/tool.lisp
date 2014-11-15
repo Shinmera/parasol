@@ -78,3 +78,8 @@
        ,direct-slots
        (:metaclass tool-class)
        ,@options)))
+
+(indent:define-indentation define-tool
+    (4 (&whole 6 &rest)
+       (&whole 2 (&whole 0 0 &rest 2))
+       &rest (&whole 2 2 &rest (&whole 2 2 4 &body))))
