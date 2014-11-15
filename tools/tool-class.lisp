@@ -41,8 +41,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (etypecase description (null) (string)))
 
 ;; During initialisation we just make sure the options are proper.
-(defun initialize-tool-class (class next-method &rest args &key options &allow-other-keys)
-  (apply next-method class :allow-other-keys T args)
+(defun initialize-tool-class (class next-method &rest args &key options label description &allow-other-keys)
+  (remf args :label)
+  (remf args :description)
+  (apply next-method class
+         :allow-other-keys T
+         :label (if (listp label) (first label) label)
+         :description (if (listp description) (first description) description)
+         args)
   (c2mop:finalize-inheritance class)
   (dolist (option options)
     (apply #'check-option class option)))
