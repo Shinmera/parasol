@@ -34,11 +34,10 @@
   (define-layout layout (#_new QHBoxLayout)
     (#_addWidget layout label)))
 
+
 (with-widget-environment
   (define-widget tab-area (QTabWidget)
     ())
-
-  (define-subwidget welcome (make-instance 'welcome-tab :parent widget))
 
   (defmethod add-tab ((widget tab-area) (tab tab))
     (#_addTab widget tab (title tab))
@@ -72,12 +71,15 @@
     (finalize tab)
     NIL)
 
+  (defmethod current-tab ((widget tab-area))
+    (#_currentWidget widget))
+
   (define-initializer widget 100
     (#_setMovable widget T)
     (#_setTabsClosable widget T)
     (#_setDocumentMode widget T)
 
-    (add-tab widget welcome))
+    (add-tab widget 'document-view))
 
   (define-finalizer widget 100
     (loop for i from 0 below (#_count widget)
