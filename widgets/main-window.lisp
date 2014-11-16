@@ -10,8 +10,8 @@
 (defvar *window*)
 
 (with-widget-environment
-  (define-widget main-window ("QMainWindow")
-    ((tool :initform NIL :accessor tool)))
+  (define-widget main-window (QMainWindow)
+    ((tool :initform (make-instance 'brush-tool) :accessor tool)))
 
   (define-subwidget tab-area (make-instance 'tab-area))
 
@@ -68,6 +68,16 @@ Version: ~a"
                                  (asdf:system-author system)
                                  (asdf:component-version system)))
           (#_exec box))))))
+
+(defun current-view ()
+  (let ((tab (current-tab (slot-value *window* 'tab-area))))
+    (when (typep tab 'document-view)
+      tab)))
+
+(defun current-document ()
+  (let ((view (current-view)))
+    (when view
+      (document view))))
 
 (defun main ()
   (let ((*window*))
