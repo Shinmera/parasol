@@ -16,3 +16,9 @@
   (loop for drawable across (drawables document)
         do (draw drawable target)))
 
+(defmethod current-layer ((document document))
+  (current-drawable document))
+
+(defmethod extract :after (drawable (document document))
+  (when (= 0 (length (drawables document)))
+    (insert (make-instance 'adaptive-layer) document)))
