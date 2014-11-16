@@ -65,6 +65,9 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (defgeneric rebuffer (buffered)
   (:method ((buffered buffered))
     (with-finalizing ((painter (#_new QPainter (buffer buffered))))
+      (#_setRenderHint painter (#_QPainter::Antialiasing))
+      (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
+      (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
       (#_eraseRect painter 0 0 (#_width (buffer buffered)) (#_height (buffer buffered)))
       (draw-buffer buffered painter))))
 
