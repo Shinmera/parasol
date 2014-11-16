@@ -19,11 +19,12 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
         (T
          (let ((new (make-image width height :format (#_format image) :fill fill)))
            (with-finalizing ((painter (#_new QPainter new)))
-             (#_drawImage painter x y image))))))
+             (#_drawImage painter x y image))
+           new))))
 
 (defun ensure-containable (x y image &key (chunk-size (#_width image)))
   (flet ((fit (n)
-           (* chunk-size (ceiling (/ (abs n) chunk-size)))))
+           (* chunk-size (ceiling (/ (+ (abs n) (/ chunk-size 2)) chunk-size)))))
     (let ((left (fit x))
           (top (fit y)))
       (cond
@@ -43,7 +44,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                      (max (#_height image) top))
           0 0))
         ;; 2nd Quadrant
-        ((and (< x 0) (< 0 y))
+        ((and (<= x 0) (< 0 y))
          (values
           (fit-image image
                      (+ left (#_width image))
@@ -51,7 +52,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                      :x left)
           (- left) 0))
         ;; 3rd Quadrant
-        ((and (< x 0) (< y 0))
+        ((and (<= x 0) (<= y 0))
          (values
           (fit-image image
                      (+ left (#_width image))
@@ -59,10 +60,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                      :x left :y top)
           (- left) (- top)))
         ;; 4th Quadrant
-        ((and (< 0 x) (< y 0))
+        ((and (< 0 x) (<= y 0))
          (values
           (fit-image image
                      (max (#_width image) left)
                      (+ top (#_height image))
                      :y top)
-          0 (- top)))))))
+          0 (- top)))
+        (T (error "HWAT"))))))
