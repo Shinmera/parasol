@@ -17,7 +17,8 @@
      (mirror-x :initarg :mirror-x :initform NIL :accessor mirror-x)
      (mirror-y :initarg :mirror-y :initform NIL :accessor mirror-y)
      (pen :initform NIL :accessor pen)
-     (%tablet-input :initform NIL)))
+     (%tablet-input :initform NIL)
+     (pen-pressed :initform NIL :accessor pen-pressed)))
 
   (define-initializer widget 100
     (unless (document widget)
@@ -72,7 +73,7 @@
 
   (defun process-mouse (widget event func)
     (maybe-update-pen widget event)
-    (when (tool *window*)
+    (when (and (tool *window*) (slot-value widget 'pen-pressed))
       (funcall func (tool *window*) (pen widget)))
     (#_ignore event))
 
@@ -80,7 +81,9 @@
     (process-mouse widget event #'move))
 
   (define-override mouse-press-event (widget event)
+    (setf pen-pressed T)
     (process-mouse widget event #'begin))
 
   (define-override mouse-release-event (widget event)
+    (setf pen-pressed NIL)
     (process-mouse widget event #'end)))
