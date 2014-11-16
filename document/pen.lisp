@@ -49,30 +49,6 @@
    :tangential-pressure 0
    :real-time (get-internal-real-time)))
 
-(defmethod print-object ((pen pen) stream)
-  (print-unreadable-object (pen stream :type T)
-    (with-pen-values (pen)
-      (format stream "~a:~a ~a/~a (~a)"
-              (device-name device) (pointer-name pointer)
-              x y real-time))))
-
-(defmethod copy ((pen pen))
-  (with-pen-values (pen)
-    (make-instance
-     'pen
-     :pointer pointer
-     :device device
-     :before before
-     :x x
-     :y y
-     :z z
-     :x-tilt x-tilt
-     :y-tilt y-tilt
-     :rotation rotation
-     :pressure pressure
-     :tangential-pressure tangential-pressure
-     :real-time real-time)))
-
 (defun diff (slot pen)
   (if (before pen)
       (- (slot-value pen slot)
@@ -116,3 +92,27 @@
                          ,tangential-pressure
                          ,real-time))
      ,@body))
+
+(defmethod print-object ((pen pen) stream)
+  (print-unreadable-object (pen stream :type T)
+    (with-pen-values (pen)
+      (format stream "~a:~a ~a/~a (~a)"
+              (device-name device) (pointer-name pointer)
+              x y real-time))))
+
+(defmethod copy ((pen pen))
+  (with-pen-values (pen)
+    (make-instance
+     'pen
+     :pointer pointer
+     :device device
+     :before before
+     :x x
+     :y y
+     :z z
+     :x-tilt x-tilt
+     :y-tilt y-tilt
+     :rotation rotation
+     :pressure pressure
+     :tangential-pressure tangential-pressure
+     :real-time real-time)))
