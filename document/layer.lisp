@@ -13,9 +13,12 @@
 
 (defgeneric insert (drawable layer &optional position)
   (:method ((drawable drawable) (layer meta-layer) &optional position)
-    (if position
-        (vector-push-extend-position drawable (drawables layer) position)
-        (vector-push-extend drawable (drawables layer)))))
+    (cond
+      (position
+       (vector-push-extend-position drawable (drawables layer) position))
+      (T
+       (vector-push-extend drawable (drawables layer))
+       (activate drawable layer)))))
 
 (defgeneric extract (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
