@@ -29,8 +29,8 @@
    (x :initarg :x :accessor x)
    (y :initarg :y :accessor y)
    (z :initarg :z :accessor z)
-   (x-tilt :initarg :x-tilt :accessor x-titlt)
-   (y-tilt :initarg :y-tilt :accessor y-titlt)
+   (x-tilt :initarg :x-tilt :accessor x-tilt)
+   (y-tilt :initarg :y-tilt :accessor y-tilt)
    (rotation :initarg :rotation :accessor rotation)
    (pressure :initarg :pressure :accessor pressure)
    (tangential-pressure :initarg :tangential-pressure :accessor tangential-pressure)
@@ -55,6 +55,23 @@
       (format stream "~a:~a ~a/~a (~a)"
               (device-name device) (pointer-name pointer)
               x y real-time))))
+
+(defmethod copy ((pen pen))
+  (with-pen-values (pen)
+    (make-instance
+     'pen
+     :pointer pointer
+     :device device
+     :before before
+     :x x
+     :y y
+     :z z
+     :x-tilt x-tilt
+     :y-tilt y-tilt
+     :rotation rotation
+     :pressure pressure
+     :tangential-pressure tangential-pressure
+     :real-time real-time)))
 
 (defun diff (slot pen)
   (if (before pen)
