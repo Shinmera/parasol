@@ -8,7 +8,9 @@
 (named-readtables:in-readtable :qtools)
 
 (defclass stroke (drawable)
-  ((points :initform (make-array 0 :element-type 'pen :adjustable T :fill-pointer 0) :accessor points)))
+  ((points :initform (make-array 0 :element-type 'pen :adjustable T :fill-pointer 0) :accessor points)
+   ;; should be a brush property. But we don't have brushes yet, so stub it.
+   (distance :initform 1.0 :accessor distance)))
 
 (defmethod add-point ((pen pen) (stroke stroke))
   (vector-push-extend pen (points stroke))
@@ -16,8 +18,15 @@
 
 (defmethod draw ((stroke stroke) target)
   (#_setPen target (#_new QColor 0 0 0 255))
-  (loop for pen across (points stroke)
-        do (#_drawPoint target (x pen) (y pen))))
+  (loop for i from 1 below (length (points stroke))
+        for start = (aref (points stroke) (1- i))
+        for end = (aref (points stroke) i)
+        do (loop with length = (sqrt (+ (expt (- (x end) (x start)) 2)
+                                        (expt (- (y end) (y start)) 2)))
+                 for i from 0 below length by (distance stroke)
+                 for x = (+ (x start) (* (- (x end) (x start)) (/ i length)))
+                 for y = (+ (y start) (* (- (y end) (y start)) (/ i length)))
+                 do (#_drawEllipse target (#_new QPointF x y) 2.0 2.0))))
 
 (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
   ((size :accessor size)
