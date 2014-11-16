@@ -17,7 +17,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defgeneric translate-away (positioned transform)
   (:method ((pos positioned) (transform qobject))
-    #_translate transfrom (- (x pos)) (- (y pos))))
+    (#_translate transform (- (x pos)) (- (y pos)))))
 
 (defmacro with-transformation ((painter) &body body)
   (let ((paint (gensym "PAINTER")))
