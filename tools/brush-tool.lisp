@@ -9,33 +9,25 @@
 
 (defclass stroke (drawable)
   ((points :initform (make-array 0 :element-type 'pen :adjustable T :fill-pointer 0) :accessor points)
-   ;; should be a brush property. But we don't have brushes yet, so stub it.
-   (distance :initform 2.0 :accessor distance)))
+   (brush :initform (error "BRUSH required.") :initarg :brush :accessor brush)))
 
 (defmethod add-point ((pen pen) (stroke stroke))
   (vector-push-extend pen (points stroke))
   stroke)
 
-;; This should be outsourced to the actual brush once we have that.
 (defmethod draw ((stroke stroke) target)
-  (#_setPen target (#_Qt::NoPen))
-  (#_setBrush target (#_new QBrush (#_new QColor 0 0 0 255)))
-  (loop for i from 1 below (length (points stroke))
-        for start = (aref (points stroke) (1- i))
-        for end = (aref (points stroke) i)
-        do (loop with length = (sqrt (+ (expt (- (x end) (x start)) 2)
-                                        (expt (- (y end) (y start)) 2)))
-                 for i from 0 below length by (distance stroke)
-                 for x = (+ (x start) (* (- (x end) (x start)) (/ i length)))
-                 for y = (+ (y start) (* (- (y end) (y start)) (/ i length)))
-                 do (#_drawEllipse target (#_new QPointF x y) 2.0 2.0))))
+  (draw-stroke (brush stroke) stroke target))
 
-(define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
-  ((size :accessor size)
-   (color :accessor color))
-  (:options
-    (size :type double-option :slot 'size :min 0.1 :max 100.0 :step 0.5)
-    (color :type color-option :slot 'color :default (#_new QColor 0 0 0 255))))
+(with-widget-environment
+  (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
+    ((current-brush :initform NIL :accessor current-brush))
+    (:options
+      (brush :type list-option :slot 'current-brush)
+      (brush-options :type widget-option)))
+
+  (define-initializer tool 100
+    (dolist (brush (find-brushes))
+      (add-item (string-downcase (class-name brush)) (tool-option 'brush tool)))))
 
 (defun translate-pen (pen)
   (let ((pen (copy pen)))
@@ -45,7 +37,8 @@
 
 (defmethod begin ((tool brush-tool) pen)
   (v:info :brush-tool "Beginning stroke at ~s" pen)
-  (let ((stroke (make-instance 'stroke))
+  (let ((stroke (make-instance 'stroke :brush (make-instance (or (find-symbol (string-upcase (current-brush tool)) "PARASOL")
+                                                                 (error "Wtf. No brush like ~s found, but selected." (current-brush tool))))))
         (layer (current-layer (current-document)))
         (pen (translate-pen pen)))
     (ensure-fitting (x pen) (y pen) layer)
