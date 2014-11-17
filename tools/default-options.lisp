@@ -7,6 +7,11 @@
 (in-package #:org.shirakumo.parasol)
 (named-readtables:in-readtable :qtools)
 
+;; A fillable widget
+(with-widget-environment
+  (define-tool-option widget-option (QWidget)
+    ()))
+
 ;; Integer spin box
 (with-widget-environment
   (define-tool-option integer-option (QSpinBox)
@@ -99,13 +104,17 @@
 ;; Dropdown list
 (with-widget-environment
   (define-tool-option list-option (QComboBox)
-    ((options :initarg :options :initform ())
+    ((items :initarg :items :initform ())
      (default :initarg :default :initform NIL)))
 
   (define-initializer widget 100
-    (dolist (option options)
-      (#_addItem widget option))
+    (dolist (item items)
+      (#_addItem widget item))
     (when default
       (#_setCurrentIndex widget (#_findData widget default)))
     (#_setTooltip widget (description widget))
-    (connect! widget (current-index-changed string) widget (change string))))
+    (connect! widget (current-index-changed string) widget (change string)))
+
+  (defmethod add-item (item (option list-option))
+    (push item (items option))
+    (#_addItem option item)))
