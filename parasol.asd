@@ -30,7 +30,11 @@
                              (:file "default-options")
                              (:file "tool-class")
                              (:file "tool")
-                             (:file "brush-tool")))
+                             (:file "brush-tool")
+                             (:module "brushes"
+                              :components ((:file "brush-class")
+                                           (:file "brush")
+                                           (:file "basic")))))
                (:module "widgets"
                 :components ((:file "main-window")
                              (:file "gizmo-bar")
