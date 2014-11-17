@@ -13,7 +13,25 @@
   (:qt-superclass "QPushButton")
   (:label "Tool")
   (:documentation "Superclass for all document-manipulating tools.")
-  (:slots ("change(bool)" change)))
+  (:slots ("change(bool)" change))
+  (:initializers
+   (tool 50
+         ;; Instantiate all the options
+         (loop for option in (tool-effective-options (class-of tool))
+               do (destructuring-bind (name &rest args &key type &allow-other-keys) option
+                    (let ((args (copy-list args)))
+                      (remf args :type)
+                      (loop for cons on args by #'cddr
+                            do (setf (cadr cons) (eval (cadr cons))))
+                      (setf (tool-option name tool)
+                            (apply #'make-instance type :tool tool args)))))
+         ;; Default init
+         (#_setCheckable tool T)
+         (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
+         (if (tool-icon tool)
+             (#_setIcon tool (tool-icon tool))
+             (#_setText tool (tool-label tool)))
+         (connect! tool (toggled bool) tool (change bool)))))
 
 (defmethod print-object ((tool tool) stream)
   (print-unreadable-object (tool stream :type T)
@@ -33,23 +51,12 @@
 (define-superclass-method-wrapper tool-description)
 (define-superclass-method-wrapper tool-icon)
 
-(defmethod initialize-instance :after ((tool tool) &key)
-  ;; Instantiate all the options
-  (loop for option in (tool-effective-options (class-of tool))
-        do (destructuring-bind (name &rest args &key type &allow-other-keys) option
-             (let ((args (copy-list args)))
-               (remf args :type)
-               (loop for cons on args by #'cddr
-                     do (setf (cadr cons) (eval (cadr cons))))
-               (setf (gethash name (tool-options tool))
-                     (apply #'make-instance type :tool tool args)))))
-  ;; Default init
-  (#_setCheckable tool T)
-  (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
-  (if (tool-icon tool)
-      (#_setIcon tool (tool-icon tool))
-      (#_setText tool (tool-label tool)))
-  (connect! tool (toggled bool) tool (change bool)))
+(defun tool-option (name tool)
+  (gethash name (tool-options tool)))
+
+(defun (setf tool-option) (option name tool)
+  (setf (gethash name (tool-options tool))
+        option))
 
 (defmethod finalize :after ((tool tool))
   (dolist (option (tool-options tool))
@@ -76,13 +83,23 @@
   (:method ((tool tool) pen)
     (v:debug :tool "[STUB] (END ~s ~s)" tool pen)))
 
+(defun has-superclass (superclass &rest classes)
+  (let ((superclass (etypecase superclass
+                      (class superclass)
+                      (symbol (find-class superclass)))))
+    (loop for name in classes
+          for class = (etypecase name
+                        (class name)
+                        (symbol (find-class name)))
+          do (c2mop:finalize-inheritance class)
+          thereis (c2mop:subclassp class superclass))))
+
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-tool (name direct-superclasses direct-slots &body options)
   (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
                                       (description ""))
       (if (listp name) name (list name))
-    (when (loop for superclass in direct-superclasses
-                never (typep superclass 'tool))
+    (unless (apply #'has-superclass 'tool direct-superclasses)
       (push 'tool direct-superclasses))
     (unless (assoc :label options)
       (push (list :label label) options))
@@ -97,3 +114,5 @@
     (4 (&whole 6 &rest)
        (&whole 2 (&whole 0 0 &rest 2))
        &rest (&whole 2 2 &rest (&whole 2 2 4 &body))))
+
+(declare-environment-widget-form 'define-tool)
