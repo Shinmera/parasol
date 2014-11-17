@@ -28,20 +28,33 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (#_setPen target (#_Qt::NoPen))
   (#_setBrush target (#_new QBrush (color brush))))
 
-(define-brush sized-circle-brush (abstract-brush)
+;; This needs to be generalised so I can use it both for brushes and textures and all
+;; maybe a superclass that translates and this scales?
+(define-brush sized-brush (abstract-brush)
   ((size :initarg :size :initform 2.0 :accessor size))
   (:options (size :type double-option :min 0.1 :max 1000000.0 :step 0.5 :default 2.0 :slot 'size)))
 
-(defmethod draw-penpoint ((brush sized-circle-brush) (pen pen) target)
-  (#_drawEllipse target (#_new QPointF (x pen) (y pen)) (size brush) (size brush)))
-
-(define-brush pressured-size-brush (sized-circle-brush abstract-brush)
+(define-brush pressured-size-brush (sized-brush abstract-brush)
   ())
 
-(defmethod draw-penpoint ((brush sized-circle-brush) (pen pen) target)
-  (#_drawEllipse target (#_new QPointF (x pen) (y pen))
-                 (* (size brush) (pressure brush))
-                 (* (size brush) (pressure brush))))
+(defmethod draw-penpoint :around ((brush pressured-size-brush) (pen pen) target)
+  (let ((orig-size (size brush)))
+    (setf (size brush) (* orig-size (pressure pen)))
+    (unwind-protect
+         (call-next-method)
+      (setf (size brush) orig-size))))
 
-(define-brush basic-brush (linearly-sampled-brush single-colored-brush pressured-size-brush)
+(define-brush circle-tip-brush (sized-brush abstract-brush)
+  ())
+
+(defmethod draw-penpoint ((brush circle-tip-brush) (pen pen) target)
+  (#_drawEllipse target (#_new QPointF (x pen) (y pen)) (size brush) (size brush)))
+
+(define-brush texture-brush (abstract-brush)
+  ((texture :initarg :texture :initform NIL :accessor texture)))
+
+(defmethod draw-penpoint ((brush texture-brush) (pen pen) target)
+  (#_drawImage target (texture brush) (x pen) (y pen)))
+
+(define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ())
