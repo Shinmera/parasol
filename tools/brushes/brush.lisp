@@ -75,7 +75,7 @@
                (c2mop:finalize-inheritance class)
                (unless (find 'abstract-brush (c2mop:class-direct-superclasses class)
                              :key #'class-name)
-                 (push class classes))
+                 (pushnew class classes))
                (dolist (subclass (c2mop:class-direct-subclasses class))
                  (scan subclass))))
       (scan (find-class 'brush)))
