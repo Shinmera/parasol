@@ -116,3 +116,22 @@
      :pressure pressure
      :tangential-pressure tangential-pressure
      :real-time real-time)))
+
+(defun linear-interpolate (from to i)
+  (macrolet ((interpolate (symbol)
+               `(+ (* i (- (,symbol to) ,symbol)) ,symbol)))
+    (with-pen-values (from)
+      (make-instance
+       'pen
+       :pointer pointer
+       :device device
+       :before from
+       :x (interpolate x)
+       :y (interpolate y)
+       :z (interpolate z)
+       :x-tilt (interpolate x-tilt)
+       :y-tilt (interpolate y-tilt)
+       :rotation (interpolate rotation)
+       :pressure (interpolate pressure)
+       :tangential-pressure (interpolate tangential-pressure)
+       :real-time (interpolate real-time)))))
