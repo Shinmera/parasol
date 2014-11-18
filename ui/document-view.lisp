@@ -45,8 +45,8 @@
     (setf pen
           (make-instance
            'pen
-           :pointer (#_pointerType event)
-           :device (#_device event)
+           :pointer (qt:enum-value (#_pointerType event))
+           :device (qt:enum-value (#_device event))
            :before pen
            :x (+ (#_x event) (x widget))
            :y (+ (#_y event) (y widget))
