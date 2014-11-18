@@ -95,18 +95,15 @@
                      (collect-inherited-option-definitions class direct-superclasses))
           (remove :remove options :test #'find)))
 
-;; This way we probably recalculate options quite often
-;; it's compile time so it doesn't matter much, but still.
-(defun cascade-option-changes (class)
-  (setf (tool-effective-options class) (compute-effective-options class))
-  (loop for sub-class in (c2mop:class-direct-subclasses class)
-        when (and (typep sub-class 'tool-class)
-                  (c2mop:class-finalized-p sub-class))
-        do (cascade-option-changes sub-class)))
-
 ;; Hook in here so we can compute the effective options.
 (defmethod c2mop:finalize-inheritance :after ((class tool-class))
-  (dolist (super (c2mop:class-direct-superclasses class))
-    (unless (c2mop:class-finalized-p super)
-      (c2mop:finalize-inheritance super)))
-  (cascade-option-changes class))
+  (labels ((cascade-option-changes (class)
+             (setf (tool-effective-options class) (compute-effective-options class))
+             (loop for sub-class in (c2mop:class-direct-subclasses class)
+                   when (and (typep sub-class 'tool-class)
+                             (c2mop:class-finalized-p sub-class))
+                   do (cascade-option-changes sub-class))))
+    (dolist (super (c2mop:class-direct-superclasses class))
+      (unless (c2mop:class-finalized-p super)
+        (c2mop:finalize-inheritance super)))
+    (cascade-option-changes class)))
