@@ -10,7 +10,7 @@
 ;; This whole file is mostly a copy of what TOOL-CLASS does,
 ;; with some very minor modifications.
 
-(defclass brush-class ()
+(defclass brush-class (standard-class)
   ((direct-options :initform () :initarg :options :accessor brush-direct-options)
    (effective-options :initform () :accessor brush-effective-options)
    (icon :initform NIL :initarg :icon :accessor brush-icon)
@@ -59,8 +59,8 @@
   (apply #'initialize-brush-class class #'call-next-method initargs))
 
 (defmethod initialize-instance :after ((class brush-class) &key)
-  (unless (tool-label class)
-    (setf (tool-label class)
+  (unless (brush-label class)
+    (setf (brush-label class)
           (capitalize-on #\- (class-name class) #\Space T))))
 
 ;; Collect all inherited and direct options.
