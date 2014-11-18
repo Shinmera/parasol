@@ -57,10 +57,11 @@
       (push 'brush direct-superclasses))
     (unless (assoc :label options)
       (push (list :label label) options))
-    `(defclass ,name ,direct-superclasses
-       ,direct-slots
-       (:metaclass brush-class)
-       ,@options)))
+    `(eval-when (:compile-toplevel :load-toplevel :execute)
+       (defclass ,name ,direct-superclasses
+         ,direct-slots
+         (:metaclass brush-class)
+         ,@options))))
 
 (indent:define-indentation define-brush
     (4 (&whole 6 &rest)
