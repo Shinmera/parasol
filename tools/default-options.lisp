@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.tools)
 (named-readtables:in-readtable :qtools)
 
 ;; A fillable widget
@@ -117,4 +117,8 @@
 
   (defmethod add-item (item (option list-option))
     (push item (items option))
-    (#_addItem option item)))
+    (#_addItem option item))
+
+  (defmethod clear-items ((option list-option))
+    (setf (items option) NIL)
+    (#_clear option)))

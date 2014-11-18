@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.tools.brush)
 (named-readtables:in-readtable :qtools)
 
 ;; This whole file is mostly a copy of what TOOL-CLASS does,
@@ -79,14 +79,16 @@
                      (collect-inherited-option-definitions class direct-superclasses))
           (remove :remove options :test #'find)))
 
+(defun cascade-option-changes (class)
+  (setf (brush-effective-options class) (compute-effective-options class))
+  (loop for sub-class in (c2mop:class-direct-subclasses class)
+        when (and (typep sub-class 'brush-class)
+                  (c2mop:class-finalized-p sub-class))
+        do (cascade-option-changes sub-class)))
+
 ;; Hook in here so we can compute the effective options.
 (defmethod c2mop:finalize-inheritance :after ((class brush-class))
-  (labels ((cascade-option-changes (class)
-             (setf (brush-effective-options class) (compute-effective-options class))
-             (loop for sub-class in (c2mop:class-direct-subclasses class)
-                   when (and (typep sub-class 'brush-class)
-                             (c2mop:class-finalized-p sub-class))
-                   do (cascade-option-changes sub-class))))
+  (labels ()
     (dolist (super (c2mop:class-direct-superclasses class))
       (unless (c2mop:class-finalized-p super)
         (c2mop:finalize-inheritance super)))

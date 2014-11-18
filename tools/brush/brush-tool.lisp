@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.tools.brush)
 (named-readtables:in-readtable :qtools)
 
 (defclass stroke (drawable)
@@ -25,10 +25,18 @@
       (brush :type list-option :slot 'current-brush)
       (brush-options :type widget-option)))
 
-  (define-initializer tool 100
+  (defun %init-brush-tool-brushes (tool)
     (dolist (brush (or (find-brushes)
                        (warn "No brushes found.")))
-      (add-item (string-downcase (class-name brush)) (tool-option 'brush tool)))))
+      (add-item (string-downcase (class-name brush)) (tool-option 'brush tool))))
+
+  (define-initializer tool 100
+    (%init-brush-tool-brushes))
+
+  ;; Hook into the definition of a new brush class.
+  (defmethod initialize-instance :around ((brush brush) &key)
+    (call-next-method)
+    (%init-brush-tool-brushes)))
 
 (defun translate-pen (pen)
   (let ((pen (copy pen)))

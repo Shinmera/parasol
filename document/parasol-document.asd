@@ -6,15 +6,17 @@
 
 (in-package #:cl-user)
 (asdf:defsystem parasol
-  :name "Parasol"
+  :name "Parasol-Document"
   :version "0.0.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
-  :description "A common lisp painting application."
-  :homepage "https://github.com/Shinmera/parasol"
   :serial T
-  :components ((:file "package")
-               (:file "compat")
-               (:file "array"))
-  :depends-on (:verbose :qtools))
+  :components ((:file "image-op")
+               (:file "pen")
+               (:file "metadata")
+               (:file "primitives")
+               (:file "history")
+               (:file "layer")
+               (:file "document"))
+  :depends-on (:parasol))

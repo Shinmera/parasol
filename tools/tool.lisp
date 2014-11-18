@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.tools)
 (named-readtables:in-readtable :qtools)
 
 (defclass tool (widget)

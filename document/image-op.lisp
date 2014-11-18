@@ -4,7 +4,7 @@ This file is a part of Parasol
 Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.document)
 (named-readtables:in-readtable :qtools)
 
 (defun make-image (width height &key (format (#_QImage::Format_ARGB32)) (fill (#_Qt::transparent)))

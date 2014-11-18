@@ -4,7 +4,7 @@ This file is a part of Parasol
 Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.document)
 (named-readtables:in-readtable :qtools)
 
 (defclass positioned ()

@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.document)
 
 (defclass metadata ()
   ((fields :initform (make-hash-table :test 'eql) :reader fields)))

@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.document)
 
 (defclass history-item ()
   ((document :initarg :document :initform (error "Document required.") :reader document)))
