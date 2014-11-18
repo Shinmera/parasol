@@ -56,7 +56,7 @@
     ((default :initarg :default :initform "" :accessor default)))
 
   (define-slot on-return (widget)
-    (signal! widget (change string) (#_text widget)))
+    (signal! widget change ((#_text widget) string)))
 
   (define-initializer widget 100
     (#_setText widget default)
@@ -71,7 +71,7 @@
      (default :initarg :default :initform 0)))
 
   (define-slot on-release (widget)
-    (signal! widget (change int) (#_value widget)))
+    (signal! widget change ((#_value widget) int)))
 
   (define-initializer widget 100
     (#_setRange widget min max)
