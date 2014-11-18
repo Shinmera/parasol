@@ -21,5 +21,3 @@
 
   ;; We need OpenGL support for better drawing.
   (ensure-smoke :qtopengl))
-
-(test-compatibility)

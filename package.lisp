@@ -8,4 +8,5 @@
 (defpackage #:parasol
   (:use #:cl #:qt #:qtools)
   (:nicknames #:org.shirakumo.parasol)
-  (:export))
+  (:export
+   #:start))
