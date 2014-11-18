@@ -34,36 +34,22 @@
   (define-initializer tool 100
     (%init-brush-tool-brushes tool)))
 
-;; !FIXME
-;; WE NEED TO FIX THE FUNCS FOR CURRENT-VIEW AND
-;; CURRENT-DOCUMENT OR SOMEHOW PASS THEM IN SO
-;; WE DON'T HAVE TO RELY ON FORWARD REFERENCES
-;;
-;; LOUD NOISES
-(defun translate-pen (pen)
-  (let ((pen (copy pen)))
-    (incf (x pen) (x (current-view)))
-    (incf (y pen) (y (current-view)))
-    pen))
-
 (defmethod begin ((tool brush-tool) pen)
   (v:info :brush-tool "Beginning stroke at ~s" pen)
-  (let ((stroke (make-instance 'stroke :brush (make-instance (or (find-symbol (string-upcase (current-brush tool)) "PARASOL")
+  (let ((stroke (make-instance 'stroke :brush (make-instance (or (find-symbol (string-upcase (current-brush tool)) #.*package*)
                                                                  (error "Wtf. No brush like ~s found, but selected." (current-brush tool))))))
-        (layer (current-layer (current-document)))
-        (pen (translate-pen pen)))
+        (layer (current-layer (current-document))))
     (ensure-fitting (x pen) (y pen) layer)
     (insert (add-point pen stroke) layer)
-    (rebuffer layer)
-    (#_repaint (current-view))))
+    ;; FIXME! need to be turned into a call to the render loop once we have that.
+    (rebuffer layer)))
 
 (defmethod move ((tool brush-tool) pen)
   (let ((layer (current-layer (current-document)))
         (pen (translate-pen pen)))
     (add-point pen (current-drawable layer))
     (ensure-fitting (x pen) (y pen) layer)
-    (rebuffer layer)
-    (#_repaint (current-view))))
+    (rebuffer layer)))
 
 (defmethod end ((tool brush-tool) pen)
   )

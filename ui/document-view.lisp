@@ -48,8 +48,8 @@
            :pointer (#_pointerType event)
            :device (#_device event)
            :before pen
-           :x (#_x event)
-           :y (#_y event)
+           :x (+ (#_x event) (x widget))
+           :y (+ (#_y event) (y widget))
            :z (#_z event)
            :x-tilt (#_xTilt event)
            :y-tilt (#_yTilt event)
@@ -67,14 +67,16 @@
              :pointer 1
              :device 0
              :before (pen widget)
-             :x (#_x event)
-             :y (#_y event)
+             :x (+ (#_x event) (x widget))
+             :y (+ (#_y event) (y widget))
              :pressure *mouse-pressure*))))
 
   (defun process-mouse (widget event func)
     (maybe-update-pen widget event)
     (when (and (tool *window*) (slot-value widget 'pen-pressed))
       (funcall func (tool *window*) (pen widget)))
+    ;; !Critical
+    (#_repaint widget)
     (#_ignore event))
 
   (define-override mouse-move-event (widget event)
