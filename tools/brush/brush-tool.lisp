@@ -34,22 +34,21 @@
   (define-initializer tool 100
     (%init-brush-tool-brushes tool)))
 
-(defmethod begin ((tool brush-tool) pen)
+(defmethod begin ((tool brush-tool) pen document)
   (v:info :brush-tool "Beginning stroke at ~s" pen)
   (let ((stroke (make-instance 'stroke :brush (make-instance (or (find-symbol (string-upcase (current-brush tool)) #.*package*)
                                                                  (error "Wtf. No brush like ~s found, but selected." (current-brush tool))))))
-        (layer (current-layer (current-document))))
+        (layer (current-layer document)))
     (ensure-fitting (x pen) (y pen) layer)
     (insert (add-point pen stroke) layer)
     ;; FIXME! need to be turned into a call to the render loop once we have that.
     (rebuffer layer)))
 
-(defmethod move ((tool brush-tool) pen)
-  (let ((layer (current-layer (current-document)))
-        (pen (translate-pen pen)))
+(defmethod move ((tool brush-tool) pen document)
+  (let ((layer (current-layer document)))
     (add-point pen (current-drawable layer))
     (ensure-fitting (x pen) (y pen) layer)
     (rebuffer layer)))
 
-(defmethod end ((tool brush-tool) pen)
+(defmethod end ((tool brush-tool) pen document)
   )

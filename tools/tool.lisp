@@ -71,17 +71,17 @@
   (:method ((tool tool))
     (v:debug :tool "[STUB] (DESELECT ~s)" tool)))
 
-(defgeneric begin (tool pen)
-  (:method ((tool tool) pen)
-    (v:debug :tool "[STUB] (BEGIN ~s ~s)" tool pen)))
+(defgeneric begin (tool pen document)
+  (:method ((tool tool) pen document)
+    (v:debug :tool "[STUB] (BEGIN ~s ~s ~s)" tool pen document)))
 
-(defgeneric move (tool pen)
-  (:method ((tool tool) pen)
-    (v:debug :tool "[STUB] (MOVE ~s ~s)" tool pen)))
+(defgeneric move (tool pen document)
+  (:method ((tool tool) pen document)
+    (v:debug :tool "[STUB] (MOVE ~s ~s ~s)" tool pen document)))
 
-(defgeneric end (tool pen)
-  (:method ((tool tool) pen)
-    (v:debug :tool "[STUB] (END ~s ~s)" tool pen)))
+(defgeneric end (tool pen document)
+  (:method ((tool tool) pen document)
+    (v:debug :tool "[STUB] (END ~s ~s ~s)" tool pen document)))
 
 (defun has-superclass (superclass &rest classes)
   (let ((superclass (etypecase superclass

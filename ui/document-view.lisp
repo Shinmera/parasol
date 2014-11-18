@@ -74,7 +74,7 @@
   (defun process-mouse (widget event func)
     (maybe-update-pen widget event)
     (when (and (tool *window*) (slot-value widget 'pen-pressed))
-      (funcall func (tool *window*) (pen widget)))
+      (funcall func (tool *window*) (pen widget) (document widget)))
     ;; !Critical
     (#_repaint widget)
     (#_ignore event))
