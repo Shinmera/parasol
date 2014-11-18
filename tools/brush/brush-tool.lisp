@@ -11,9 +11,10 @@
   ((points :initform (make-array 0 :element-type 'pen :adjustable T :fill-pointer 0) :accessor points)
    (brush :initform (error "BRUSH required.") :initarg :brush :accessor brush)))
 
-(defmethod add-point ((pen pen) (stroke stroke))
-  (vector-push-extend pen (points stroke))
-  stroke)
+(defgeneric add-point (pen stroke)
+  (:method ((pen pen) (stroke stroke))
+    (vector-push-extend pen (points stroke))
+    stroke))
 
 (defmethod draw ((stroke stroke) target)
   (draw-stroke (brush stroke) stroke target))

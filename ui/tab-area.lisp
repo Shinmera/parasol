@@ -7,6 +7,13 @@
 (in-package #:org.shirakumo.parasol.ui)
 (named-readtables:in-readtable :qtools)
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defgeneric index (tab))
+  (defgeneric add-tab (tab-area tab))
+  (defgeneric change-tab (tab-area tab))
+  (defgeneric close-tab (tab-area tab))
+  (defgeneric current-tab (tab-area)))
+
 (with-widget-environment
   (define-widget tab (QWidget)
     ((title :initarg :title :initform "Untitled" :accessor title)
@@ -16,9 +23,8 @@
     (#_setTabText (parent tab) (index tab) text)
     (call-next-method))
   
-  (defgeneric index (tab)
-    (:method ((tab tab))
-      (#_indexOf (parent tab) tab)))
+  (defmethod index ((tab tab))
+    (#_indexOf (parent tab) tab))
 
   (defmethod finalize ((tab tab))
     (#_removeTab (parent tab) (index tab))
@@ -40,20 +46,18 @@
   (define-widget tab-area (QTabWidget)
     ())
 
-  (defgeneric add-tab (widget tab)
-    (:method ((widget tab-area) (tab tab))
+  (defmethod add-tab ((widget tab-area) (tab tab))
+    (#_addTab widget tab (title tab))
+    tab)
+
+  (defmethod add-tab ((widget tab-area) (class symbol))
+    (let ((tab (make-instance class :parent widget)))
       (#_addTab widget tab (title tab))
-      tab)
-
-    (:method ((widget tab-area) (class symbol))
-      (let ((tab (make-instance class :parent widget)))
-        (#_addTab widget tab (title tab))
-        tab)))
-
-  (defgeneric change-tab (widget tab)
-    (:method ((widget tab-area) (tab tab))
-      (#_setCurrentWidget widget tab)
       tab))
+
+  (defmethod change-tab ((widget tab-area) (tab tab))
+    (#_setCurrentWidget widget tab)
+    tab)
 
   (define-slot change-tab (widget (index int))
     (declare (connected widget (current-changed int)))
@@ -62,10 +66,9 @@
       (v:info :parasol "Switching to tab ~s" tab)
       tab))
 
-  (defgeneric close-tab (widget tab)
-    (:method ((widget tab-area) (tab tab))
-      (finalize tab)
-      NIL))
+  (defmethod close-tab ((widget tab-area) (tab tab))
+    (finalize tab)
+    NIL)
 
   (define-slot close-tab (widget (index int))
     (declare (connected widget (tab-close-requested int)))
@@ -75,9 +78,8 @@
       (finalize tab))
     NIL)
 
-  (defgeneric current-tab (widget)
-    (:method ((widget tab-area))
-      (#_currentWidget widget)))
+  (defmethod current-tab ((widget tab-area))
+    (#_currentWidget widget))
 
   (define-initializer widget 100
     (#_setMovable widget T)
