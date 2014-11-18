@@ -11,6 +11,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ((distance :initarg :distance :initform 1.0 :accessor distance))
   (:options (distance :type double-option :min 0.1 :max 100000.0 :step 0.5 :default 1.0 :slot 'distance)))
 
+(defgeneric draw-penpoint (brush pen target))
+
 (defmethod draw-stroke ((brush linearly-sampled-brush) (stroke stroke) target)
   (loop for i from 1 below (length (points stroke))
         for start = (aref (points stroke) (1- i))
