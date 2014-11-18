@@ -12,7 +12,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
-  :components ((:file "tool-option")
+  :components ((:file "package")
+               (:file "tool-option")
                (:file "default-options")
                (:file "tool-class")
                (:file "tool"))

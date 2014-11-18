@@ -12,7 +12,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
-  :components ((:file "main-window")
+  :components ((:file "package")
+               (:file "main-window")
                (:file "gizmo-bar")
                (:file "tab-area")
                (:file "document-view"))

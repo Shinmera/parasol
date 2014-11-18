@@ -5,14 +5,15 @@
 |#
 
 (in-package #:cl-user)
-(asdf:defsystem parasol
+(asdf:defsystem parasol-document
   :name "Parasol-Document"
   :version "0.0.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
-  :components ((:file "array")
+  :components ((:file "package")
+               (:file "array")
                (:file "image-op")
                (:file "pen")
                (:file "metadata")

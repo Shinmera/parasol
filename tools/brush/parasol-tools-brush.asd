@@ -12,7 +12,9 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
-  :components ((:file "brush-class")
+  :components ((:file "package")
+               (:file "brush-class")
                (:file "brush")
-               (:file "basic"))
+               (:file "basic")
+               (:file "brush-tool"))
   :depends-on (:parasol :parasol-tools))
