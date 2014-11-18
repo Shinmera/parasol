@@ -15,18 +15,6 @@
    (description :initform NIL :initarg :description :accessor tool-description))
   (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
-(defmethod c2mop:validate-superclass ((class tool-class) (superclass t))
-  nil)
-
-(defmethod c2mop:validate-superclass ((class standard-class) (superclass tool-class))
-  nil)
-
-(defmethod c2mop:validate-superclass ((class tool-class) (superclass standard-class))
-  t)
-
-(defmethod c2mop:validate-superclass ((class tool-class) (superclass tool-class))
-  t)
-
 ;; Copy from WIDGET-CLASS
 (defmethod make-instance ((class (eql (find-class 'tool-class))) &rest initargs)
   (unless (c2mop:class-finalized-p class)
@@ -98,7 +86,7 @@
 (defun cascade-option-changes (class)
   (setf (tool-effective-options class) (compute-effective-options class))
   (loop for sub-class in (c2mop:class-direct-subclasses class)
-        when (and (typep sub-class 'tool-class)
+        when (and (c2mop:subclassp sub-class (find-class 'tool-class))
                   (c2mop:class-finalized-p sub-class))
         do (cascade-option-changes sub-class)))
 
