@@ -112,7 +112,6 @@
       (#_addItem widget item))
     (when default
       (#_setCurrentIndex widget (#_findData widget default)))
-    (#_setTooltip widget (description widget))
     (connect! widget (current-index-changed string) widget (change string)))
 
   (defgeneric items (items)
