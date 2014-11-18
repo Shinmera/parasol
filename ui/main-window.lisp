@@ -11,7 +11,7 @@
 
 (with-widget-environment
   (define-widget main-window (QMainWindow)
-    ((tool :initform (make-instance 'brush-tool) :accessor tool)))
+    ((tool :initform (make-instance 'parasol-tools-brush:brush-tool) :accessor tool)))
 
   (define-subwidget tab-area (make-instance 'tab-area))
 

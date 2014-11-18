@@ -31,8 +31,14 @@
       (add-item (string-downcase (class-name brush)) (tool-option 'brush tool))))
 
   (define-initializer tool 100
-    (%init-brush-tool-brushes)))
+    (%init-brush-tool-brushes tool)))
 
+;; !FIXME
+;; WE NEED TO FIX THE FUNCS FOR CURRENT-VIEW AND
+;; CURRENT-DOCUMENT OR SOMEHOW PASS THEM IN SO
+;; WE DON'T HAVE TO RELY ON FORWARD REFERENCES
+;;
+;; LOUD NOISES
 (defun translate-pen (pen)
   (let ((pen (copy pen)))
     (incf (x pen) (x (current-view)))

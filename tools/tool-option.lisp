@@ -7,6 +7,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (in-package #:org.shirakumo.parasol.tools)
 (named-readtables:in-readtable :qtools)
 
+(defgeneric change (option value))
+
 (with-widget-environment
   (define-widget tool-option (QWidget)
     ((label :initarg :label :initform NIL :accessor label)

@@ -115,10 +115,21 @@
     (#_setTooltip widget (description widget))
     (connect! widget (current-index-changed string) widget (change string)))
 
-  (defmethod add-item (item (option list-option))
-    (push item (items option))
-    (#_addItem option item))
+  (defgeneric items (items)
+    (:method ((option list-option))
+      (slot-value option 'items)))
 
-  (defmethod clear-items ((option list-option))
-    (setf (items option) NIL)
-    (#_clear option)))
+  (defgeneric (setf items) (list items)
+    (:method (list (option list-option))
+      (setf (slot-value option 'items) list)
+      (#_clear option)
+      (dolist (item (slot-value option 'items))
+        (#_addItem option item))))
+
+  (defgeneric add-item (item target)
+    (:method (item (option list-option))
+      (push item (items option))))
+
+  (defgeneric clear-items (target)
+    (:method ((option list-option))
+      (setf (items option) ()))))
