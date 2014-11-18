@@ -17,8 +17,8 @@
     (package package)))
 
 (defun parasol::re-export (package &optional (from '#:parasol))
-  (setf from (ensure-package from))
-  (do-external-symbols (symb (ensure-package package))
+  (setf from (parasol::ensure-package from))
+  (do-external-symbols (symb (parasol::ensure-package package))
     (export symb from)))
 
 (parasol::re-export '#:qtools)
