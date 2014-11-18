@@ -27,6 +27,21 @@
 (defmethod c2mop:validate-superclass ((class tool-class) (superclass tool-class))
   t)
 
+;; Copy from WIDGET-CLASS
+(defmethod make-instance ((class (eql (find-class 'tool-class))) &rest initargs)
+  (unless (c2mop:class-finalized-p class)
+    (c2mop:finalize-inheritance class))
+  (let ((instance (apply #'allocate-instance class initargs)))
+    (apply #'initialize-instance instance initargs)
+    instance))
+
+;; On CCL we need to reach deeper, additionally to the make-instance override.
+#+:ccl
+(defmethod ccl::class-slot-initargs :around ((class (eql (find-class 'tool-class))))
+  (append (list-widget-slot-options)
+          (list-widget-class-options)
+          (call-next-method)))
+
 (defun check-option (class name &key label description type slot &allow-other-keys)
   (when (and slot (not (find (eval slot) (c2mop:class-slots class) :key #'c2mop:slot-definition-name)))
     (error "Cannot find an effective slot named ~s on class ~s, but it is set as the target slot for tool option ~s."
