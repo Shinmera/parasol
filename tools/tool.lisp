@@ -14,7 +14,7 @@
   (:label "Tool")
   (:documentation "Superclass for all document-manipulating tools.")
   (:slots ("change(bool)" change))
-  (:initializers
+  (:initializer
    (tool 50
          ;; Instantiate all the options
          (loop for option in (tool-effective-options (class-of tool))
