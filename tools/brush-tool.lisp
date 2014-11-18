@@ -26,7 +26,8 @@
       (brush-options :type widget-option)))
 
   (define-initializer tool 100
-    (dolist (brush (find-brushes))
+    (dolist (brush (or (find-brushes)
+                       (warn "No brushes found.")))
       (add-item (string-downcase (class-name brush)) (tool-option 'brush tool)))))
 
 (defun translate-pen (pen)
