@@ -5,7 +5,7 @@
 |#
 
 (in-package #:org.shirakumo.parasol)
-(named-readtables:in-readtable :qbrushs)
+(named-readtables:in-readtable :qtools)
 
 ;; Again, mostly what TOOL does, but with some adaptations that
 ;; make it more suited towards the brush env.
@@ -14,7 +14,7 @@
   ()
   (:documentation "Superclass for brushes that only exist in-code and are not visible to the user."))
 
-(defclass brush (widget abstract-brush)
+(defclass brush (abstract-brush)
   ((options :initform (make-hash-table :test 'eql) :reader brush-options))
   (:metaclass brush-class)
   (:label "Tool")
@@ -48,8 +48,6 @@
     (finalize option)))
 
 (defgeneric draw-stroke (brush stroke target))
-
-(defgeneric draw-penpoint (brush pen target))
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
