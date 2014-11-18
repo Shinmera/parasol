@@ -15,4 +15,4 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :components ((:file "brush-class")
                (:file "brush")
                (:file "basic"))
-  :depends-on (:parasol))
+  :depends-on (:parasol :parasol-tools))

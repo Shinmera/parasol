@@ -16,4 +16,4 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                (:file "gizmo-bar")
                (:file "tab-area")
                (:file "document-view"))
-  :depends-on (:parasol))
+  :depends-on (:parasol :parasol-document :parasol-tools))
