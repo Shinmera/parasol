@@ -4,7 +4,7 @@ This file is a part of Parasol
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.document)
 
 (defun array-shift (array &key (n 1) (from 0) (to (length array)) (adjust T) (fill NIL f-p))
   "Helper function that shifts a subset of array elements in either direction for a specified amount.

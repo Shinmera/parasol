@@ -12,7 +12,8 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
-  :components ((:file "image-op")
+  :components ((:file "array")
+               (:file "image-op")
                (:file "pen")
                (:file "metadata")
                (:file "primitives")

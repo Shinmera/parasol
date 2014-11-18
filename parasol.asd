@@ -16,5 +16,5 @@
   :serial T
   :components ((:file "package")
                (:file "compat")
-               (:file "array"))
+               (:file "load"))
   :depends-on (:verbose :qtools))
