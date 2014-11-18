@@ -10,7 +10,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:nicknames #:org.shirakumo.parasol.document)
   ;; document.lisp
   (:export
-   #:document)
+   #:document
+   #:current-layer)
   ;; history.lisp
   (:export
    #:history-item
