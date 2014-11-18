@@ -18,4 +18,10 @@
     (#_setSpacing layout 0)
     (#_setAlignment layout (#_Qt::AlignLeft))
     (dolist (tool (find-tools))
-      (#_addWidget layout (make-instance tool) 0))))
+      (#_addWidget layout (make-instance tool) 0)))
+
+  (defmethod parasol-tools:select :after ((tool tool))
+    (setf (tool *window*) tool))
+
+  (defmethod parasol-tools:deselect :after ((tool tool))
+    (setf (tool *window*) NIL)))
