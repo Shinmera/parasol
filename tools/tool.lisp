@@ -26,6 +26,7 @@
                       (setf (tool-option name tool)
                             (apply #'make-instance type :tool tool args)))))
          ;; Default init
+         (#_setSizePolicy tool (#_QSizePolicy::Maximum) (#_QSizePolicy::Maximum))
          (#_setCheckable tool T)
          (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
          (if (tool-icon tool)
@@ -116,3 +117,13 @@
        &rest (&whole 2 2 &rest (&whole 2 2 4 &body))))
 
 (declare-environment-widget-form 'define-tool)
+
+(defun find-tools ()
+  (let ((classes ()))
+    (labels ((scan (class)
+               (c2mop:finalize-inheritance class)
+               (dolist (subclass (c2mop:class-direct-subclasses class))
+                 (pushnew subclass classes)
+                 (scan subclass))))
+      (scan (find-class 'tool)))
+    (sort classes #'string< :key #'class-name)))

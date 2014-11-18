@@ -49,4 +49,5 @@
    #:begin
    #:move
    #:end
-   #:define-tool))
+   #:define-tool
+   #:find-tools))
