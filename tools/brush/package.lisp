@@ -5,8 +5,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.parasol)
-(defpackage #:parasol.tools.brush
-  (:use #:cl #:parasol #:parasol.tools)
+(defpackage #:parasol-tools-brush
+  (:use #:cl #:parasol #:parasol-tools)
   (:nicknames #:org.shirakumo.parasol.tools.brush)
   ;; basic.lisp
   (:export

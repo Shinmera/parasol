@@ -5,7 +5,7 @@
 |#
 
 (in-package #:org.shirakumo.parasol)
-(defpackage #:parasol.tools
+(defpackage #:parasol-tools
   (:use #:cl #:parasol)
   (:nicknames #:org.shirakumo.parasol.tools)
   ;; default-options.lisp

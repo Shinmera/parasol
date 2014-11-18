@@ -5,7 +5,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.parasol)
-(defpackage #:parasol.document
+(defpackage #:parasol-document
   (:use #:cl #:parasol)
   (:nicknames #:org.shirakumo.parasol.document)
   ;; document.lisp

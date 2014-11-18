@@ -5,8 +5,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.parasol)
-(defpackage #:parasol.ui
-  (:use #:cl #:parasol #:parasol.document #:parasol.tools)
+(defpackage #:parasol-ui
+  (:use #:cl #:parasol #:parasol-document #:parasol-tools)
   (:nicknames #:org.shirakumo.parasol.ui)
   ;; document-view.lisp
   (:export
