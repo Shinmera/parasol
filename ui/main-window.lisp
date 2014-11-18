@@ -13,18 +13,26 @@
   (define-widget main-window (QMainWindow)
     ((tool :initform (make-instance 'parasol-tools-brush:brush-tool) :accessor tool)))
 
+  (define-subwidget tools-area (make-instance 'tools-area))
+
   (define-subwidget tab-area (make-instance 'tab-area))
 
   (define-subwidget gizmo-bar (make-instance 'gizmo-bar))
 
   (define-subwidget central-splitter (#_new QSplitter (#_Qt::Horizontal))
-    (#_setCentralWidget widget central-splitter)
-
     (#_addWidget central-splitter tab-area)
     (#_addWidget central-splitter gizmo-bar)
 
     (#_setStretchFactor central-splitter 0 1)
     (#_setStretchFactor central-splitter 1 0))
+
+  (define-subwidget layout-container (#_new QWidget widget)
+    (let ((layout (#_new QVBoxLayout layout-container)))
+      (#_setMargin layout 0)
+      (#_setSpacing layout 0)
+      (#_addWidget layout tools-area)
+      (#_addWidget layout central-splitter))
+    (#_setCentralWidget widget layout-container))
 
   (define-initializer window 100
     (unless (boundp '*window*)
