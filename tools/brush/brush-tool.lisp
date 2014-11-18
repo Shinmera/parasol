@@ -42,6 +42,9 @@
     (ensure-fitting (x pen) (y pen) layer)
     (insert (add-point pen stroke) layer)
     ;; FIXME! need to be turned into a call to the render loop once we have that.
+    ;; FIXME²! We also need to optimise this to not rebuffer completely because that's insane.
+    ;; Instead we need to add buffer drawing modes and then only do incremental painting.
+    ;; FIXME³! Also, we need some kind of way to notify higher-level caches of the changes.
     (rebuffer layer)))
 
 (defmethod move ((tool brush-tool) pen document)
@@ -51,4 +54,5 @@
     (rebuffer layer)))
 
 (defmethod end ((tool brush-tool) pen document)
+  ;; History hook here some day.
   )
