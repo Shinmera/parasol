@@ -5,21 +5,25 @@
 |#
 
 (in-package #:cl-user)
-(defpackage #:parasol
-  (:use #:cl #:qt #:qtools)
-  (:nicknames #:org.shirakumo.parasol)
-  (:export
-   #:start))
+(defpackage #:parasol-dev
+  (:use #:qt #:qtools)
+  (:nicknames #:org.shirakumo.parasol.dev))
 
-(defun parasol::ensure-package (package)
+(defun parasol-dev::ensure-package (package)
   (etypecase package
     ((or symbol string) (find-package package))
     (package package)))
 
-(defun parasol::re-export (package &optional (from '#:parasol))
-  (setf from (parasol::ensure-package from))
-  (do-external-symbols (symb (parasol::ensure-package package))
+(defun parasol-dev::re-export (package &optional (from '#:parasol-dev))
+  (setf from (parasol-dev::ensure-package from))
+  (do-external-symbols (symb (parasol-dev::ensure-package package))
     (export symb from)))
 
-(parasol::re-export '#:qtools)
-(parasol::re-export '#:qt)
+(parasol-dev::re-export '#:qtools)
+(parasol-dev::re-export '#:qt)
+
+(defpackage #:parasol
+  (:use #:cl #:parasol-dev)
+  (:nicknames #:org.shirakumo.parasol)
+  (:export
+   #:start))
