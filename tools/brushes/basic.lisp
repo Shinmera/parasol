@@ -5,7 +5,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.parasol)
-(named-readtables:in-readtable :qbrushs)
+(named-readtables:in-readtable :qtools)
 
 (define-brush linearly-sampled-brush (abstract-brush)
   ((distance :initarg :distance :initform 1.0 :accessor distance))
