@@ -10,3 +10,16 @@
   (:nicknames #:org.shirakumo.parasol)
   (:export
    #:start))
+
+(defun parasol::ensure-package (package)
+  (etypecase package
+    ((or symbol string) (find-package package))
+    (package package)))
+
+(defun parasol::re-export (package &optional (from '#:parasol))
+  (setf from (ensure-package from))
+  (do-external-symbols (symb (ensure-package package))
+    (export symb from)))
+
+(parasol::re-export '#:qtools)
+(parasol::re-export '#:qt)
