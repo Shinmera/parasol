@@ -10,11 +10,15 @@
   #+:quicklisp (ql:quickload system)
   #-:quicklisp (asdf:load-system system))
 
+(defun ensure-loaded (system)
+  (unless (asdf:component-loaded-p system)
+    (load-system system)))
+
 (defun start ()
   (test-compatibility)
   ;; !STUB
   ;; some kind of system to automate this
   ;; or at least make it hookable
-  (load-system :parasol-ui)
-  (load-system :parasol-tools-brush)
+  (ensure-loaded :parasol-ui)
+  (ensure-loaded :parasol-tools-brush)
   (funcall (find-symbol "MAIN" "PARASOL-UI")))
