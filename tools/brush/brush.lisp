@@ -53,7 +53,7 @@
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
   (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T)))
       (if (listp name) name (list name))
-    (unless (apply #'has-superclass 'brush direct-superclasses)
+    (unless (apply #'parasol-tools::has-superclass 'brush direct-superclasses)
       (push 'brush direct-superclasses))
     (unless (assoc :label options)
       (push (list :label label) options))
