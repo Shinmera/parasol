@@ -15,10 +15,14 @@
   (:documentation "Superclass for brushes that only exist in-code and are not visible to the user."))
 
 (defclass brush (abstract-brush)
-  ((options :initform (make-hash-table :test 'eql) :reader brush-options))
+  ((options :initform () :accessor brush-options))
   (:metaclass brush-class)
-  (:label "Tool")
+  (:label "Brush")
   (:documentation "Superclass for all user-usable brushes."))
+
+(defmethod copy ((brush brush))
+  ;; FIXME!
+  brush)
 
 (defmethod print-object ((brush brush) stream)
   (print-unreadable-object (brush stream :type T)
@@ -40,12 +44,12 @@
                (remf args :type)
                (loop for cons on args by #'cddr
                      do (setf (cadr cons) (eval (cadr cons))))
-               (setf (gethash name (brush-options brush))
-                     (apply #'make-instance type :brush brush args))))))
+               (push (cons name (apply #'make-instance type :tool brush args))
+                     (brush-options brush))))))
 
 (defmethod finalize :after ((brush brush))
-  (dolist (option (brush-options brush))
-    (finalize option)))
+  (loop for (name . option) in (brush-options brush)
+        do (finalize option)))
 
 (defgeneric draw-stroke (brush stroke target &optional offset))
 
