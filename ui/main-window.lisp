@@ -13,11 +13,18 @@
   (define-widget main-window (QMainWindow)
     ((tool :initform NIL :accessor tool)))
 
-  (define-subwidget tools-area (make-instance 'tools-area))
+  (define-initializer window 0
+    (unless (boundp '*window*)
+      (error "Tried to create a main window without the proper context!"))
+    (when *window*
+      (error "A main window instance is already active!"))
+    (setf *window* window))
 
   (define-subwidget tab-area (make-instance 'tab-area))
 
   (define-subwidget gizmo-bar (make-instance 'gizmo-bar))
+
+  (define-subwidget tools-area (make-instance 'tools-area))
 
   (define-subwidget central-splitter (#_new QSplitter (#_Qt::Horizontal))
     (#_addWidget central-splitter tab-area)
@@ -35,12 +42,6 @@
     (#_setCentralWidget widget layout-container))
 
   (define-initializer window 100
-    (unless (boundp '*window*)
-      (error "Tried to create a main window without the proper context!"))
-    (when *window*
-      (error "A main window instance is already active!"))
-    (setf *window* window)
-
     (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
     (#_resize window 500 500))
 
