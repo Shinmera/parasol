@@ -9,7 +9,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-brush linearly-sampled-brush (abstract-brush)
   ((distance :initarg :distance :initform 1.0 :accessor distance))
-  (:options (distance :type double-option :min 0.1 :max 100000.0 :step 0.5 :default 1.0 :slot 'distance)))
+  (:options (distance :type double-option :min 0.1 :max 100000.0 :step 0.5 :default 1.0 :slot 'distance
+              :label "Distance")))
 
 (defgeneric draw-penpoint (brush pen target))
 
@@ -24,7 +25,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-brush single-colored-brush (abstract-brush)
   ((color :initarg :color :initform (#_new QColor 0 0 0) :accessor color))
-  (:options (color :type color-option :slot 'color)))
+  (:options (color :type color-option :slot 'color
+              :label "Color")))
 
 (defmethod draw-stroke :before ((brush single-colored-brush) (stroke stroke) target &optional from)
   (declare (ignore from))
@@ -35,7 +37,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 ;; maybe a superclass that translates and this scales?
 (define-brush sized-brush (abstract-brush)
   ((size :initarg :size :initform 2.0 :accessor size))
-  (:options (size :type double-option :min 0.1 :max 1000000.0 :step 0.5 :default 2.0 :slot 'size)))
+  (:options (size :type double-option :min 0.1 :max 1000000.0 :step 0.5 :default 2.0 :slot 'size
+              :label "Size")))
 
 (define-brush pressured-size-brush (sized-brush abstract-brush)
   ())
@@ -65,7 +68,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
             (string (#_new QImage (uiop:native-namestring (asdf:system-relative-pathname :parasol texture))))))))
 
 (defmethod draw-penpoint ((brush texture-brush) (pen pen) target)
-  (#_drawImage target (#_new QPointF (x pen) (y pen)) (texture brush)))
+  (let ((texture (texture brush)))
+    (#_drawImage target (#_new QPointF
+                               (- (x pen) (/ (#_width texture) 2))
+                               (- (y pen) (/ (#_height texture) 2))) texture)))
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ())
