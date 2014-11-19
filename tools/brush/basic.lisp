@@ -57,7 +57,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ((texture :initarg :texture :initform NIL :accessor texture)))
 
 (defmethod draw-penpoint ((brush texture-brush) (pen pen) target)
-  (#_drawImage target (texture brush) (x pen) (y pen)))
+  (#_drawImage target (#_new QPointF (x pen) (y pen)) (texture brush)))
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ())
+
+(define-brush pepper-brush (linearly-sampled-brush texture-brush)
+  ((texture :initform (#_new QImage (uiop:native-namestring (asdf:system-relative-pathname :parasol "assets/pepper.png"))) :accessor texture)))
