@@ -13,10 +13,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defgeneric draw-penpoint (brush pen target))
 
-(defmethod draw-stroke ((brush linearly-sampled-brush) (stroke stroke) target)
-  (loop for i from 1 below (length (points stroke))
-        for start = (aref (points stroke) (1- i))
-        for end = (aref (points stroke) i)
+(defmethod draw-stroke ((brush linearly-sampled-brush) (stroke stroke) target &optional (from 0))
+  (loop for i from from below (1- (length (points stroke)))
+        for start = (aref (points stroke) i)
+        for end = (aref (points stroke) (1+ i))
         do (loop with length = (sqrt (+ (expt (- (x end) (x start)) 2)
                                         (expt (- (y end) (y start)) 2)))
                  for i from 0 below length by (distance brush)
@@ -26,7 +26,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ((color :initarg :color :initform (#_new QColor 0 0 0) :accessor color))
   (:options (color :type color-option :slot 'color)))
 
-(defmethod draw-stroke :before ((brush single-colored-brush) (stroke stroke) target)
+(defmethod draw-stroke :before ((brush single-colored-brush) (stroke stroke) target &optional from)
+  (declare (ignore from))
   (#_setPen target (#_Qt::NoPen))
   (#_setBrush target (#_new QBrush (color brush))))
 

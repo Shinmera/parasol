@@ -47,7 +47,7 @@
   (dolist (option (brush-options brush))
     (finalize option)))
 
-(defgeneric draw-stroke (brush stroke target))
+(defgeneric draw-stroke (brush stroke target &optional offset))
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
