@@ -71,11 +71,12 @@
         when (typep superclass 'brush-class)
         append (loop for option in (brush-effective-options superclass)
                      unless (find (car option) options :key #'car)
-                     collect option) into options))
+                     collect option) into options
+        finally (return options)))
 
 (defun compute-effective-options (class &key (direct-superclasses (c2mop:class-direct-superclasses class))
                                              (options (brush-direct-options class)))
-  (append (remove-if #'(lambda (a) (find a options :key #'car))
+  (append (remove-if #'(lambda (a) (find (car a) options :key #'car))
                      (collect-inherited-option-definitions class direct-superclasses))
           (remove :remove options :test #'find)))
 
