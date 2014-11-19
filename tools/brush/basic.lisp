@@ -56,6 +56,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (define-brush texture-brush (abstract-brush)
   ((texture :initarg :texture :initform NIL :accessor texture)))
 
+(defmethod initialize-instance :after ((brush texture-brush) &key)
+  (let ((texture (texture brush)))
+    (setf (texture brush)
+          (etypecase texture
+            (qobject texture)
+            (pathname (#_new QImage (uiop:native-namestring texture)))
+            (string (#_new QImage (uiop:native-namestring (asdf:system-relative-pathname :parasol texture))))))))
+
 (defmethod draw-penpoint ((brush texture-brush) (pen pen) target)
   (#_drawImage target (#_new QPointF (x pen) (y pen)) (texture brush)))
 
@@ -63,4 +71,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ())
 
 (define-brush pepper-brush (linearly-sampled-brush texture-brush)
-  ((texture :initform (#_new QImage (uiop:native-namestring (asdf:system-relative-pathname :parasol "assets/pepper.png"))) :accessor texture)))
+  ((texture :initform "assets/pepper.png" :accessor texture)))
+
+(define-brush jalapeno-brush (linearly-sampled-brush texture-brush)
+  ((texture :initform "assets/jalapeno.png" :accessor texture)))
