@@ -28,12 +28,27 @@
 (defmethod draw-buffer ((stroke stroke) target)
   (draw-stroke (brush stroke) stroke target 0))
 
+(defun switch-brush (tool option brush-name)
+  (declare (ignore option))
+  (when (and brush-name (string/= brush-name ""))
+    (let ((previous (current-brush tool)))
+      (when previous
+        (finalize previous)))
+    (let ((brush (make-instance (or (find-symbol (string-upcase brush-name) #.*package*)
+                                    (error "Wtf. No brush like ~s found, but selected." brush-name))))
+          (layout (slot-value (tool-option 'brush-options tool) 'parasol-tools::layout)))
+      (v:info :brush-tool "Selecting brush ~s" brush)
+      (clear-layout layout)
+      (loop for (name . option) in (brush-options brush)
+            do (#_addWidget layout option))
+      brush)))
+
 (with-widget-environment
   (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
     ((current-brush :initform NIL :accessor current-brush))
     (:options
-      (brush :type list-option :slot 'current-brush)
-      (brush-options :type widget-option)))
+      (brush-options :type widget-option)
+      (brush :type list-option :slot 'current-brush :on-change 'switch-brush)))
 
   (defun %init-brush-tool-brushes (tool)
     (dolist (brush (or (find-brushes)
@@ -45,8 +60,7 @@
 
 (defmethod begin ((tool brush-tool) pen document)
   (v:info :brush-tool "Beginning stroke at ~s" pen)
-  (let ((stroke (make-instance 'stroke :brush (make-instance (or (find-symbol (string-upcase (current-brush tool)) #.*package*)
-                                                                 (error "Wtf. No brush like ~s found, but selected." (current-brush tool))))))
+  (let ((stroke (make-instance 'stroke :brush (copy (current-brush tool))))
         (layer (current-layer document)))
     (insert (add-point pen stroke) layer)
     ;; FIXME! need to be turned into a call to the render loop once we have that.
