@@ -21,8 +21,12 @@
   (:documentation "Superclass for all user-usable brushes."))
 
 (defmethod copy ((brush brush))
-  ;; FIXME!
-  brush)
+  (let ((copy (make-instance (class-name (class-of brush)))))
+    (loop for slot in (c2mop:class-slots (class-of brush))
+          for name = (c2mop:slot-definition-name slot)
+          do (setf (slot-value copy name)
+                   (slot-value brush name)))
+    copy))
 
 (defmethod print-object ((brush brush) stream)
   (print-unreadable-object (brush stream :type T)
@@ -45,7 +49,9 @@
                (loop for cons on args by #'cddr
                      do (setf (cadr cons) (eval (cadr cons))))
                (push (cons name (apply #'make-instance type :tool brush args))
-                     (brush-options brush))))))
+                     (brush-options brush))))
+        finally (setf (brush-options brush)
+                      (nreverse (brush-options brush)))))
 
 (defmethod finalize :after ((brush brush))
   (loop for (name . option) in (brush-options brush)
