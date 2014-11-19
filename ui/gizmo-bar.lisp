@@ -11,5 +11,10 @@
   (define-widget gizmo-bar (QWidget)
     ())
 
-  (define-layout layout (#_new QHBoxLayout)
-    (#_setMinimumSize widget 200 0)))
+  (define-subwidget layout (#_new QVBoxLayout widget)
+    (#_setLayout widget layout)
+    (#_setAlignment layout (#_Qt::AlignTop))
+    (#_setMinimumSize widget 200 0))
+
+  (defun add-widget (widget gizmo-bar)
+    (#_addWidget (slot-value gizmo-bar 'layout) widget)))
