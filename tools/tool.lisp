@@ -60,8 +60,8 @@
         option))
 
 (defmethod finalize :after ((tool tool))
-  (dolist (option (tool-options tool))
-    (finalize option)))
+  (loop for option being the hash-values of (tool-options tool)
+        do (finalize option)))
 
 ;; Tool method stubs
 (defgeneric select (tool)
