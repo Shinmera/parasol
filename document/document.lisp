@@ -10,7 +10,7 @@
   ())
 
 (defmethod initialize-instance :after ((document document) &key)
-  (insert (make-instance 'adaptive-layer) document))
+  (insert (make-instance 'layer) document))
 
 (defmethod draw ((document document) target)
   (loop for drawable across (drawables document)
@@ -22,4 +22,4 @@
 
 (defmethod extract :after (drawable (document document))
   (when (= 0 (length (drawables document)))
-    (insert (make-instance 'adaptive-layer) document)))
+    (insert (make-instance 'layer) document)))
