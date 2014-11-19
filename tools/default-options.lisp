@@ -10,7 +10,10 @@
 ;; A fillable widget
 (with-widget-environment
   (define-tool-option widget-option (QWidget)
-    ()))
+    ())
+
+  (define-subwidget layout (#_new QVBoxLayout widget)
+    (#_setLayout widget layout)))
 
 ;; Integer spin box
 (with-widget-environment
