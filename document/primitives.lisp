@@ -58,16 +58,13 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ((buffer :initarg :buffer :initform NIL :accessor buffer)))
 
 (defgeneric draw-buffer (buffered target)
-  (:method :around ((drawable drawable) target)
-    (with-translation-away (drawable target)
+  (:method :around ((buffered buffered) target)
+    (with-translation-away (buffered target)
       (call-next-method))))
 
 (defgeneric rebuffer (buffered)
   (:method ((buffered buffered))
-    (with-finalizing ((painter (#_new QPainter (buffer buffered))))
-      (#_setRenderHint painter (#_QPainter::Antialiasing))
-      (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
-      (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
+    (with-painter (painter (buffer buffered))
       (#_eraseRect painter 0 0 (#_width (buffer buffered)) (#_height (buffer buffered)))
       (draw-buffer buffered painter))))
 
@@ -83,3 +80,22 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (defmethod draw ((buffered buffered) target)
   (when (buffer buffered)
     (#_drawImage target 0 0 (buffer buffered))))
+
+(defclass adaptive-buffered (buffered positioned)
+  ((chunk-size :initarg :chunk-size :initform 50 :accessor chunk-size)
+   (initial-size :initarg :initial-size :initform 100 :accessor initial-size)))
+
+(defgeneric ensure-fitting (x y layer)
+  (:method (x y (buffered adaptive-buffered))
+    (unless (buffer buffered)
+      (setf (x buffered) (- x (/ (initial-size buffered) 2))
+            (y buffered) (- y (/ (initial-size buffered) 2)))    
+      (setf (buffer buffered) (make-image (initial-size buffered)
+                                       (initial-size buffered))))
+    (multiple-value-bind (image xd yd) (ensure-containable
+                                        (- x (x buffered)) (- y (y buffered)) (buffer buffered)
+                                        :chunk-size (chunk-size buffered))
+      (setf (buffer buffered) image)
+      (incf (x buffered) xd)
+      (incf (y buffered) yd))
+    buffered))
