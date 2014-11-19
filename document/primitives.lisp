@@ -82,8 +82,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (#_drawImage target 0 0 (buffer buffered))))
 
 (defclass adaptive-buffered (buffered positioned)
-  ((chunk-size :initarg :chunk-size :initform 50 :accessor chunk-size)
-   (initial-size :initarg :initial-size :initform 100 :accessor initial-size)))
+  ((chunk-size :initarg :chunk-size :initform 1000 :accessor chunk-size)
+   (initial-size :initarg :initial-size :initform 500 :accessor initial-size)))
 
 (defgeneric ensure-fitting (x y layer)
   (:method (x y (buffered adaptive-buffered))
