@@ -13,6 +13,7 @@
 
 (defgeneric insert (drawable layer &optional position)
   (:method ((drawable drawable) (layer meta-layer) &optional position)
+    (v:info :meta-layer "[~a] Inserting drawable ~a" layer drawable)
     (cond
       (position
        (vector-push-extend-position drawable (drawables layer) position))
@@ -25,6 +26,7 @@
     (extract (find drawable (drawables layer)) layer))
 
   (:method ((index fixnum) (layer meta-layer))
+    (v:info :meta-layer "[~a] Removing drawable ~a" layer index)
     (vector-pop-position (drawables layer) index)))
 
 (defgeneric drawable-at (index layer)
@@ -33,6 +35,7 @@
 
 (defgeneric activate (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
+    (v:info :meta-layer "[~a] Activating drawable ~a" layer drawable)
     (setf (current-drawable layer) drawable))
 
   (:method ((index fixnum) (layer meta-layer))
@@ -47,30 +50,19 @@
    (mode :initarg :mode :initform 0 #|source-over|# :accessor mode)
    (visible :initarg :visible :initform T :accessor visible)))
 
-(defmethod draw :around ((layer layer) target)
+;; (defmethod draw :around ((layer layer) target)
+;;   (when (visible layer)
+;;     (#_setCompositionMode target (mode layer))
+;;     (#_setOpacity target (opacity layer))
+;;     (call-next-method)))
+
+;; (defmethod draw-buffer ((layer layer) target)
+;;   (loop for drawable across (drawables layer)
+;;         do (draw drawable target)))
+
+(defmethod draw ((layer layer) target)
   (when (visible layer)
     (#_setCompositionMode target (mode layer))
     (#_setOpacity target (opacity layer))
-    (call-next-method)))
-
-(defmethod draw-buffer ((layer layer) target)
-  (loop for drawable across (drawables layer)
-        do (draw drawable target)))
-
-(defclass adaptive-layer (layer)
-  ((chunk-size :initarg :chunk-size :initform 50 :accessor chunk-size)))
-
-(defgeneric ensure-fitting (x y layer)
-  (:method (x y (layer adaptive-layer))
-    (unless (buffer layer)
-      (setf (x layer) (- x (/ (chunk-size layer) 2))
-            (y layer) (- y (/ (chunk-size layer) 2)))    
-      (setf (buffer layer) (make-image (chunk-size layer)
-                                       (chunk-size layer))))
-    (multiple-value-bind (image xd yd) (ensure-containable
-                                        (- x (x layer)) (- y (y layer)) (buffer layer)
-                                        :chunk-size (chunk-size layer))
-      (setf (buffer layer) image)
-      (incf (x layer) xd)
-      (incf (y layer) yd))
-    layer))
+    (loop for drawable across (drawables layer)
+          do (draw drawable target))))
