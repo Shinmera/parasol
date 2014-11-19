@@ -7,6 +7,13 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (in-package #:org.shirakumo.parasol.document)
 (named-readtables:in-readtable :qtools)
 
+(defmacro with-painter ((painter target) &body body)
+  `(with-finalizing ((,painter (#_new QPainter ,target)))
+     (#_setRenderHint ,painter (#_QPainter::Antialiasing))
+     (#_setRenderHint ,painter (#_QPainter::SmoothPixmapTransform))
+     (#_setRenderHint ,painter (#_QPainter::HighQualityAntialiasing))
+     ,@body))
+
 (defun make-image (width height &key (format (#_QImage::Format_ARGB32)) (fill (#_Qt::transparent)))
   (let ((image (#_new QImage width height format)))
     (#_fill image fill)

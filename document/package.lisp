@@ -24,6 +24,9 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:record
    #:rewind
    #:size)
+  ;; image-op.lisp
+  (:export
+   #:with-painter)
   ;; layer.lisp
   (:export
    #:meta-layer
@@ -87,7 +90,13 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:draw
 
    #:buffered
+   #:buffer
    #:draw-buffer
    #:rebuffer
    #:rebuffer-copy
-   #:draw))
+   #:draw
+
+   #:adaptive-buffered
+   #:chunk-size
+   #:initial-size
+   #:ensure-fitting))
