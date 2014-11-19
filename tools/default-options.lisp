@@ -101,6 +101,7 @@
         (%update-background widget))))
   
   (define-initializer widget 100
+    (#_setFlat widget T)
     (%update-background widget)
     (connect! widget (clicked) widget (on-click))))
 
