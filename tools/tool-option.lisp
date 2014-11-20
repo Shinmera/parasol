@@ -20,15 +20,20 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
   (define-slot change (option (new-value bool int double "const QString&"))
     (declare (method))
-    (when on-change
-      (setf new-value (funcall on-change tool option new-value)))
-    (when slot
-      (setf (slot-value tool slot) new-value)))
+    (call-next-method))
 
   (define-initializer option 100
     (unless label
       (setf label (capitalize-on #\- (class-name (class-of option)) #\Space T)))
     (#_setToolTip option (format NIL "~a~@[: ~a~]" label description))))
+
+(defmethod change ((option tool-option) new-value)
+  (v:info :test "AA")
+  (with-slots-bound (option tool-option)
+    (when on-change
+      (setf new-value (funcall on-change tool option new-value)))
+    (when slot
+      (setf (slot-value tool slot) new-value))))
 
 (defmacro define-tool-option (name (qt-class &rest direct-superclasses) direct-slots &body options)
   (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
