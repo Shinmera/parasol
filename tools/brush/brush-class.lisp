@@ -15,7 +15,7 @@
    (effective-options :initform () :accessor brush-effective-options)
    (icon :initform NIL :initarg :icon :accessor brush-icon)
    (label :initform NIL :initarg :label :accessor brush-label)
-   (order :initform NIL :initarg :display :initarg :order :accessor order)) ;; FIXME
+   (order :initarg :display :initarg :order :accessor brush-option-order))
   (:documentation ""))
 
 (defmethod c2mop:validate-superclass ((class brush-class) (superclass t))

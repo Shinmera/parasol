@@ -42,16 +42,17 @@
 
 (defmethod initialize-instance :after ((brush brush) &key)
   ;; Instantiate all the options
-  (loop for option in (brush-effective-options (class-of brush))
-        do (destructuring-bind (name &rest args &key type &allow-other-keys) option
-             (let ((args (copy-list args)))
-               (remf args :type)
-               (loop for cons on args by #'cddr
-                     do (setf (cadr cons) (eval (cadr cons))))
-               (push (cons name (apply #'make-instance type :tool brush args))
-                     (brush-options brush))))
-        finally (setf (brush-options brush)
-                      (nreverse (brush-options brush)))))
+  (loop for option in (if (slot-boundp (class-of brush) 'order)
+                          (brush-option-order (class-of brush))
+                          (mapcar #'car (brush-effective-options (class-of brush))))
+        collect (destructuring-bind (name &rest args &key type &allow-other-keys)
+                    (assoc option (brush-effective-options (class-of brush)))
+                  (let ((args (copy-list args)))
+                    (remf args :type)
+                    (loop for cons on args by #'cddr
+                          do (setf (cadr cons) (eval (cadr cons))))
+                    (cons name (apply #'make-instance type :tool brush args)))) into options
+        finally (setf (brush-options brush) options)))
 
 (defmethod finalize :after ((brush brush))
   (loop for (name . option) in (brush-options brush)
