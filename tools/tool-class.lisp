@@ -12,7 +12,8 @@
    (effective-options :initform () :accessor tool-effective-options)
    (icon :initform NIL :initarg :icon :accessor tool-icon)
    (label :initform NIL :initarg :label :accessor tool-label)
-   (description :initform NIL :initarg :description :accessor tool-description))
+   (description :initform NIL :initarg :description :accessor tool-description)
+   (order :initarg :display :initarg :order :accessor tool-option-order))
   (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
 ;; Copy from WIDGET-CLASS

@@ -44,7 +44,7 @@
       (with-slots-bound (gizmo tool-options-gizmo)
         (clear-layout layout)
         (#_addWidget layout label)
-        (loop for option being the hash-values of (tool-options tool)
+        (loop for (name . option) in (tool-options tool)
               do (#_addWidget layout option)))))
 
   (defmethod parasol-tools:deselect :after ((tool tool))

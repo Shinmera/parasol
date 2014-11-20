@@ -7,8 +7,22 @@
 (in-package #:org.shirakumo.parasol.tools)
 (named-readtables:in-readtable :qtools)
 
+(defun initialize-options (tool)
+  (loop for option in (if (slot-boundp (class-of tool) 'order)
+                          (tool-option-order (class-of tool))
+                          (mapcar #'car (tool-effective-options (class-of tool))))
+        collect (destructuring-bind (name &rest args &key type &allow-other-keys)
+                    (or (assoc option (tool-effective-options (class-of tool)))
+                        (error "No such option ~s found on tool ~s" option tool))
+                  (let ((args (copy-list args)))
+                    (remf args :type)
+                    (loop for cons on args by #'cddr
+                          do (setf (cadr cons) (eval (cadr cons))))
+                    (cons name (apply #'make-instance type :tool tool args)))) into options
+        finally (setf (tool-options tool) options)))
+
 (defclass tool (widget)
-  ((options :initform (make-hash-table :test 'eql) :reader tool-options))
+  ((options :initform () :accessor tool-options))
   (:metaclass tool-class)
   (:qt-superclass "QPushButton")
   (:label "Tool")
@@ -16,15 +30,7 @@
   (:slots ("change(bool)" change))
   (:initializer
    (tool 50
-         ;; Instantiate all the options
-         (loop for option in (tool-effective-options (class-of tool))
-               do (destructuring-bind (name &rest args &key type &allow-other-keys) option
-                    (let ((args (copy-list args)))
-                      (remf args :type)
-                      (loop for cons on args by #'cddr
-                            do (setf (cadr cons) (eval (cadr cons))))
-                      (setf (tool-option name tool)
-                            (apply #'make-instance type :tool tool args)))))
+         (initialize-options tool)
          ;; Default init
          (#_setSizePolicy tool (#_QSizePolicy::Maximum) (#_QSizePolicy::Maximum))
          (#_setCheckable tool T)
@@ -44,6 +50,9 @@
       (select tool)
       (deselect tool)))
 
+(defun tool-option (name tool)
+  (cdr (assoc name (tool-options tool))))
+
 (defmacro define-superclass-method-wrapper (method)
   `(defmethod ,method ((tool tool))
      (,method (class-of tool))))
@@ -52,15 +61,8 @@
 (define-superclass-method-wrapper tool-description)
 (define-superclass-method-wrapper tool-icon)
 
-(defun tool-option (name tool)
-  (gethash name (tool-options tool)))
-
-(defun (setf tool-option) (option name tool)
-  (setf (gethash name (tool-options tool))
-        option))
-
 (defmethod finalize :after ((tool tool))
-  (loop for option being the hash-values of (tool-options tool)
+  (loop for (name . option) in (tool-options tool)
         do (finalize option)))
 
 ;; Tool method stubs
