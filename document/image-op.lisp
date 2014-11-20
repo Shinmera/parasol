@@ -44,14 +44,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
         ;; but it gets gross to read, so I'll leave
         ;; it at this variant.
         ;; 1st Quadrant
-        ((and (< 0 x) (< 0 y))
+        ((and (< (/ chunk-size 2) x) (< (/ chunk-size 2) y))
          (values
           (fit-image image
                      (max (#_width image) left)
                      (max (#_height image) top))
           0 0))
         ;; 2nd Quadrant
-        ((and (<= x 0) (< 0 y))
+        ((and (<= x (/ chunk-size 2)) (< 0 y))
          (values
           (fit-image image
                      (+ left (#_width image))
@@ -59,7 +59,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                      :x left)
           (- left) 0))
         ;; 3rd Quadrant
-        ((and (<= x 0) (<= y 0))
+        ((and (<= x (/ chunk-size 2)) (<= y (/ chunk-size 2)))
          (values
           (fit-image image
                      (+ left (#_width image))
@@ -67,7 +67,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                      :x left :y top)
           (- left) (- top)))
         ;; 4th Quadrant
-        ((and (< 0 x) (<= y 0))
+        ((and (< 0 x) (<= y (/ chunk-size 2)))
          (values
           (fit-image image
                      (max (#_width image) left)
