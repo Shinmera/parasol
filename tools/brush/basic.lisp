@@ -74,7 +74,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                                (- (y pen) (/ (#_height texture) 2))) texture)))
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
-  ())
+  ()
+  (:order color size distance))
 
 (define-brush pepper-brush (linearly-sampled-brush texture-brush)
   ((texture :initform "assets/pepper.png" :accessor texture)))

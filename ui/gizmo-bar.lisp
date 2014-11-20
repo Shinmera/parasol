@@ -14,6 +14,8 @@
   (define-subwidget layout (#_new QVBoxLayout widget)
     (#_setLayout widget layout)
     (#_setAlignment layout (#_Qt::AlignTop))
+    (#_setMargin layout 0)
+    (#_setSpacing layout 0)
     (#_setMinimumSize widget 200 0))
 
   (defun add-widget (widget gizmo-bar)
