@@ -98,7 +98,8 @@
     (let ((color (#_QColorDialog::getColor default widget)))
       (when (#_isValid color)
         (setf default color)
-        (%update-background widget))))
+        (%update-background widget)
+        (change widget color))))
   
   (define-initializer widget 100
     (#_setFlat widget T)
