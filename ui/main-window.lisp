@@ -22,23 +22,14 @@
 
   (define-subwidget tab-area (make-instance 'tab-area))
 
-  (define-subwidget gizmo-bar (make-instance 'gizmo-bar))
-
   (define-subwidget tools-area (make-instance 'tools-area))
-
-  (define-subwidget central-splitter (#_new QSplitter (#_Qt::Horizontal))
-    (#_addWidget central-splitter tab-area)
-    (#_addWidget central-splitter gizmo-bar)
-
-    (#_setStretchFactor central-splitter 0 1)
-    (#_setStretchFactor central-splitter 1 0))
 
   (define-subwidget layout-container (#_new QWidget widget)
     (let ((layout (#_new QVBoxLayout layout-container)))
       (#_setMargin layout 0)
       (#_setSpacing layout 0)
       (#_addWidget layout tools-area)
-      (#_addWidget layout central-splitter))
+      (#_addWidget layout tab-area))
     (#_setCentralWidget widget layout-container))
 
   (define-initializer window 100

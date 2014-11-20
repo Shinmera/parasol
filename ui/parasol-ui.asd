@@ -14,7 +14,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :serial T
   :components ((:file "package")
                (:file "main-window")
-               (:file "gizmo-bar")
                (:file "tab-area")
                (:file "document-view")
                (:file "tools-area"))
