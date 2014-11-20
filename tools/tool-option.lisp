@@ -28,7 +28,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (#_setToolTip option (format NIL "~a~@[: ~a~]" label description))))
 
 (defmethod change ((option tool-option) new-value)
-  (v:info :test "AA")
   (with-slots-bound (option tool-option)
     (when on-change
       (setf new-value (funcall on-change tool option new-value)))
