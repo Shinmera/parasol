@@ -65,7 +65,19 @@
   ((sampled-buffer :accessor sampled-buffer :finalized T)
    (buffer :accessor buffer :finalized T)))
 
+(defvar *gl-format*
+  (let ((format (#_new QGLFormat)))
+    (#_setAlpha format T)
+    (#_setSampleBuffers format T)
+    format))
+
+(defvar *gl-context*
+  (let ((context (#_new QGLContext *gl-format*)))
+    (#_create context)
+    context))
+
 (defmethod initialize-instance :after ((target gl-framebuffer-target) &key)
+  (#_makeCurrent *gl-context*)
   (let ((format (#_new QGLFramebufferObjectFormat)))
     (#_setSamples format 4)
     (#_setAttachment format (#_QGLFramebufferObject::CombinedDepthStencil))
@@ -95,13 +107,15 @@
   target)
 
 (defmethod draw ((target qimage-target) painter)
-  ;; blit to non-sampled so we can access the texture.
-  (blit-framebuffer-target (sampled-buffer target) (buffer target) (width target) (height target))
-
   ;; draw using OpenGL
   (#_beginNativePainting painter)
 
+  ;; blit to non-sampled so we can access the texture.
+  (blit-framebuffer-target (sampled-buffer target) (buffer target) (width target) (height target))
+
   (gl:enable :texture-2d)
+  (gl:enable :multisample)
+  (gl:enable :cull-face)
   (gl:tex-env :texture-env :texture-env-mode :replace)
   (gl:bind-texture :texture-2d (#_texture (buffer target)))
   (gl:with-primitives :quads
