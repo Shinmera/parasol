@@ -24,7 +24,7 @@
 
   (define-subwidget tools-area (make-instance 'tools-area))
 
-  (define-subwidget layout-container (#_new QWidget widget)
+  (define-subwidget layout-container (#_new QWidget)
     (let ((layout (#_new QVBoxLayout layout-container)))
       (#_setMargin layout 0)
       (#_setSpacing layout 0)
@@ -80,5 +80,12 @@ Version: ~a"
       (document view))))
 
 (defun main ()
-  (let ((*window*))
-    (with-main-window (window (make-instance 'main-window)))))
+  (v:info :parasol "GENESIS")
+  (let* ((*window*)
+         (window (make-instance 'main-window)))
+    (#_show window)
+    (#_exec *qapplication*)
+    (v:info :parasol "RAPTURE")
+    (finalize window)
+    (trivial-garbage:gc :full T)
+    NIL))
