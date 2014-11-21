@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.parasol.document)
 
-(defclass document (metadata meta-layer history)
+(define-finalizable document (metadata meta-layer history)
   ())
 
 (defmethod initialize-instance :after ((document document) &key)

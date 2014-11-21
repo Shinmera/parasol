@@ -6,15 +6,15 @@
 
 (in-package #:org.shirakumo.parasol.document)
 
-(defclass history-item ()
+(define-finalizable history-item ()
   ((document :initarg :document :initform (error "Document required.") :reader document)))
 
 (defgeneric undo (history-item))
 
 (defgeneric redo (history-item))
 
-(defclass history ()
-  ((items :initarg :items :initform () :accessor items)))
+(define-finalizable history ()
+  ((items :initarg :items :initform () :accessor items :finalized T)))
 
 (defgeneric record (item history)
   (:method ((item history-item) (history history))

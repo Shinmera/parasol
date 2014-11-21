@@ -7,8 +7,8 @@
 (in-package #:org.shirakumo.parasol.document)
 (named-readtables:in-readtable :qtools)
 
-(defclass meta-layer ()
-  ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables)
+(define-finalizable meta-layer ()
+  ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables :finalized T)
    (current-drawable :initform NIL :accessor current-drawable)))
 
 (defgeneric insert (drawable layer &optional position)
@@ -45,7 +45,7 @@
   (:method ((layer meta-layer))
     (length (drawables layer))))
 
-(defclass layer (meta-layer buffered metadata)
+(define-finalizable layer (meta-layer buffered metadata)
   ((opacity :initarg :opacity :initform 1.0 :accessor opacity)
    (mode :initarg :mode :initform 0 #|source-over|# :accessor mode)
    (visible :initarg :visible :initform T :accessor visible)))

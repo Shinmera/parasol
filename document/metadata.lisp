@@ -6,8 +6,8 @@
 
 (in-package #:org.shirakumo.parasol.document)
 
-(defclass metadata ()
-  ((fields :initform (make-hash-table :test 'eql) :reader fields)))
+(define-finalizable metadata ()
+  ((fields :initform (make-hash-table :test 'eql) :reader fields :finalized T)))
 
 (defgeneric field (field metadata)
   (:method (field (data metadata))
