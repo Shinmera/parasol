@@ -15,10 +15,12 @@
   :components ((:file "package")
                (:file "array")
                (:file "image-op")
+               (:file "target")
                (:file "pen")
                (:file "metadata")
                (:file "primitives")
                (:file "history")
                (:file "layer")
                (:file "document"))
-  :depends-on (:parasol))
+  :depends-on (:parasol
+               :cl-opengl))
