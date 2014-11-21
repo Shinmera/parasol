@@ -10,7 +10,7 @@
 (defvar *mouse-pressure* 0.5)
 
 (with-widget-environment
-  (define-widget document-view (QWidget tab positioned)
+  (define-widget document-view (QGLWidget tab positioned)
     ((document :initarg :document :initform NIL :accessor document :finalized T)
      (angle :initarg :angle :initform 0 :accessor angle)
      (zoom :initarg :scale :initform 1.0 :accessor zoom)
@@ -27,10 +27,7 @@
 
   (define-override paint-event (widget event)
     (declare (ignore event))
-    (with-finalizing ((painter (#_new QPainter widget)))
-      (#_setRenderHint painter (#_QPainter::Antialiasing))
-      (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
-      (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
+    (with-painter (painter widget)
       (#_fillRect painter (#_rect widget) (#_Qt::white))
       (with-transformation (painter)
         (translate-away widget painter)
