@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.parasol.tools.brush)
 (named-readtables:in-readtable :qtools)
 
-(defclass stroke (adaptive-buffered)
+(define-finalizable stroke (adaptive-buffered)
   ((points :initform (make-array 0 :element-type 'pen :adjustable T :fill-pointer 0) :accessor points)
    (brush :initform (error "BRUSH required.") :initarg :brush :accessor brush)))
 
@@ -21,7 +21,7 @@
 
 (defgeneric rebuffer-incremental (stroke from)
   (:method ((stroke stroke) from)
-    (with-painter (painter (buffer stroke))
+    (let ((painter (painter stroke)))
       (with-translation-away (stroke painter)
         (draw-stroke (brush stroke) stroke painter from)))))
 
