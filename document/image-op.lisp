@@ -7,16 +7,21 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (in-package #:org.shirakumo.parasol.document)
 (named-readtables:in-readtable :qtools)
 
+(defun make-painter (target)
+  (let ((painter (#_new QPainter target)))
+    (#_setRenderHint painter (#_QPainter::Antialiasing))
+    (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
+    (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
+    painter))
+
 (defmacro with-painter ((painter target) &body body)
-  `(with-finalizing ((,painter (#_new QPainter ,target)))
-     (#_setRenderHint ,painter (#_QPainter::Antialiasing))
-     (#_setRenderHint ,painter (#_QPainter::SmoothPixmapTransform))
-     (#_setRenderHint ,painter (#_QPainter::HighQualityAntialiasing))
+  `(with-finalizing ((,painter (make-painter ,target)))
      ,@body))
 
 (defun make-image (width height &key (format (#_QImage::Format_ARGB32)) (fill (#_Qt::transparent)))
   (let ((image (#_new QImage width height format)))
     (#_fill image fill)
+    (v:info :image-op "Creating new image ~dx~d ~s" width height image)
     image))
 
 (defun fit-image (image width height &key (x 0) (y 0) (fill (#_Qt::transparent)))

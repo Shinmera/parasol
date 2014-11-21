@@ -26,7 +26,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:size)
   ;; image-op.lisp
   (:export
-   #:with-painter)
+   #:make-painter
+   #:with-painter
+   #:make-image
+   #:fit-image
+   #:ensure-containable)
   ;; layer.lisp
   (:export
    #:meta-layer
@@ -91,6 +95,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
    #:buffered
    #:buffer
+   #:painter
    #:draw-buffer
    #:rebuffer
    #:rebuffer-copy
