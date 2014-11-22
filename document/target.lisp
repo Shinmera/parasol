@@ -10,6 +10,13 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *target-backend* 'qimage-target))
 
+(defun target-backend ()
+  (intern (string *target-backend*) "KEYWORD"))
+
+(defun (setf target-backend) (backend)
+  (setf *target-backend*
+        (find-symbol (string backend) #.*package*)))
+
 (define-finalizable target ()
   ((width :initarg :width :initform (error "WIDTH required.") :accessor width)
    (height :initarg :height :initform (error "HEIGHT required.") :accessor height)
@@ -107,11 +114,11 @@
   target)
 
 ;; QGLFrameBufferObject
-(define-finalizable gl-framebuffer-target (target)
+(define-finalizable framebuffer-target (target)
   ((sampled-buffer :initform NIL :accessor sampled-buffer :finalized T)
    (buffer :accessor buffer :finalized T)))
 
-(defmethod (setf sampled-buffer) :around (value (target gl-framebuffer-target))
+(defmethod (setf sampled-buffer) :around (value (target framebuffer-target))
   (unless (eql value (sampled-buffer target))
     (when (painter target)
       (finalize (painter target)))
@@ -132,45 +139,49 @@
     (#_create context)
     context))
 
-(defun make-sampled-framebuffer (width height &optional (samples 4))
+(defun make-framebuffer (width height &optional (samples 0))
   (#_makeCurrent *gl-context*)
   (let ((format (#_new QGLFramebufferObjectFormat)))
-    (#_setSamples format samples)
+    (when (< 0 samples)
+      (#_setSamples format samples))
     (#_setAttachment format (#_QGLFramebufferObject::CombinedDepthStencil))
     (#_new QGLFramebufferObject width height format)))
 
-(defmethod initialize-instance :after ((target gl-framebuffer-target) &key)
+(defmethod initialize-instance :after ((target framebuffer-target) &key)
   (#_makeCurrent *gl-context*)
-  (setf (sampled-buffer target) (make-sampled-framebuffer (width target) (height target)))
-  (setf (buffer target) (#_new QGLFramebufferObject (width target) (height target))))
+  (setf (sampled-buffer target) (make-framebuffer (width target) (height target) 4))
+  (setf (buffer target) (make-framebuffer (width target) (height target))))
 
 (defun blit-framebuffer-target (from to width height)
   (let ((rect (#_new QRect 0 0 width height)))
     (#_QGLFramebufferObject::blitFramebuffer from rect to rect)))
 
-(defmethod to-image ((target gl-framebuffer-target))
+(defmethod to-image ((target framebuffer-target))
   (#_toImage (buffer target)))
 
-(defmethod copy ((target gl-framebuffer-target))
-  (let ((new (make-instance 'gl-framebuffer-target :width (width target) :height (height target))))
+(defmethod copy ((target framebuffer-target))
+  (let ((new (make-instance 'framebuffer-target :width (width target) :height (height target))))
     (blit-framebuffer-target (sampled-buffer target) (sampled-buffer new) (width target) (height target))
     new))
 
-(defmethod clear ((target gl-framebuffer-target) &optional (color (#_Qt::transparent)))
+(defmethod clear ((target framebuffer-target) &optional (color (#_Qt::transparent)))
   (with-painter (painter (sampled-buffer target))
     (#_fillRect painter 0 0 (width target) (height target) color))
   target)
 
-(defmethod draw ((target gl-framebuffer-target) painter)
+(defmethod draw ((target framebuffer-target) painter)
   ;; draw using OpenGL
   (#_beginNativePainting painter)
+  (gl:enable :blend)
+  (gl:enable :texture-2d)
+  (gl:enable :multisample)
+  (gl:enable :cull-face)
+  (gl:blend-func :src-alpha :one-minus-src-alpha)
+  (gl:blend-equation :func-add)
 
   ;; blit to non-sampled so we can access the texture.
   (blit-framebuffer-target (sampled-buffer target) (buffer target) (width target) (height target))
 
-  (gl:enable :texture-2d)
-  (gl:enable :multisample)
-  (gl:enable :cull-face)
   (gl:tex-env :texture-env :texture-env-mode :replace)
   (gl:bind-texture :texture-2d (#_texture (buffer target)))
   (gl:with-primitives :quads
@@ -185,15 +196,15 @@
   
   (#_endNativePainting painter))
   
-(defmethod fit ((target gl-framebuffer-target) width height &key (x 0) (y 0))
+(defmethod fit ((target framebuffer-target) width height &key (x 0) (y 0))
   (unless (and (= (width target) width)
                (= (height target) height))
-    (let ((new (make-sampled-framebuffer width height))
+    (let ((new (make-framebuffer width height 4))
           (width (min width (width target)))
           (height (min height (height target))))
       (#_QGLFramebufferObject::blitFramebuffer
        (sampled-buffer target) (#_new QRect 0 0 width height) 
        new (#_new QRect x y width height))
       (setf (sampled-buffer target) new))
-    (setf (buffer target) (#_new QGLFramebufferObject width height)))
+    (setf (buffer target) (make-framebuffer width height)))
   target)

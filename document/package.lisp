@@ -105,6 +105,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ;; target.lisp
   (:export
    #:*target-backend*
+   #:target-backend
    #:target
    #:width
    #:height
@@ -116,7 +117,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:clear
    #:draw
    #:fit
-   #:ensure-containable
    
    #:qimage-target
-   #:gl-framebuffer-target))
+   #:framebuffer-target))
