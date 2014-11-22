@@ -14,11 +14,13 @@
   (unless (asdf:component-loaded-p system)
     (load-system system)))
 
-(defun start ()
-  (test-compatibility)
+(defmethod asdf:operate :after ((op asdf:load-op) (system (eql (asdf:find-system :parasol))) &key)
   ;; !STUB
   ;; some kind of system to automate this
   ;; or at least make it hookable
   (ensure-loaded :parasol-ui)
-  (ensure-loaded :parasol-tools-brush)
+  (ensure-loaded :parasol-tools-brush))
+
+(defun start ()
+  (test-compatibility)
   (funcall (find-symbol "MAIN" "PARASOL-UI")))
