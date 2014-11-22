@@ -11,6 +11,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ((x :initarg :x :initform 0.0 :accessor x)
    (y :initarg :y :initform 0.0 :accessor y)))
 
+(defmethod print-object ((pos positioned) stream)
+  (print-unreadable-object (pos stream :type T :identity T)
+    (format stream "~a/~a" (x pos) (y pos)))
+  pos)
+
 (defgeneric translate-to (positioned transform)
   (:method ((pos positioned) (transform qobject))
     (#_translate transform (#_new QPointF (x pos) (y pos)))))
@@ -55,23 +60,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
       (call-next-method))))
 
 (define-finalizable buffered (drawable)
-  ((buffer :initarg :buffer :initform NIL :accessor buffer)
-   (painter :initarg :painter :initform NIL :accessor painter)))
+  ((buffer :initarg :buffer :initform NIL :accessor buffer :finalized T)))
 
-(defmethod finalize :before ((buffered buffered))
-  ;; The order is important, so we won't rely on the finalized slot attribute.
-  (finalize (painter buffered))
-  (finalize (buffer buffered))
-  buffered)
+(defmethod (setf buffer) :before (value (buffered buffered))
+  (unless (buffer buffered)
+    (finalize (buffer buffered))))
 
-(defmethod (setf buffer) :around (buffer (buffered buffered))
-  (unless (eql buffer (buffer buffered))
-    (when (painter buffered)
-      (finalize (painter buffered)))
-    (when (buffer buffered)
-      (finalize (buffer buffered)))
-    (call-next-method)
-    (setf (painter buffered) (make-painter buffer))))
+(defmethod painter ((buffered buffered))
+  (painter (buffer buffered)))
 
 (defgeneric draw-buffer (buffered target)
   (:method :around ((buffered buffered) target)
@@ -80,15 +76,16 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defgeneric rebuffer (buffered)
   (:method ((buffered buffered))
-    (let ((painter (painter buffered)))
-      (#_eraseRect painter 0 0 (#_width (buffer buffered)) (#_height (buffer buffered)))
+    (let* ((buffer (buffer buffered))
+           (painter (painter buffer)))
+      (#_eraseRect painter 0 0 (width buffer) (height buffer))
       (draw-buffer buffered painter))))
 
 (defgeneric rebuffer-copy (buffered)
   (:method ((buffered buffered))
     (let* ((old (buffer buffered))
            (new (make-target (width old) (height old))))
-      (with-finalizing ((painter (#_new QPainter new)))
+      (with-finalizing ((painter (make-painter new)))
         (draw-buffer buffered painter))
       (setf (buffer buffered) new))))
 
@@ -97,7 +94,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (draw (buffer buffered) target)))
 
 (define-finalizable adaptive-buffered (buffered positioned)
-  ((chunk-size :initarg :chunk-size :initform 1000 :accessor chunk-size)
+  ((chunk-size :initarg :chunk-size :initform 500 :accessor chunk-size)
    (initial-size :initarg :initial-size :initform 500 :accessor initial-size)))
 
 (defgeneric ensure-fitting (x y layer)

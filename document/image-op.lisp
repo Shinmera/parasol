@@ -8,7 +8,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (named-readtables:in-readtable :qtools)
 
 (defun make-painter (target)
-  (let ((painter (get-painter target)))
+  (let ((painter (painter target)))
     (#_setRenderHint painter (#_QPainter::Antialiasing))
     (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
     (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))

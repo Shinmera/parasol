@@ -71,8 +71,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (let ((texture (texture brush)))
     (with-transformation (target)
       (#_translate target (#_new QPointF
-                                 (- (x pen) (/ (#_width texture) 2))
-                                 (- (y pen) (/ (#_height texture) 2))))
+                                 (- (x pen) (/ (width texture) 2))
+                                 (- (y pen) (/ (height texture) 2))))
       (draw texture target))))
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
