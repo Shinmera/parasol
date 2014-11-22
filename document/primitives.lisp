@@ -63,7 +63,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ((buffer :initarg :buffer :initform NIL :accessor buffer :finalized T)))
 
 (defmethod (setf buffer) :before (value (buffered buffered))
-  (unless (buffer buffered)
+  (unless (eql (buffer buffered) value)
     (finalize (buffer buffered))))
 
 (defmethod painter ((buffered buffered))
@@ -94,20 +94,35 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (draw (buffer buffered) target)))
 
 (define-finalizable adaptive-buffered (buffered positioned)
-  ((chunk-size :initarg :chunk-size :initform 500 :accessor chunk-size)
+  ((chunk-size :initarg :chunk-size :initform 200 :accessor chunk-size)
    (initial-size :initarg :initial-size :initform 500 :accessor initial-size)))
+
+(defmethod initialize-instance :after ((buffered adaptive-buffered) &key)
+  (setf (buffer buffered)
+        (make-target (initial-size buffered)
+                     (initial-size buffered)))
+  (decf (x buffered) (/ (initial-size buffered) 2))
+  (decf (y buffered) (/ (initial-size buffered) 2)))
+
+(defun ensure-range (n range &key (expansion range))
+  (flet ((expand-to (n)
+           (* expansion (ceiling (/ (abs n) expansion)))))
+    (let ((offset 0))
+      (cond
+        ((<= range (+ n (/ expansion 2)))
+         (setf range (expand-to (+ n (/ expansion 2)))))
+
+        ((<= n (/ expansion 2))
+         (setf offset (expand-to (- n (/ expansion 2))))
+         (setf range (+ range offset))))
+      (values range (- offset)))))
 
 (defgeneric ensure-fitting (x y layer)
   (:method (x y (buffered adaptive-buffered))
-    (unless (buffer buffered)
-      (setf (x buffered) (- x (/ (initial-size buffered) 2))
-            (y buffered) (- y (/ (initial-size buffered) 2)))    
-      (setf (buffer buffered) (make-target (initial-size buffered)
-                                           (initial-size buffered))))
-    (multiple-value-bind (target xd yd) (ensure-containable
-                                         (- x (x buffered)) (- y (y buffered)) (buffer buffered)
-                                         :chunk-size (chunk-size buffered))
-      (setf (buffer buffered) target)
-      (incf (x buffered) xd)
-      (incf (y buffered) yd))
+    (let ((buffer (buffer buffered)))
+      (multiple-value-bind (width xd) (ensure-range (- x (x buffered)) (width buffer) :expansion (chunk-size buffered))
+        (multiple-value-bind (height yd) (ensure-range (- y (y buffered)) (height buffer) :expansion (chunk-size buffered))
+          (setf (buffer buffered) (fit buffer width height :x (- xd) :y (- yd)))
+          (incf (x buffered) xd)
+          (incf (y buffered) yd))))
     buffered))

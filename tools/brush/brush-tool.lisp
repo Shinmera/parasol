@@ -61,7 +61,8 @@
 
 (defmethod begin ((tool brush-tool) pen document)
   (v:info :brush-tool "Beginning stroke at ~s" pen)
-  (let ((stroke (make-instance 'stroke :brush (copy (current-brush tool))))
+  (let ((stroke (make-instance 'stroke :brush (copy (current-brush tool))
+                                       :x (x pen) :y (y pen)))
         (layer (current-layer document)))
     (insert (add-point pen stroke) layer)
     ;; FIXME! need to be turned into a call to the render loop once we have that.

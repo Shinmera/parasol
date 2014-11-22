@@ -10,7 +10,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *target-backend* 'qimage-target))
 
-(define-finalizable target (drawable)
+(define-finalizable target ()
   ((width :initarg :width :initform (error "WIDTH required.") :accessor width)
    (height :initarg :height :initform (error "HEIGHT required.") :accessor height)
    (painter :initform NIL :accessor painter)))
@@ -61,68 +61,19 @@
     (setf (width target) width
           (height target) height)))
 
-(defun ensure-containable (x y target &key (chunk-size (width target)))
-  (flet ((expand-to (n)
-           (* chunk-size (ceiling (/ (+ (abs n) (/ chunk-size 2)) chunk-size)))))
-    (let ((left (expand-to x))
-          (top (expand-to y)))
-      (cond
-        ;; +-+-+
-        ;; |3|4|
-        ;; +-+-+
-        ;; |2|1|
-        ;; +-+-+
-        ;; Yes this could be written much shorter,
-        ;; but it gets gross to read, so I'll leave
-        ;; it at this variant.
-        ;; 1st Quadrant
-        ((and (< (/ chunk-size 2) x) (< (/ chunk-size 2) y))
-         (values
-          (fit target
-               (max (width target) left)
-               (max (height target) top))
-          0 0))
-        ;; 2nd Quadrant
-        ((and (<= x (/ chunk-size 2)) (< 0 y))
-         (values
-          (fit target
-               (+ left (width target))
-               (max (height target) top)
-               :x left)
-          (- left) 0))
-        ;; 3rd Quadrant
-        ((and (<= x (/ chunk-size 2)) (<= y (/ chunk-size 2)))
-         (values
-          (fit target
-               (+ left (width target))
-               (+ top (height target))
-               :x left :y top)
-          (- left) (- top)))
-        ;; 4th Quadrant
-        ((and (< 0 x) (<= y (/ chunk-size 2)))
-         (values
-          (fit target
-               (max (width target) left)
-               (+ top (height target))
-               :y top)
-          0 (- top)))
-        (T (error "HWAT"))))))
-
 ;; QImage impl.
 (define-finalizable qimage-target (target)
   ((image :initarg :image :initform NIL :accessor image :finalized T)))
 
 (defmethod (setf image) :around (value (target qimage-target))
   (unless (eql value (image target))
-    (v:info :test "!! ~a  ~a ~a" target (image target) (painter target))
     (when (painter target)
       (finalize (painter target)))
     (when (image target)
       (finalize (image target)))
     (call-next-method)
     (setf (painter target)
-          (make-painter value))
-    (v:info :test "!! ~a ~a ~a" target (image target) (painter target))))
+          (make-painter value))))
 
 (defmethod initialize-instance :after ((target qimage-target) &key)
   (unless (image target)
@@ -148,7 +99,7 @@
 (defmethod fit ((target qimage-target) width height &key (x 0) (y 0))
   (unless (and (= (width target) width)
                (= (height target) height))
-    (let ((new (#_new QImage (width target) (height target) (#_QImage::Format_ARGB32))))
+    (let ((new (#_new QImage width height (#_QImage::Format_ARGB32))))
       (#_fill new (#_Qt::transparent))
       (with-finalizing ((painter (#_new QPainter new)))
         (#_drawImage painter x y (image target)))
