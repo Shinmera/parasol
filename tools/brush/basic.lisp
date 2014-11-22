@@ -64,14 +64,16 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (setf (texture brush)
           (etypecase texture
             (qobject texture)
-            (pathname (#_new QImage (uiop:native-namestring texture)))
-            (string (#_new QImage (uiop:native-namestring (asdf:system-relative-pathname :parasol texture))))))))
+            (pathname (make-target-from texture))
+            (string (make-target-from (asdf:system-relative-pathname :parasol texture)))))))
 
 (defmethod draw-penpoint ((brush texture-brush) (pen pen) target)
   (let ((texture (texture brush)))
-    (#_drawImage target (#_new QPointF
-                               (- (x pen) (/ (#_width texture) 2))
-                               (- (y pen) (/ (#_height texture) 2))) texture)))
+    (with-transformation (target)
+      (#_translate target (#_new QPointF
+                                 (- (x pen) (/ (#_width texture) 2))
+                                 (- (y pen) (/ (#_height texture) 2))))
+      (draw texture target))))
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ()

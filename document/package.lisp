@@ -27,10 +27,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ;; image-op.lisp
   (:export
    #:make-painter
-   #:with-painter
-   #:make-image
-   #:fit-image
-   #:ensure-containable)
+   #:with-painter)
   ;; layer.lisp
   (:export
    #:meta-layer
@@ -104,4 +101,22 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:adaptive-buffered
    #:chunk-size
    #:initial-size
-   #:ensure-fitting))
+   #:ensure-fitting)
+  ;; target.lisp
+  (:export
+   #:*target-backend*
+   #:target
+   #:width
+   #:height
+   #:make-target
+   #:make-target-from
+   #:to-image
+   #:get-painter
+   #:copy
+   #:clear
+   #:draw
+   #:fit
+   #:ensure-containable
+   
+   #:qimage-target
+   #:gl-framebuffer-target))

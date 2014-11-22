@@ -8,16 +8,16 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (named-readtables:in-readtable :qtools)
 
 (define-finalizable positioned ()
-  ((x :initarg :x :initform 0 :accessor x)
-   (y :initarg :y :initform 0 :accessor y)))
+  ((x :initarg :x :initform 0.0 :accessor x)
+   (y :initarg :y :initform 0.0 :accessor y)))
 
 (defgeneric translate-to (positioned transform)
   (:method ((pos positioned) (transform qobject))
-    (#_translate transform (x pos) (y pos))))
+    (#_translate transform (#_new QPointF (x pos) (y pos)))))
 
 (defgeneric translate-away (positioned transform)
   (:method ((pos positioned) (transform qobject))
-    (#_translate transform (- (x pos)) (- (y pos)))))
+    (#_translate transform (#_new QPointF (- (x pos)) (- (y pos))))))
 
 (defmacro with-transformation ((painter) &body body)
   (let ((paint (gensym "PAINTER")))
@@ -87,15 +87,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (defgeneric rebuffer-copy (buffered)
   (:method ((buffered buffered))
     (let* ((old (buffer buffered))
-           (new (#_new QImage (#_size old) (#_format old))))
+           (new (make-target (width old) (height old))))
       (with-finalizing ((painter (#_new QPainter new)))
         (draw-buffer buffered painter))
-      (setf (buffer buffered) new)
-      (finalize old))))
+      (setf (buffer buffered) new))))
 
 (defmethod draw ((buffered buffered) target)
   (when (buffer buffered)
-    (#_drawImage target 0 0 (buffer buffered))))
+    (draw (buffer buffered) target)))
 
 (define-finalizable adaptive-buffered (buffered positioned)
   ((chunk-size :initarg :chunk-size :initform 1000 :accessor chunk-size)
@@ -106,12 +105,12 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (unless (buffer buffered)
       (setf (x buffered) (- x (/ (initial-size buffered) 2))
             (y buffered) (- y (/ (initial-size buffered) 2)))    
-      (setf (buffer buffered) (make-image (initial-size buffered)
-                                          (initial-size buffered))))
-    (multiple-value-bind (image xd yd) (ensure-containable
-                                        (- x (x buffered)) (- y (y buffered)) (buffer buffered)
-                                        :chunk-size (chunk-size buffered))
-      (setf (buffer buffered) image)
+      (setf (buffer buffered) (make-target (initial-size buffered)
+                                           (initial-size buffered))))
+    (multiple-value-bind (target xd yd) (ensure-containable
+                                         (- x (x buffered)) (- y (y buffered)) (buffer buffered)
+                                         :chunk-size (chunk-size buffered))
+      (setf (buffer buffered) target)
       (incf (x buffered) xd)
       (incf (y buffered) yd))
     buffered))
