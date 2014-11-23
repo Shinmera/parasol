@@ -128,16 +128,20 @@
     (setf (painter target)
           (make-painter value))))
 
-(defvar *gl-format*
-  (let ((format (#_new QGLFormat)))
-    (#_setAlpha format T)
-    (#_setSampleBuffers format T)
-    format))
+(defvar *gl-format* NIL)
 
-(defvar *gl-context*
-  (let ((context (#_new QGLContext *gl-format*)))
-    (#_create context)
-    context))
+(defvar *gl-context* NIL)
+
+(defun ensure-gl-init ()
+  (unless *gl-format*
+    (let ((format (#_new QGLFormat)))
+      (#_setAlpha format T)
+      (#_setSampleBuffers format T)
+      (setf *gl-format* format))
+    (let ((context (#_new QGLContext *gl-format*)))
+      (unless (#_create context)
+        (error "Failed to create GL context!"))
+      (setf *gl-context* context))))
 
 (defun make-framebuffer (width height &optional (samples 0))
   (#_makeCurrent *gl-context*)
@@ -148,13 +152,14 @@
     (#_new QGLFramebufferObject width height format)))
 
 (defmethod initialize-instance :after ((target framebuffer-target) &key)
+  (ensure-gl-init)
   (#_makeCurrent *gl-context*)
   (setf (sampled-buffer target) (make-framebuffer (width target) (height target) 4))
   (setf (buffer target) (make-framebuffer (width target) (height target))))
 
 (defun blit-framebuffer-target (from to width height)
   (let ((rect (#_new QRect 0 0 width height)))
-    (#_QGLFramebufferObject::blitFramebuffer from rect to rect)))
+    (#_QGLFramebufferObject::blitFramebuffer to rect from rect)))
 
 (defmethod to-image ((target framebuffer-target))
   (#_toImage (buffer target)))
@@ -203,8 +208,8 @@
           (width (min width (width target)))
           (height (min height (height target))))
       (#_QGLFramebufferObject::blitFramebuffer
-       (sampled-buffer target) (#_new QRect 0 0 width height) 
-       new (#_new QRect x y width height))
+       new (#_new QRect x y width height)
+       (sampled-buffer target) (#_new QRect 0 0 width height))
       (setf (sampled-buffer target) new))
     (setf (buffer target) (make-framebuffer width height)))
   target)
