@@ -18,5 +18,5 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                (:file "document-view")
                (:file "framebuffer-target")
                (:file "tools-area")
-               (:fiel "layers-gizmo"))
+               (:file "layer-gizmo"))
   :depends-on (:parasol :parasol-document :parasol-tools))
