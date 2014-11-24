@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.parasol)
+(in-package #:org.shirakumo.parasol.dev)
 ;; This file is used for various system and compatibility
 ;; checks to make sure parasol has what it needs to run.
 

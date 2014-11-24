@@ -6,8 +6,12 @@
 
 (in-package #:cl-user)
 (defpackage #:parasol-dev
-  (:use #:qt #:qtools)
-  (:nicknames #:org.shirakumo.parasol.dev))
+  (:use #:cl #:qt #:qtools)
+  (:nicknames #:org.shirakumo.parasol.dev)
+  (:export
+   #:start
+   #:define-startup-hook
+   #:remove-startup-hook))
 
 (defun parasol-dev::ensure-package (package)
   (etypecase package
