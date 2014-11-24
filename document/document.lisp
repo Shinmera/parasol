@@ -24,6 +24,10 @@
   (:method ((document document) &optional (at (current-index document)))
     (insert (make-instance 'layer) document at)))
 
-(defmethod extract :after (drawable (document document))
+(defmethod extract :after ((index fixnum) (document document))
   (when (= 0 (length (drawables document)))
-    (insert (make-instance 'layer) document)))
+    (insert (make-instance 'layer) document))
+  (setf (current-index document)
+        (if (<= (size document) index)
+            (1- index)
+            index)))

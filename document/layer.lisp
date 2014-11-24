@@ -11,6 +11,10 @@
   ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables :finalized T)
    (current-index :initform NIL :accessor current-index)))
 
+(defmethod (setf current-index) :before (index (layer meta-layer))
+  (v:info :layer "[~a] Switching current drawable to ~a(~a)"
+          layer (drawable-at index layer) index))
+
 (defgeneric current-drawable (layer)
   (:method ((layer meta-layer))
     (aref (drawables layer) (current-index layer))))
@@ -38,7 +42,9 @@
 
   (:method ((index fixnum) (layer meta-layer))
     (v:info :meta-layer "[~a] Removing drawable ~a" layer index)
-    (vector-pop-position (drawables layer) index)))
+    (vector-pop-position (drawables layer) index)
+    (when (= index (current-index layer))
+      (setf (current-index layer) 0))))
 
 (defgeneric drawable-at (index layer)
   (:method ((index fixnum) (layer meta-layer))
