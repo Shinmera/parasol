@@ -101,8 +101,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (setf (buffer buffered)
         (make-target (initial-size buffered)
                      (initial-size buffered)))
-  (decf (x buffered) (/ (initial-size buffered) 2))
-  (decf (y buffered) (/ (initial-size buffered) 2)))
+  ;; To avoid issues when extending on some targets we need
+  ;; to floor it to an int here.
+  (decf (x buffered) (floor (/ (initial-size buffered) 2)))
+  (decf (y buffered) (floor (/ (initial-size buffered) 2))))
 
 (defun ensure-range (n range &key (expansion range))
   (flet ((expand-to (n)
