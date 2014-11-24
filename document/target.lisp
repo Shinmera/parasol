@@ -13,8 +13,10 @@
 (defun target-backend ()
   *target-backend*)
 
-(defun (setf target-backend) (backend)
-  (setf *target-backend* (find-symbol (string backend) "KEYWORD")))
+(defgeneric (setf target-backend) (backend)
+  (:method (backend)
+    (v:info :parasol "Switching target backend to ~a" backend)
+    (setf *target-backend* (find-symbol (string backend) "KEYWORD"))))
 
 (define-finalizable target ()
   ((width :initarg :width :initform (error "WIDTH required.") :accessor width)

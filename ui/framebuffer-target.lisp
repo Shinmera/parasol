@@ -82,10 +82,10 @@
   (gl:enable :blend)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:blend-equation :func-add)
+  
   (gl:enable :texture-2d)
+  ;; Maybe ask stassats to incorporate support for this kinda thing...
   (gl:bind-texture :texture-2d (cffi:mem-ref (#_texture (buffer target)) :uint))
-
-  ;; (#_bind (buffer target))
   (gl:with-primitives :quads
     (gl:tex-coord 0 1)
     (gl:vertex 0 0)
@@ -95,7 +95,7 @@
     (gl:vertex (1+ (width target)) (1+ (height target)))
     (gl:tex-coord 0 0)
     (gl:vertex 0 (1+ (height target))))
-  ;; (#_release (buffer target))
+  
   (#_endNativePainting painter))
 
 (defmethod fit ((target framebuffer-target) width height &key (x 0) (y 0))
@@ -108,3 +108,16 @@
       (setf (sampled-buffer target) new))
     (setf (buffer target) (make-framebuffer width height)))
   target)
+
+(defmethod (setf target-backend) :around ((backend (eql :framebuffer)))
+  (cond ((not (#_QGLFramebufferObject::hasOpenGLFramebufferObjects))
+         (v:severe :framebuffer "Your system does not support OpenGL Frame Buffers!")
+         (v:severe :framebuffer "Cannot enable framebuffer target. Drawing might be slow."))
+        ((not (#_QGLFramebufferObject::hasOpenGLFramebufferBlit))
+         (v:severe :framebuffer "Your system does not support OpenGL Frame Buffer Blitting!")
+         (v:severe :framebuffer "Cannot enable framebuffer target. Drawing might be slow."))
+        (T
+         (call-next-method))))
+
+(define-startup-hook set-framebuffer-target ()
+  (setf (target-backend) :framebuffer))
