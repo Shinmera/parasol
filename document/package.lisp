@@ -110,13 +110,13 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:width
    #:height
    #:make-target
+   #:make-target-instance
    #:make-target-from
    #:to-image
-   #:get-painter
+   #:painter
    #:copy
    #:clear
    #:draw
    #:fit
    
-   #:qimage-target
-   #:framebuffer-target))
+   #:qimage-target))
