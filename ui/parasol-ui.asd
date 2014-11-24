@@ -18,4 +18,4 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                (:file "document-view")
                (:file "framebuffer-target")
                (:file "tools-area"))
-  :depends-on (:parasol :parasol-document :parasol-tools :parasol-tools-brush))
+  :depends-on (:parasol :parasol-document :parasol-tools))
