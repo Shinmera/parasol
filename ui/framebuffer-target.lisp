@@ -76,10 +76,12 @@
 (defmethod draw ((target framebuffer-target) painter)
   ;; blit to non-sampled so we can access the texture.
   (blit-framebuffer-target (sampled-buffer target) (buffer target) (width target) (height target))
-  
   ;; draw using OpenGL
   (#_beginNativePainting painter)
   (gl:enable :blend)
+  
+  ;; FIXME: translate the current QPainter compositing mode
+  ;; to the equivalent GL function calls to retain the effect.
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:blend-equation :func-add)
   
