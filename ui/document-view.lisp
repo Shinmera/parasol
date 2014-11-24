@@ -8,6 +8,7 @@
 (named-readtables:in-readtable :qtools)
 
 (defvar *mouse-pressure* 0.5)
+(defvar *context* NIL)
 
 (with-widget-environment
   (define-widget document-view (QGLWidget tab positioned)
@@ -27,16 +28,17 @@
 
   (define-override paint-event (widget event)
     (declare (ignore event))
-    (with-painter (painter widget)
-      (#_fillRect painter (#_rect widget) (#_Qt::white))
-      (with-transformation (painter)
-        (translate-away widget painter)
-        ;; origin fix...
-        (#_rotate painter angle)
-        (#_scale painter
-                 (if mirror-x (- zoom) zoom)
-                 (if mirror-y (- zoom) zoom))
-        (draw document painter))))
+    (let ((*context* (#_context widget)))
+      (with-painter (painter widget)
+        (#_fillRect painter (#_rect widget) (#_Qt::white))
+        (with-transformation (painter)
+          (translate-away widget painter)
+          ;; origin fix...
+          (#_rotate painter angle)
+          (#_scale painter
+                   (if mirror-x (- zoom) zoom)
+                   (if mirror-y (- zoom) zoom))
+          (draw document painter)))))
 
   (define-override tablet-event (widget event)
     (setf pen
@@ -70,8 +72,9 @@
 
   (defun process-mouse (widget event func)
     (maybe-update-pen widget event)
-    (when (and (tool *window*) (slot-value widget 'pen-pressed))
-      (funcall func (tool *window*) (pen widget) (document widget)))
+    (let ((*context* (#_context widget)))
+      (when (and (tool *window*) (slot-value widget 'pen-pressed))
+        (funcall func (tool *window*) (pen widget) (document widget))))
     ;; !Critical
     (#_repaint widget)
     (#_ignore event))
