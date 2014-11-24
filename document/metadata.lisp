@@ -27,3 +27,10 @@
       (when found
         (or (not v-p)
             (equal value val))))))
+
+(defmacro make-metadata-instance (class (&rest metadata) &rest args)
+  (let ((instance (gensym "INSTANCE")))
+    `(let ((,instance (make-instance ,class ,@args)))
+       ,@(loop for (key val) on metadata by #'cddr
+               collect `(setf (field ,key ,instance) ,val))
+       ,instance)))
