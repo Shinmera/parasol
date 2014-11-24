@@ -24,6 +24,8 @@
 
   (define-subwidget tools-area (make-instance 'tools-area))
 
+  (define-subwidget layer-gizmo (make-instance 'layer-gizmo))
+
   (define-subwidget layout-container (#_new QWidget)
     (let ((layout (#_new QVBoxLayout layout-container)))
       (#_setMargin layout 0)
