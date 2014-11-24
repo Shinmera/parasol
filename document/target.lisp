@@ -8,14 +8,13 @@
 (named-readtables:in-readtable :qtools)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defvar *target-backend* 'qimage-target))
+  (defvar *target-backend* :qimage))
 
 (defun target-backend ()
-  (intern (string *target-backend*) "KEYWORD"))
+  *target-backend*)
 
 (defun (setf target-backend) (backend)
-  (setf *target-backend*
-        (find-symbol (string backend) #.*package*)))
+  (setf *target-backend* (find-symbol (string backend) "KEYWORD")))
 
 (define-finalizable target ()
   ((width :initarg :width :initform (error "WIDTH required.") :accessor width)
@@ -24,11 +23,15 @@
 
 (defmethod print-object ((target target) stream)
   (print-unreadable-object (target stream :type T :identity T)
-    (format stream "~a/~a ~ax~a" (x target) (y target) (width target) (height target)))
+    (format stream "~ax~a" (width target) (height target)))
   target)
 
-(defun make-target (width height)
-  (make-instance *target-backend* :width width :height height))
+(defun make-target (width height &optional (backend *target-backend*))
+  (make-target-instance backend width height))
+
+(defgeneric make-target-instance (backend width height)
+  (:method (backend width height)
+    (make-instance backend :width width :height height)))
 
 (defun make-target-from (pathname)
   (let* ((image (#_new QImage (uiop:native-namestring pathname)))
@@ -69,6 +72,9 @@
           (height target) height)))
 
 ;; QImage impl.
+(defmethod make-target-instance ((class (eql :qimage)) width height)
+  (make-instance 'qimage-target :width width :height height))
+
 (define-finalizable qimage-target (target)
   ((image :initarg :image :initform NIL :accessor image :finalized T)))
 
@@ -111,105 +117,4 @@
       (with-finalizing ((painter (#_new QPainter new)))
         (#_drawImage painter x y (image target)))
       (setf (image target) new)))
-  target)
-
-;; QGLFrameBufferObject
-(define-finalizable framebuffer-target (target)
-  ((sampled-buffer :initform NIL :accessor sampled-buffer :finalized T)
-   (buffer :accessor buffer :finalized T)))
-
-(defmethod (setf sampled-buffer) :around (value (target framebuffer-target))
-  (unless (eql value (sampled-buffer target))
-    (when (painter target)
-      (finalize (painter target)))
-    (when (sampled-buffer target)
-      (finalize (sampled-buffer target)))
-    (call-next-method)
-    (setf (painter target)
-          (make-painter value))))
-
-(defvar *gl-format* NIL)
-
-(defvar *gl-context* NIL)
-
-(defun ensure-gl-init ()
-  (unless *gl-format*
-    (let ((format (#_new QGLFormat)))
-      (#_setAlpha format T)
-      (#_setSampleBuffers format T)
-      (setf *gl-format* format))
-    (let ((context (#_new QGLContext *gl-format*)))
-      (unless (#_create context)
-        (error "Failed to create GL context!"))
-      (setf *gl-context* context))))
-
-(defun make-framebuffer (width height &optional (samples 0))
-  (#_makeCurrent *gl-context*)
-  (let ((format (#_new QGLFramebufferObjectFormat)))
-    (when (< 0 samples)
-      (#_setSamples format samples))
-    (#_setAttachment format (#_QGLFramebufferObject::CombinedDepthStencil))
-    (#_new QGLFramebufferObject width height format)))
-
-(defmethod initialize-instance :after ((target framebuffer-target) &key)
-  (ensure-gl-init)
-  (#_makeCurrent *gl-context*)
-  (setf (sampled-buffer target) (make-framebuffer (width target) (height target) 4))
-  (setf (buffer target) (make-framebuffer (width target) (height target))))
-
-(defun blit-framebuffer-target (from to width height)
-  (let ((rect (#_new QRect 0 0 width height)))
-    (#_QGLFramebufferObject::blitFramebuffer to rect from rect)))
-
-(defmethod to-image ((target framebuffer-target))
-  (#_toImage (buffer target)))
-
-(defmethod copy ((target framebuffer-target))
-  (let ((new (make-instance 'framebuffer-target :width (width target) :height (height target))))
-    (blit-framebuffer-target (sampled-buffer target) (sampled-buffer new) (width target) (height target))
-    new))
-
-(defmethod clear ((target framebuffer-target) &optional (color (#_Qt::transparent)))
-  (with-painter (painter (sampled-buffer target))
-    (#_fillRect painter 0 0 (width target) (height target) color))
-  target)
-
-(defmethod draw ((target framebuffer-target) painter)
-  ;; draw using OpenGL
-  (#_beginNativePainting painter)
-  (gl:enable :blend)
-  (gl:enable :texture-2d)
-  (gl:enable :multisample)
-  (gl:enable :cull-face)
-  (gl:blend-func :src-alpha :one-minus-src-alpha)
-  (gl:blend-equation :func-add)
-
-  ;; blit to non-sampled so we can access the texture.
-  (blit-framebuffer-target (sampled-buffer target) (buffer target) (width target) (height target))
-
-  (gl:tex-env :texture-env :texture-env-mode :replace)
-  (gl:bind-texture :texture-2d (#_texture (buffer target)))
-  (gl:with-primitives :quads
-    (gl:tex-coord 0 1)
-    (gl:vertex 0 0)
-    (gl:tex-coord 1 1)
-    (gl:vertex (1+ (width target)) 0)
-    (gl:tex-coord 1 0)
-    (gl:vertex (1+ (width target)) (1+ (height target)))
-    (gl:tex-coord 0 0)
-    (gl:vertex 0 (1+ (height target))))
-  
-  (#_endNativePainting painter))
-  
-(defmethod fit ((target framebuffer-target) width height &key (x 0) (y 0))
-  (unless (and (= (width target) width)
-               (= (height target) height))
-    (let ((new (make-framebuffer width height 4))
-          (width (min width (width target)))
-          (height (min height (height target))))
-      (#_QGLFramebufferObject::blitFramebuffer
-       new (#_new QRect x y width height)
-       (sampled-buffer target) (#_new QRect 0 0 width height))
-      (setf (sampled-buffer target) new))
-    (setf (buffer target) (make-framebuffer width height)))
   target)
