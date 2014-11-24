@@ -7,10 +7,10 @@
 (in-package #:org.shirakumo.parasol.document)
 
 (define-finalizable document (metadata meta-layer history)
-  ())
+  ((layer-counter :initform 0 :accessor layer-counter)))
 
 (defmethod initialize-instance :after ((document document) &key)
-  (insert (make-instance 'layer) document))
+  (add-layer document 0))
 
 (defmethod draw ((document document) target)
   (loop for drawable across (drawables document)
@@ -21,8 +21,10 @@
     (current-drawable document)))
 
 (defgeneric add-layer (document &optional at)
-  (:method ((document document) &optional (at (current-index document)))
-    (insert (make-instance 'layer) document at)))
+  (:method ((document document) &optional (at (1+ (current-index document))))
+    (activate
+     (insert (make-metadata-instance 'layer (:name (format NIL "Layer ~d" (incf (layer-counter document))))) document at)
+     document)))
 
 (defmethod extract :after ((index fixnum) (document document))
   (when (= 0 (length (drawables document)))
