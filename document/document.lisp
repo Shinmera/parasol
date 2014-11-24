@@ -20,6 +20,10 @@
   (:method ((document document))
     (current-drawable document)))
 
+(defgeneric add-layer (document &optional at)
+  (:method ((document document) &optional (at (current-index document)))
+    (insert (make-instance 'layer) document at)))
+
 (defmethod extract :after (drawable (document document))
   (when (= 0 (length (drawables document)))
     (insert (make-instance 'layer) document)))

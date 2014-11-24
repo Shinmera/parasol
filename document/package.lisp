@@ -11,7 +11,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ;; document.lisp
   (:export
    #:document
-   #:current-layer)
+   #:current-layer
+   #:add-layer)
   ;; history.lisp
   (:export
    #:history-item
@@ -32,6 +33,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:export
    #:meta-layer
    #:drawables
+   #:current-index
    #:current-drawable
    #:insert
    #:extract

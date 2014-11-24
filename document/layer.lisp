@@ -9,7 +9,18 @@
 
 (define-finalizable meta-layer ()
   ((drawables :initform (make-array 20 :element-type 'drawable :adjustable T :fill-pointer 0) :reader drawables :finalized T)
-   (current-drawable :initform NIL :accessor current-drawable)))
+   (current-index :initform NIL :accessor current-index)))
+
+(defgeneric current-drawable (layer)
+  (:method ((layer meta-layer))
+    (aref (drawables layer) (current-index layer))))
+
+(defgeneric (setf current-drawable) (drawable layer)
+  (:method ((drawable drawable) (layer meta-layer))
+    (let ((pos (position drawable (drawables layer))))
+      (if pos
+          (setf (current-index layer) pos)
+          (error "Drawable ~a is not contained in ~a" drawable layer)))))
 
 (defgeneric insert (drawable layer &optional position)
   (:method ((drawable drawable) (layer meta-layer) &optional position)
@@ -35,11 +46,10 @@
 
 (defgeneric activate (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
-    (v:info :meta-layer "[~a] Activating drawable ~a" layer drawable)
     (setf (current-drawable layer) drawable))
 
   (:method ((index fixnum) (layer meta-layer))
-    (activate (drawable-at index layer) layer)))
+    (setf (current-index layer) index)))
 
 (defgeneric size (layer)
   (:method ((layer meta-layer))
