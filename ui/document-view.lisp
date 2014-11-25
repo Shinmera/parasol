@@ -44,6 +44,12 @@
                    (if mirror-y (- zoom) zoom))
           (draw document painter)))))
 
+  (defun translate-x (x widget)
+    (/ (- x (x widget)) (zoom widget)))
+
+  (defun translate-y (y widget)
+    (/ (- y (y widget)) (zoom widget)))
+
   (define-override tablet-event (widget event)
     (setf pen
           (make-instance
@@ -51,8 +57,8 @@
            :pointer (qt:enum-value (#_pointerType event))
            :device (qt:enum-value (#_device event))
            :before pen
-           :x (- (#_x event) (x widget))
-           :y (- (#_y event) (y widget))
+           :x (translate-x (#_x event) widget)
+           :y (translate-y (#_y event) widget)
            :z (#_z event)
            :x-tilt (#_xTilt event)
            :y-tilt (#_yTilt event)
@@ -72,8 +78,8 @@
              :pointer 1
              :device 0
              :before (pen widget)
-             :x (- (#_x event) (x widget))
-             :y (- (#_y event) (y widget))
+             :x (translate-x (#_x event) widget)
+             :y (translate-y (#_y event) widget)
              :x-view (#_x event)
              :y-view (#_y event)
              :pressure *mouse-pressure*))))
