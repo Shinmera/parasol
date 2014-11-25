@@ -27,6 +27,8 @@
   (define-widget tools-area (QWidget)
     ())
 
+  (define-subwidget group (#_new QButtonGroup widget))
+
   (define-subwidget gizmo (make-instance 'tool-options-gizmo)
     ;; (add-widget gizmo (slot-value *window* 'gizmo-bar))
     (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) gizmo))
@@ -38,7 +40,9 @@
     (#_setSpacing layout 0)
     (#_setAlignment layout (#_Qt::AlignLeft))
     (dolist (tool (find-tools))
-      (#_addWidget layout (make-instance tool) 0)))
+      (let ((tool (make-instance tool)))
+        (#_addButton group tool)
+        (#_addWidget layout tool 0))))
 
   (defmethod parasol-tools:select :after ((tool tool))
     (setf (tool *window*) tool)
