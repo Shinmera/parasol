@@ -13,5 +13,7 @@
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
   :components ((:file "package")
-               (:file "move-tool"))
+               (:file "move-tool")
+               (:file "rotate-tool")
+               (:file "zoom-tool"))
   :depends-on (:parasol :parasol-document :parasol-tools :parasol-ui))

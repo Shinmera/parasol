@@ -16,9 +16,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                                (- (y-view pen) (y (current-view))))))
 
 (defmethod move ((tool move-tool) pen document)
-  (v:info :test "POS: ~a,~a"
-          (setf (x (current-view)) (- (x-view pen) (car (start-pos tool))))
-          (setf (y (current-view)) (- (y-view pen) (cdr (start-pos tool))))))
+  (setf (x (current-view)) (- (x-view pen) (car (start-pos tool))))
+  (setf (y (current-view)) (- (y-view pen) (cdr (start-pos tool)))))
 
 (defmethod end ((tool move-tool) pen document)
   (setf (start-pos tool) NIL))
