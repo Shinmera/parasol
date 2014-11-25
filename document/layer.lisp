@@ -34,7 +34,8 @@
        (vector-push-extend-position drawable (drawables layer) position))
       (T
        (vector-push-extend drawable (drawables layer))
-       (activate drawable layer)))))
+       (activate drawable layer)))
+    drawable))
 
 (defgeneric extract (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
