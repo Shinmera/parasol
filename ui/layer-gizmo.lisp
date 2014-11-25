@@ -61,9 +61,10 @@
   (defun refresh-layers (widget)
     (let ((list (slot-value widget 'list)))
       (#_clear list)
-      (loop for i downfrom (1- (size (current-document))) to 0
-            for layer = (drawable-at i (current-document))
-            do (#_addItem list (make-instance 'layer-item :layer layer)))
+      ;;;; THIS IS BROKEN FOR NOW.
+      ;; (loop for i downfrom (1- (size (current-document))) to 0
+      ;;       for layer = (drawable-at i (current-document))
+      ;;       do (#_addItem list (make-instance 'layer-item :layer layer)))
       (#_setCurrentRow list (current-index (current-document))))
     (#_repaint (current-view)))
 
@@ -110,5 +111,5 @@
   (define-initializer widget 100
     (refresh-layers widget)
     (#_setSizePolicy widget (#_QSizePolicy::Minimum) (#_QSizePolicy::Minimum))
-    (#_setMinimumWidth widget 200)
+    (#_setMinimumWidth widget 150)
     (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) widget)))
