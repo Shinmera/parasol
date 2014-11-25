@@ -9,7 +9,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (with-widget-environment
   (define-tool (zoom-tool "Zoom" "Zoom the canvas.") ()
-    ((start-pos :initform NIL :accessor start-pos))))
+    ((start-pos :initform NIL :accessor start-pos))
+    (:icon :zoom ("mypaint-view-zoom"))))
 
 (defmethod begin ((tool zoom-tool) pen document)
   (setf (start-pos tool) (- (- (/ (y-view pen) 1000)) (zoom (current-view)))))

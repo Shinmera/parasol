@@ -9,7 +9,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (with-widget-environment
   (define-tool (move-tool "Move" "Move the canvas.") ()
-    ((start-pos :initform NIL :accessor start-pos))))
+    ((start-pos :initform NIL :accessor start-pos))
+    (:icon :move ("mypaint-view-pan"))))
 
 (defmethod begin ((tool move-tool) pen document)
   (setf (start-pos tool) (cons (- (x-view pen) (x (current-view)))

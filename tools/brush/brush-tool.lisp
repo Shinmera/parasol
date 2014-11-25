@@ -46,6 +46,7 @@
 (with-widget-environment
   (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
     ((current-brush :initform NIL :accessor current-brush :finalized T))
+    (:icon :brush ("mypaint-tool-brush"))
     (:options
       (brush-options :type widget-option)
       (brush :type list-option :slot 'current-brush :on-change 'switch-brush))
