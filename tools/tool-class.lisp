@@ -16,6 +16,11 @@
    (order :initarg :display :initarg :order :accessor tool-option-order))
   (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
+(defmethod tool-icon :around ((tool tool-class))
+  (let ((val (call-next-method)))
+    (when val
+      (apply #'cached-icon val))))
+
 ;; Copy from WIDGET-CLASS
 (defmethod make-instance ((class (eql (find-class 'tool-class))) &rest initargs)
   (unless (c2mop:class-finalized-p class)
