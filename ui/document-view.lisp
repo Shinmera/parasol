@@ -10,6 +10,10 @@
 (defvar *mouse-pressure* 0.5)
 (defvar *context* NIL)
 
+(defclass view-pen (pen)
+  ((x-view :initarg :x-view :initform 0 :accessor x-view)
+   (y-view :initarg :y-view :initform 0 :accessor y-view)))
+
 (with-widget-environment
   (define-widget document-view (QGLWidget tab positioned)
     ((document :initarg :document :initform NIL :accessor document :finalized T)
@@ -43,7 +47,7 @@
   (define-override tablet-event (widget event)
     (setf pen
           (make-instance
-           'pen
+           'view-pen
            :pointer (qt:enum-value (#_pointerType event))
            :device (qt:enum-value (#_device event))
            :before pen
@@ -52,6 +56,8 @@
            :z (#_z event)
            :x-tilt (#_xTilt event)
            :y-tilt (#_yTilt event)
+           :x-view (#_x event)
+           :y-view (#_y event)
            :rotation (#_rotation event)
            :pressure (#_pressure event)
            :tangential-pressure (#_tangentialPressure event))
@@ -62,12 +68,14 @@
     (unless (slot-value widget '%tablet-input)
       (setf (pen widget)
             (make-instance
-             'pen
+             'view-pen
              :pointer 1
              :device 0
              :before (pen widget)
              :x (- (#_x event) (x widget))
              :y (- (#_y event) (y widget))
+             :x-view (#_x event)
+             :y-view (#_y event)
              :pressure *mouse-pressure*))))
 
   (defun process-mouse (widget event func)

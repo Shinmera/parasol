@@ -10,6 +10,9 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:nicknames #:org.shirakumo.parasol.ui)
   ;; document-view.lisp
   (:export
+   #:view-pen
+   #:x-view
+   #:y-view
    #:*mouse-pressure*
    #:document-view
    #:document
