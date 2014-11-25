@@ -22,7 +22,7 @@
      (mirror-x :initarg :mirror-x :initform NIL :accessor mirror-x)
      (mirror-y :initarg :mirror-y :initform NIL :accessor mirror-y)
      (pen :initform NIL :accessor pen)
-     (%tablet-input :initform NIL)
+     (%tablet-input :initform NIL :accessor %tablet-input)
      (pen-pressed :initform NIL :accessor pen-pressed)))
 
   (define-initializer widget 100
@@ -71,7 +71,7 @@
     (#_ignore event))
 
   (defun maybe-update-pen (widget event)
-    (unless (slot-value widget '%tablet-input)
+    (unless (%tablet-input widget)
       (setf (pen widget)
             (make-instance
              'view-pen
@@ -101,5 +101,6 @@
     (process-mouse widget event #'begin))
 
   (define-override mouse-release-event (widget event)
-    (setf pen-pressed NIL)
+    (setf pen-pressed NIL
+          %tablet-input NIL)
     (process-mouse widget event #'end)))
