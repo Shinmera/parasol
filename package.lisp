@@ -11,7 +11,11 @@
   (:export
    #:start
    #:define-startup-hook
-   #:remove-startup-hook))
+   #:remove-startup-hook
+
+   #:icon
+   #:make-icon
+   #:cached-icon))
 
 (defun parasol-dev::ensure-package (package)
   (etypecase package

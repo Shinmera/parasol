@@ -16,5 +16,6 @@
   :serial T
   :components ((:file "package")
                (:file "compat")
+               (:file "icons")
                (:file "load"))
   :depends-on (:verbose :qtools))
