@@ -16,7 +16,7 @@
     (#_setWidget widget central))
 
   (define-subwidget layout (#_new QVBoxLayout widget)
-    (#_setSizePolicy widget (#_QSizePolicy::Minimum) (#_QSizePolicy::Minimum))
+    (#_setSizePolicy widget (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
     (#_setMinimumWidth widget 150)
     (#_setLayout central layout)
     (#_setMargin layout 0)
