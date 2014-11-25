@@ -32,7 +32,7 @@
       (with-painter (painter widget)
         (#_fillRect painter (#_rect widget) (#_Qt::white))
         (with-transformation (painter)
-          (translate-away widget painter)
+          (translate-to widget painter)
           ;; origin fix...
           (#_rotate painter angle)
           (#_scale painter
@@ -47,8 +47,8 @@
            :pointer (qt:enum-value (#_pointerType event))
            :device (qt:enum-value (#_device event))
            :before pen
-           :x (+ (#_x event) (x widget))
-           :y (+ (#_y event) (y widget))
+           :x (- (#_x event) (x widget))
+           :y (- (#_y event) (y widget))
            :z (#_z event)
            :x-tilt (#_xTilt event)
            :y-tilt (#_yTilt event)
@@ -66,8 +66,8 @@
              :pointer 1
              :device 0
              :before (pen widget)
-             :x (+ (#_x event) (x widget))
-             :y (+ (#_y event) (y widget))
+             :x (- (#_x event) (x widget))
+             :y (- (#_y event) (y widget))
              :pressure *mouse-pressure*))))
 
   (defun process-mouse (widget event func)
