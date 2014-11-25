@@ -21,7 +21,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
         do (loop with length = (sqrt (+ (expt (- (x end) (x start)) 2)
                                         (expt (- (y end) (y start)) 2)))
                  for i from 0 below length by (distance brush)
-                 do (draw-penpoint brush (linear-interpolate start end (/ i length)) target))))
+                 for pen = (linear-interpolate start end (/ i length))
+                 do (with-transformation (target)
+                      (#_translate target (#_new QPointF (x pen) (y pen)))
+                      (draw-penpoint brush pen target)))))
 
 (define-brush single-colored-brush (abstract-brush)
   ((color :initarg :color :initform (#_new QColor 0 0 0) :accessor color))
@@ -38,7 +41,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (define-brush sized-brush (abstract-brush)
   ((size :initarg :size :initform 2.0 :accessor size))
   (:options (size :type double-option :min 0.1 :max 1000000.0 :step 0.5 :default 2.0 :slot 'size
-              :label "Size")))
+                  :label "Size")))
+
+(defmethod draw-penpoint :before ((brush sized-brush) (pen pen) target)
+  (#_scale target (size brush) (size brush)))
 
 (define-brush pressured-size-brush (sized-brush abstract-brush)
   ())
@@ -54,7 +60,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ())
 
 (defmethod draw-penpoint ((brush circle-tip-brush) (pen pen) target)
-  (#_drawEllipse target (#_new QPointF (x pen) (y pen)) (size brush) (size brush)))
+  (#_drawEllipse target 0 0 1 1))
 
 (define-brush texture-brush (abstract-brush)
   ((texture :initarg :texture :initform NIL :accessor texture)))
@@ -71,16 +77,16 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (let ((texture (texture brush)))
     (with-transformation (target)
       (#_translate target (#_new QPointF
-                                 (- (x pen) (/ (width texture) 2))
-                                 (- (y pen) (/ (height texture) 2))))
+                                 (- (/ (width texture) 2))
+                                 (- (/ (height texture) 2))))
       (draw texture target))))
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ()
   (:order color size distance))
 
-(define-brush pepper-brush (linearly-sampled-brush texture-brush)
+(define-brush pepper-brush (linearly-sampled-brush sized-brush texture-brush)
   ((texture :initform "assets/pepper.png" :accessor texture)))
 
-(define-brush jalapeno-brush (linearly-sampled-brush texture-brush)
+(define-brush jalapeno-brush (linearly-sampled-brush sized-brush texture-brush)
   ((texture :initform "assets/jalapeno.png" :accessor texture)))
