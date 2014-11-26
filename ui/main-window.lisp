@@ -22,9 +22,13 @@
 
   (define-subwidget tab-area (make-instance 'tab-area))
 
+  ;; This should be automated / moved out to the individual
+  ;; gizmos...
   (define-subwidget tools-area (make-instance 'tools-area))
 
   (define-subwidget layer-gizmo (make-instance 'layer-gizmo))
+
+  (define-subwidget history-gizmo (make-instance 'history-gizmo))
 
   (define-subwidget layout-container (#_new QWidget)
     (let ((layout (#_new QVBoxLayout layout-container)))
