@@ -13,6 +13,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
   :components ((:file "package")
+               (:file "nice-slider")
                (:file "main-window")
                (:file "tab-area")
                (:file "document-view")
