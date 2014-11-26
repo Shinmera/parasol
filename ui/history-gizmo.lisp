@@ -39,4 +39,5 @@
 
   (define-initializer widget 100
     (#_setSizePolicy widget (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
-    (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) widget)))
+    (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) widget)
+    (#_tabifyDockWidget *window* widget (slot-value *window* 'layer-gizmo))))
