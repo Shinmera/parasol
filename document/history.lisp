@@ -88,7 +88,7 @@
         (slot-value (object item) (slot item)) (value item)))
 
 (defmethod undo ((item slot-change-history-item))
-  (setf (slot-value (object item) (slot item)) (oiriginal item)))
+  (setf (slot-value (object item) (slot item)) (original item)))
 
 (define-finalizable vector-push-history-item (history-item)
   ((change-vector :initarg :vector :initform (error "Vector required.") :accessor change-vector)
