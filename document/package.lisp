@@ -87,6 +87,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:linear-interpolate)
   ;; primitives.lisp
   (:export
+   #:*mode-map*
+   #:to-mode-num
+   #:to-mode-name
+   
    #:positioned
    #:x
    #:y
