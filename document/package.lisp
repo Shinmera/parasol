@@ -17,14 +17,21 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:export
    #:history-item
    #:document
+   #:applied
    #:undo
    #:redo
 
    #:history
    #:items
+   #:age
    #:record
    #:rewind
-   #:size)
+   #:size
+   #:current-history
+
+   #:function-call-history-item
+   #:slot-change-history-item
+   #:vector-push-history-item)
   ;; image-op.lisp
   (:export
    #:make-painter
