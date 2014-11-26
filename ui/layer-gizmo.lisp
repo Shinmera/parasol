@@ -75,7 +75,7 @@
     (loop for i from 0
           for layer across (drawables (current-document))
           do (#_setCellWidget list (- (size (current-document)) i 1) 0 (make-instance 'layer-item :layer layer)))
-    (#_setCurrentCell list 0 (current-index (current-document))))
+    (#_selectRow list (- (size (current-document)) 1 (current-index (current-document)))))
 
   (define-override drop-event (list event)
     ;; We get to do some manual calculation of drop rows
@@ -107,6 +107,7 @@
 
   (define-slot new-index (mode (value int))
     (declare (connected mode (current-index-changed int)))
+    (declare (ignore value))
     (signal! mode value-changed ((value mode) int)))
 
   (defmethod (setf value) (value (mode mode-list))
@@ -129,7 +130,7 @@
 
   (define-subwidget mode (make-instance 'mode-list))
 
-  (define-subwidget opacity (make-instance 'nice-slider)
+  (define-subwidget opacity (make-instance 'nice-slider :max 1.0 :step 0.01)
     (#_setToolTip opacity "Opacity"))
 
   (define-subwidget up (#_new QPushButton "^" widget)
@@ -167,7 +168,11 @@
     (#_addWidget layout copy 3 5 1 1))
 
   (defmethod refresh ((widget layer-gizmo))
-    (refresh-layers (slot-value widget 'list))
+    (with-slots-bound (widget layer-gizmo)
+      (refresh-layers list)
+      (let ((layer (current-layer (current-document))))
+        (setf (value opacity) (opacity layer))
+        (setf (value mode) (mode layer))))
     (#_repaint (current-view)))
 
   (define-slot mode (widget (selected int))
@@ -181,17 +186,19 @@
   (define-slot select (widget (row int) (column int))
     (declare (connected list (cell-clicked int int)))
     (declare (ignore column))
-    (let ((layer (layer (#_cellWidget list row 0))))
-      (activate layer (current-document))
-      (setf (value opacity) (opacity layer))
-      (setf (value mode) (mode layer))))
+    (activate (layer (#_cellWidget list row 0)) (current-document))
+    (refresh widget))
 
   ;; FIXME: Hook into history system
   (define-slot up (widget)
-    (declare (connected up (clicked))))
+    (declare (connected up (clicked)))
+    ;; TODO
+    (refresh widget))
 
   (define-slot down (widget)
-    (declare (connected down (clicked))))
+    (declare (connected down (clicked)))
+    ;; TODO
+    (refresh widget))
 
   (define-slot add (widget)
     (declare (connected add (clicked)))
@@ -205,10 +212,12 @@
 
   (define-slot merge (widget)
     (declare (connected merge (clicked)))
+    ;; TODO
     (refresh widget))
 
   (define-slot copy (widget)
     (declare (connected copy (clicked)))
+    ;; TODO
     (refresh widget))
 
   (define-initializer widget 100
