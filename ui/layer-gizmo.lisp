@@ -93,6 +93,31 @@
       (refresh-layers list))))
 
 (with-widget-environment
+  (define-widget mode-list (QComboBox)
+    ((modes :initform '(source-over clear multiply screen overlay darken lighten
+                        color-dodge color-burn hard-light soft-light difference
+                        exclusion))))
+
+  (define-initializer mode 100
+    (#_setToolTip mode "Compositing Mode")
+    (dolist (i modes)
+      (#_addItem mode (string-downcase i))))
+
+  (define-signal value-changed (int))
+
+  (define-slot new-index (mode (value int))
+    (declare (connected mode (current-index-changed int)))
+    (signal! mode value-changed ((value mode) int)))
+
+  (defmethod (setf value) (value (mode mode-list))
+    (when (numberp value) (setf value (to-mode-name value)))
+    (#_setCurrentIndex mode (position value (slot-value mode 'modes)
+                                      :test #'string-equal)))
+
+  (defmethod value ((mode mode-list))
+    (to-mode-num (nth (#_currentIndex mode) (slot-value mode 'modes)))))
+
+(with-widget-environment
   (define-widget layer-gizmo (QDockWidget)
     ())
 
@@ -101,6 +126,11 @@
     (#_setWidget widget central))
 
   (define-subwidget list (make-instance 'layer-list))
+
+  (define-subwidget mode (make-instance 'mode-list))
+
+  (define-subwidget opacity (make-instance 'nice-slider)
+    (#_setToolTip opacity "Opacity"))
 
   (define-subwidget up (#_new QPushButton "^" widget)
     (#_setMinimumWidth up 30))
@@ -127,22 +157,34 @@
     (#_setAlignment layout (#_Qt::AlignTop))
 
     (#_addWidget layout list 0 0 1 6)
-    (#_addWidget layout up 1 0 1 1)
-    (#_addWidget layout down 1 1 1 1)
-    (#_addWidget layout add 1 2 1 1)
-    (#_addWidget layout remove 1 3 1 1)
-    (#_addWidget layout merge 1 4 1 1)
-    (#_addWidget layout copy 1 5 1 1))
+    (#_addWidget layout mode 1 0 1 6)
+    (#_addWidget layout opacity 2 0 1 6)
+    (#_addWidget layout up 3 0 1 1)
+    (#_addWidget layout down 3 1 1 1)
+    (#_addWidget layout add 3 2 1 1)
+    (#_addWidget layout remove 3 3 1 1)
+    (#_addWidget layout merge 3 4 1 1)
+    (#_addWidget layout copy 3 5 1 1))
 
   (defmethod refresh ((widget layer-gizmo))
     (refresh-layers (slot-value widget 'list))
     (#_repaint (current-view)))
 
+  (define-slot mode (widget (selected int))
+    (declare (connected mode (value-changed int)))
+    (setf (mode (current-layer (current-document))) selected))
+
+  (define-slot opacity (widget (new-opacity double))
+    (declare (connected opacity (value-changed double)))
+    (setf (opacity (current-layer (current-document))) new-opacity))
+
   (define-slot select (widget (row int) (column int))
     (declare (connected list (cell-clicked int int)))
     (declare (ignore column))
-    (activate (layer (#_cellWidget list row 0))
-              (current-document)))
+    (let ((layer (layer (#_cellWidget list row 0))))
+      (activate layer (current-document))
+      (setf (value opacity) (opacity layer))
+      (setf (value mode) (mode layer))))
 
   ;; FIXME: Hook into history system
   (define-slot up (widget)
