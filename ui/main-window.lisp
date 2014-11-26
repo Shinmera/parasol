@@ -40,6 +40,7 @@
 
   (define-initializer window 100
     (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
+    (#_setTabPosition window (#_Qt::AllDockWidgetAreas) (#_QTabWidget::North))
     (#_resize window 500 500))
 
   (define-menu File

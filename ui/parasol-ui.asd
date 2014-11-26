@@ -18,6 +18,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                (:file "tab-area")
                (:file "document-view")
                (:file "framebuffer-target")
+               (:file "gizmo")
                (:file "tools-area")
                (:file "layer-gizmo")
                (:file "history-gizmo"))
