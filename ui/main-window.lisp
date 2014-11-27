@@ -34,7 +34,6 @@
     (let ((layout (#_new QVBoxLayout layout-container)))
       (#_setMargin layout 0)
       (#_setSpacing layout 0)
-      (#_addWidget layout tools-area)
       (#_addWidget layout tab-area))
     (#_setCentralWidget widget layout-container))
 
