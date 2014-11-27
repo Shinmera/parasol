@@ -35,6 +35,7 @@
          (#_setMinimumWidth tool 50)
          (#_setSizePolicy tool (#_QSizePolicy::Maximum) (#_QSizePolicy::Maximum))
          (#_setCheckable tool T)
+         (#_setFlat tool T)
          (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
          (if (tool-icon tool)
              (#_setIcon tool (tool-icon tool))
