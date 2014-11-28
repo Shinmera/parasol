@@ -17,6 +17,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                (:file "main-window")
                (:file "tab-area")
                (:file "document-view")
+               (:file "gl-compositing")
                (:file "framebuffer-target")
                (:file "gizmo")
                (:file "tools-area")

@@ -86,11 +86,7 @@
   ;; draw using OpenGL
   (#_beginNativePainting painter)
   (gl:enable :blend)
-  
-  ;; FIXME: translate the current QPainter compositing mode
-  ;; to the equivalent GL function calls to retain the effect.
-  (gl:blend-func :src-alpha :one-minus-src-alpha)
-  (gl:blend-equation :func-add)
+  (gl-set-blending (enum-value (#_compositionMode painter)))  
   
   (gl:enable :texture-2d)
   ;; Maybe ask stassats to incorporate support for this kinda thing...
