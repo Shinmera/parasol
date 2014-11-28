@@ -61,11 +61,12 @@
     ;;  (gl:blend-func ))
     ;; (21 ;(#_QPainter::CompositionMode_SoftLight)
     ;;  (gl:blend-func ))
-    ;; (22 ;(#_QPainter::CompositionMode_Difference)
-    ;;  (gl:blend-func ))
-    (23 ;(#_QPainter::CompositionMode_Exclusion)
+    (22 ;(#_QPainter::CompositionMode_Difference)
      (gl:blend-func :one :one)
-     (gl:blend-equation :func-subtract))))
+     (gl:blend-equation :func-subtract))
+    ;; (23 (#_QPainter::CompositionMode_Exclusion)
+    ;;  (gl:blend-func ))
+    ))
 
 (defun nv-compositing-mode (mode)
   (ecase mode
