@@ -92,7 +92,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
          (translate-to ,pos ,tr)))))
 
 (define-finalizable drawable (positioned)
-  ())
+  ((width :initarg :width :initform 0.0 :accessor width)
+   (height :initarg :height :initform 0.0 :accessor height)))
 
 (defgeneric draw (drawable target)
   (:method :around ((drawable drawable) target)
@@ -101,6 +102,17 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-finalizable buffered (drawable)
   ((buffer :initarg :buffer :initform NIL :accessor buffer :finalized T)))
+
+(defmacro define-delegated-accessor (name from-class accessor)
+  (let ((value (gensym "VALUE")))
+    `(progn
+       (defmethod ,name ((,from-class ,from-class))
+         (,name (,accessor ,from-class)))
+       (defmethod (setf ,name) (,value (,from-class ,from-class))
+         (setf (,name (,accessor ,from-class)) ,value)))))
+
+(define-delegated-accessor width buffered buffer)
+(define-delegated-accessor height buffered buffer)
 
 (defmethod (setf buffer) :before (value (buffered buffered))
   (unless (eql (buffer buffered) value)
