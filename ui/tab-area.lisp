@@ -14,82 +14,81 @@
   (defgeneric close-tab (tab-area tab))
   (defgeneric current-tab (tab-area)))
 
-(with-widget-environment
-  (define-widget tab (QWidget)
-    ((title :initarg :title :initform "Untitled" :accessor title)
-     (parent :initarg :parent :initform (error "Parent required.") :accessor parent)))
+(define-widget tab (QWidget)
+  ((title :initarg :title :initform "Untitled" :accessor title)
+   (parent :initarg :parent :initform (error "Parent required.") :accessor parent)))
 
-  (defmethod (setf title) ((text string) (tab tab))
-    (#_setTabText (parent tab) (index tab) text)
-    (call-next-method))
-  
-  (defmethod index ((tab tab))
-    (#_indexOf (parent tab) tab))
+(defmethod (setf title) ((text string) (tab tab))
+  (#_setTabText (parent tab) (index tab) text)
+  (call-next-method))
 
-  (defmethod finalize ((tab tab))
-    (#_removeTab (parent tab) (index tab))
-    (call-next-method)))
+(defmethod index ((tab tab))
+  (#_indexOf (parent tab) tab))
 
-(with-widget-environment
-  (define-widget welcome-tab (QWidget tab)
-    ((title :initform "Welcome" :accessor title)))
-
-  (define-subwidget label (#_new QLabel "Welcome to Parasol.")
-    (#_setStyleSheet label "background-color:white; color:black;")
-    (#_setAlignment label (#_Qt::AlignCenter)))
-
-  (define-layout layout (#_new QHBoxLayout)
-    (#_addWidget layout label)))
+(defmethod finalize ((tab tab))
+  (#_removeTab (parent tab) (index tab))
+  (call-next-method))
 
 
-(with-widget-environment
-  (define-widget tab-area (QTabWidget)
-    ())
+(define-widget welcome-tab (QWidget tab)
+  ((title :initform "Welcome" :accessor title)))
 
-  (defmethod add-tab ((widget tab-area) (tab tab))
-    (#_addTab widget tab (title tab))
-    tab)
+(define-subwidget (welcome-tab label) (#_new QLabel "Welcome to Parasol.")
+  (#_setStyleSheet label "background-color:white; color:black;")
+  (#_setAlignment label (#_Qt::AlignCenter)))
 
-  (defmethod add-tab ((widget tab-area) (class symbol))
-    (let ((tab (make-instance class :parent widget)))
-      (#_addTab widget tab (title tab))
-      tab))
+(define-subwidget (welcome-tab layout) (#_new QHBoxLayout)
+  (#_addWidget layout label)
+  (#_setLayout welcome-tab layout))
 
-  (defmethod change-tab ((widget tab-area) (tab tab))
-    (#_setCurrentWidget widget tab)
-    tab)
 
-  (define-slot change-tab (widget (index int))
-    (declare (connected widget (current-changed int)))
-    (declare (method))
-    (let ((tab (#_widget widget index)))
-      (v:info :parasol "Switching to tab ~s" tab)
-      tab))
+(define-widget tab-area (QTabWidget)
+  ())
 
-  (defmethod close-tab ((widget tab-area) (tab tab))
-    (finalize tab)
-    NIL)
+(defmethod add-tab ((tab-area tab-area) (tab tab))
+  (#_addTab tab-area tab (title tab))
+  tab)
 
-  (define-slot close-tab (widget (index int))
-    (declare (connected widget (tab-close-requested int)))
-    (declare (method))
-    (let ((tab (#_widget widget index)))
-      (v:info :parasol "Removing tab ~s" tab)
-      (finalize tab))
-    NIL)
+(defmethod add-tab ((tab-area tab-area) (class symbol))
+  (let ((tab (make-instance class :parent tab-area)))
+    (#_addTab tab-area tab (title tab))
+    tab))
 
-  (defmethod current-tab ((widget tab-area))
-    (#_currentWidget widget))
+(defmethod change-tab ((tab-area tab-area) (tab tab))
+  (#_setCurrentWidget tab-area tab)
+  tab)
 
-  (define-initializer widget 100
-    (#_setMovable widget T)
-    (#_setTabsClosable widget T)
-    (#_setDocumentMode widget T)
+(define-slot (tab-area change-tab) ((index int))
+  (declare (connected tab-area (current-changed int)))
+  (declare (method))
+  (let ((tab (#_widget tab-area index)))
+    (v:info :parasol "Switching to tab ~s" tab)
+    tab))
 
-    (add-tab widget 'document-view))
+(defmethod close-tab ((tab-area tab-area) (tab tab))
+  (finalize tab)
+  NIL)
 
-  (define-finalizer widget 100
-    (loop for i from 0 below (#_count widget)
-          for tab = (#_widget widget i)
-          do (finalize tab))
-    (#_clear widget)))
+(define-slot (tab-area close-tab) ((index int))
+  (declare (connected tab-area (tab-close-requested int)))
+  (declare (method))
+  (let ((tab (#_widget tab-area index)))
+    (v:info :parasol "Removing tab ~s" tab)
+    (finalize tab))
+  NIL)
+
+(defmethod current-tab ((tab-area tab-area))
+  (#_currentWidget tab-area))
+
+(define-initializer (tab-area setup)
+  (#_setMovable tab-area T)
+  (#_setTabsClosable tab-area T)
+  (#_setDocumentMode tab-area T)
+
+  (add-tab tab-area 'document-view))
+
+(define-finalizer (tab-area teardwon)
+  (loop for i from 0 below (#_count tab-area)
+        for tab = (#_widget tab-area i)
+        do (finalize tab))
+  (#_clear tab-area))

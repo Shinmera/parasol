@@ -7,14 +7,13 @@
 (in-package #:org.shirakumo.parasol.ui)
 (named-readtables:in-readtable :qtools)
 
-(with-widget-environment
-  (define-widget gizmo (QDockWidget)
-    ())
+(define-widget gizmo (QDockWidget)
+  ())
 
-  (define-initializer widget 100
-    (#_setSizePolicy widget (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
-    (#_setAllowedAreas widget (enum-or (#_Qt::LeftDockWidgetArea) (#_Qt::RightDockWidgetArea)))
-    (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) widget))
+(define-initializer (gizmo setup)
+  (#_setSizePolicy gizmo (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
+  (#_setAllowedAreas gizmo (enum-or (#_Qt::LeftDockWidgetArea) (#_Qt::RightDockWidgetArea)))
+  (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) gizmo))
 
-  (defgeneric refresh (gizmo)
-    (:method ((gizmo gizmo)))))
+(defgeneric refresh (gizmo)
+  (:method ((gizmo gizmo))))
