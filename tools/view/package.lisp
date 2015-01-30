@@ -6,5 +6,5 @@
 
 (in-package #:org.shirakumo.parasol)
 (defpackage #:parasol-tools-view
-  (:use #:cl #:parasol-dev #:parasol-document #:parasol-tools #:parasol-ui)
+  (:use #:parasol-dev #:parasol-document #:parasol-tools #:parasol-ui)
   (:nicknames #:org.shirakumo.parasol.tools.view))

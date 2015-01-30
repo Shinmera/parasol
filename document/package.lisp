@@ -6,7 +6,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (in-package #:org.shirakumo.parasol)
 (defpackage #:parasol-document
-  (:use #:cl #:parasol-dev)
+  (:use #:parasol-dev)
   (:nicknames #:org.shirakumo.parasol.document)
   ;; document.lisp
   (:export

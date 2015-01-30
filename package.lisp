@@ -6,7 +6,7 @@
 
 (in-package #:cl-user)
 (defpackage #:parasol-dev
-  (:use #:cl #:qt #:qtools)
+  (:use #:cl+qt)
   (:nicknames #:org.shirakumo.parasol.dev)
   (:export
    #:start
@@ -17,21 +17,11 @@
    #:make-icon
    #:cached-icon))
 
-(defun parasol-dev::ensure-package (package)
-  (etypecase package
-    ((or symbol string) (find-package package))
-    (package package)))
-
-(defun parasol-dev::re-export (package &optional (from '#:parasol-dev))
-  (setf from (parasol-dev::ensure-package from))
-  (do-external-symbols (symb (parasol-dev::ensure-package package))
-    (export symb from)))
-
-(parasol-dev::re-export '#:qtools)
-(parasol-dev::re-export '#:qt)
+(do-symbols (symbol '#:org.shirakumo.parasol.dev)
+  (export symbol '#:org.shirakumo.parasol.dev))
 
 (defpackage #:parasol
-  (:use #:cl #:parasol-dev)
+  (:use #:parasol-dev)
   (:nicknames #:org.shirakumo.parasol)
   (:export
    #:start))
