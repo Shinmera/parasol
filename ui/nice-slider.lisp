@@ -73,7 +73,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (setf (value spin-box) value)
     (signal! nice-slider value-changed (value double))))
 
-(define-slot (nice-slider reset) (widget)
+(define-slot (nice-slider reset) ()
   (declare (connected button (clicked)))
   (setf (value slider) default)
   (setf (value spin-box) default))

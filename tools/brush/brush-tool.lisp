@@ -43,22 +43,18 @@
             do (#_addWidget layout option))
       brush)))
 
-(with-widget-environment
-  (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
-    ((current-brush :initform NIL :accessor current-brush :finalized T))
-    (:icon :brush ("mypaint-tool-brush"))
-    (:options
-      (brush-options :type widget-option)
-      (brush :type list-option :slot 'current-brush :on-change 'switch-brush))
-    (:order brush brush-options))
+(define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
+  ((current-brush :initform NIL :accessor current-brush :finalized T))
+  (:icon :brush ("mypaint-tool-brush"))
+  (:options
+    (brush-options :type widget-option)
+    (brush :type list-option :slot 'current-brush :on-change 'switch-brush))
+  (:order brush brush-options))
 
-  (defun %init-brush-tool-brushes (tool)
-    (dolist (brush (or (find-brushes)
-                       (warn "No brushes found.")))
-      (add-item (string-downcase (class-name brush)) (tool-option 'brush tool))))
-
-  (define-initializer tool 100
-    (%init-brush-tool-brushes tool)))
+(define-initializer (brush-tool setup)
+  (dolist (brush (or (find-brushes)
+                     (warn "No brushes found.")))
+    (add-item (string-downcase (class-name brush)) (tool-option 'brush brush-tool))))
 
 (defmethod begin ((tool brush-tool) pen document)
   (v:info :brush-tool "Beginning stroke at ~s" pen)

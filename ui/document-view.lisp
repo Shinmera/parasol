@@ -14,7 +14,7 @@
   ((x-view :initarg :x-view :initform 0 :accessor x-view)
    (y-view :initarg :y-view :initform 0 :accessor y-view)))
 
-(define-document-view document-view (QGLWidget tab positioned)
+(define-widget document-view (QGLWidget tab positioned)
   ((document :initarg :document :initform NIL :accessor document :finalized T)
    (angle :initarg :angle :initform 0 :accessor angle)
    (zoom :initarg :scale :initform 1.0 :accessor zoom)

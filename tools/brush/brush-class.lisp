@@ -44,11 +44,8 @@
 
 ;; During initialisation we just make sure the options are proper.
 (defun initialize-brush-class (class next-method &rest args &key options label &allow-other-keys)
-  (remf args :label)
-  (apply next-method class
-         :allow-other-keys T
-         :label (if (listp label) (first label) label)
-         args)
+  (when (listp label) (setf (getf args :label) (first label)))
+  (apply next-method class :allow-other-keys T args)
   (c2mop:finalize-inheritance class)
   (dolist (option options)
     (apply #'check-option class option)))

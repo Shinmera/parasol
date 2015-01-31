@@ -21,21 +21,6 @@
     (when val
       (apply #'cached-icon val))))
 
-;; Copy from WIDGET-CLASS
-(defmethod make-instance ((class (eql (find-class 'tool-class))) &rest initargs)
-  (unless (c2mop:class-finalized-p class)
-    (c2mop:finalize-inheritance class))
-  (let ((instance (apply #'allocate-instance class initargs)))
-    (apply #'initialize-instance instance initargs)
-    instance))
-
-;; On CCL we need to reach deeper, additionally to the make-instance override.
-#+:ccl
-(defmethod ccl::class-slot-initargs :around ((class (eql (find-class 'tool-class))))
-  (append (list-widget-slot-options)
-          (list-widget-class-options)
-          (call-next-method)))
-
 (defun check-option (class name &key label description type slot &allow-other-keys)
   (when (and slot (not (find (eval slot) (c2mop:class-slots class) :key #'c2mop:slot-definition-name)))
     (error "Cannot find an effective slot named ~s on class ~s, but it is set as the target slot for tool option ~s."
@@ -51,13 +36,9 @@
 
 ;; During initialisation we just make sure the options are proper.
 (defun initialize-tool-class (class next-method &rest args &key options label description &allow-other-keys)
-  (remf args :label)
-  (remf args :description)
-  (apply next-method class
-         :allow-other-keys T
-         :label (if (listp label) (first label) label)
-         :description (if (listp description) (first description) description)
-         args)
+  (when (listp label) (setf (getf args :label) (first label)))
+  (when (listp description) (setf (getf args :description) (first description)))
+  (apply next-method class :allow-other-keys T args)
   (c2mop:finalize-inheritance class)
   (dolist (option options)
     (apply #'check-option class option)))

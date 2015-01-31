@@ -9,23 +9,30 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defgeneric change (option value))
 
-(with-widget-environment
-  (define-widget tool-option (QWidget)
-    ((label :initarg :label :initform NIL :accessor label)
-     (description :initarg :description :initform NIL :accessor description)
-     (tool :initarg :tool :initform (error "TOOL required.") :accessor tool)
-     (on-change :initarg :on-change :initform NIL :accessor on-change)
-     (slot :initarg :slot :initform NIL :accessor slot))
-    (:documentation "Tool options are widgets that the user can interact with to change the tool's settings."))
+(define-widget tool-option (QWidget)
+  ((label :initarg :label :initform NIL :allocation class :accessor label)
+   (description :initarg :description :initform NIL :allocation class :accessor description)
+   (tool :initarg :tool :initform (error "TOOL required.") :accessor tool)
+   (on-change :initarg :on-change :initform NIL :accessor on-change)
+   (slot :initarg :slot :initform NIL :accessor slot))
+  (:documentation "Tool options are widgets that the user can interact with to change the tool's settings."))
 
-  (define-slot change (option (new-value bool int double "const QString&"))
-    (declare (method))
-    (call-next-method))
+(define-slot (tool-option change) ((new-value "const QString&"))
+  (call-next-method))
 
-  (define-initializer option 100
-    (unless label
-      (setf label (capitalize-on #\- (class-name (class-of option)) #\Space T)))
-    (#_setToolTip option (format NIL "~a~@[: ~a~]" label description))))
+(define-slot (tool-option change) ((new-value double))
+  (call-next-method))
+
+(define-slot (tool-option change) ((new-value int))
+  (call-next-method))
+
+(define-slot (tool-option change) ((new-value bool))
+  (call-next-method))
+
+(define-initializer (tool-option setup)
+  (unless label
+    (setf label (capitalize-on #\- (class-name (class-of tool-option)) #\Space T)))
+  (#_setToolTip tool-option (format NIL "~a~@[: ~a~]" label description)))
 
 (defmethod change ((option tool-option) new-value)
   (with-slots-bound (option tool-option)
@@ -41,10 +48,15 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (when (loop for superclass in direct-superclasses
                 never (typep superclass 'tool-option))
       (push 'tool-option direct-superclasses))
-    (unless (assoc :label options)
-      (push (list :label label) options))
-    (unless (assoc :description options)
-      (push (list :description description) options))
+    (flet ((set-initarg (arg value)
+             (let ((args (cdr (assoc :default-initargs options))))
+               (setf (getf args arg) (or (getf args arg) value))
+               (if (assoc :default-initargs options)
+                   (setf (cdr (assoc :default-initargs options)) args)
+                   (push `(:default-initargs . ,args) options)))))
+      (set-initarg :label label)
+      (set-initarg :description description))
+    
     `(define-widget ,name (,qt-class ,@direct-superclasses)
        ,direct-slots
        ,@options)))
@@ -53,5 +65,3 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
     (4 (&whole 6 &rest)
        (&whole 2 (&whole 0 0 &rest 2))
        &rest (&whole 2 2 &rest (&whole 2 2 4 &body))))
-
-(declare-environment-widget-form 'define-tool-option)

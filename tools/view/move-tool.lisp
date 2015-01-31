@@ -1,16 +1,15 @@
 #|
-This file is a part of Parasol
-(c) 2014 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
-Author: Nicolas Hafner <shinmera@tymoon.eu>
+ This file is a part of Parasol
+ (c) 2014 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
+ Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.parasol.tools.view)
 (named-readtables:in-readtable :qtools)
 
-(with-widget-environment
-  (define-tool (move-tool "Move" "Move the canvas.") ()
-    ((start-pos :initform NIL :accessor start-pos))
-    (:icon :move ("mypaint-view-pan"))))
+(define-tool (move-tool "Move" "Move the canvas.") ()
+  ((start-pos :initform NIL :accessor start-pos))
+  (:icon :move ("mypaint-view-pan")))
 
 (defmethod begin ((tool move-tool) pen document)
   (setf (start-pos tool) (cons (- (x-view pen) (x (current-view)))

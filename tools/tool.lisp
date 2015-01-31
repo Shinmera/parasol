@@ -21,36 +21,34 @@
                     (cons name (apply #'make-instance type :tool tool args)))) into options
         finally (setf (tool-options tool) options)))
 
-(defclass tool (widget)
+(define-widget tool (QPushButton widget)
   ((options :initform () :accessor tool-options))
   (:metaclass tool-class)
-  (:qt-superclass "QPushButton")
   (:label "Tool")
-  (:documentation "Superclass for all document-manipulating tools.")
-  (:slots ("change(bool)" change))
-  (:initializer
-   (tool 50
-         (initialize-options tool)
-         ;; Default init
-         (#_setMinimumWidth tool 50)
-         (#_setSizePolicy tool (#_QSizePolicy::Maximum) (#_QSizePolicy::Maximum))
-         (#_setCheckable tool T)
-         (#_setFlat tool T)
-         (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
-         (if (tool-icon tool)
-             (#_setIcon tool (tool-icon tool))
-             (#_setText tool (tool-label tool)))
-         (connect! tool (toggled bool) tool (change bool)))))
+  (:documentation "Superclass for all document-manipulating tools."))
+
+(define-slot (tool change) ((activated bool))
+  (if activated
+      (select tool)
+      (deselect tool)))
+
+(define-initializer (tool setup 5)
+  (initialize-options tool)
+  ;; Default init
+  (#_setMinimumWidth tool 50)
+  (#_setSizePolicy tool (#_QSizePolicy::Maximum) (#_QSizePolicy::Maximum))
+  (#_setCheckable tool T)
+  (#_setFlat tool T)
+  (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
+  (if (tool-icon tool)
+      (#_setIcon tool (tool-icon tool))
+      (#_setText tool (tool-label tool)))
+  (connect! tool (toggled bool) tool (change bool)))
 
 (defmethod print-object ((tool tool) stream)
   (print-unreadable-object (tool stream :type T)
     (format stream "~s" (tool-label tool)))
   tool)
-
-(defmethod change ((tool tool) activated)
-  (if activated
-      (select tool)
-      (deselect tool)))
 
 (defun tool-option (name tool)
   (cdr (assoc name (tool-options tool))))
@@ -110,7 +108,7 @@
       (push (list :label label) options))
     (unless (assoc :description options)
       (push (list :description description) options))
-    `(defclass ,name ,direct-superclasses
+    `(define-widget ,name (QPushButton ,@direct-superclasses)
        ,direct-slots
        (:metaclass tool-class)
        ,@options)))
@@ -119,8 +117,6 @@
     (4 (&whole 6 &rest)
        (&whole 2 (&whole 0 0 &rest 2))
        &rest (&whole 2 2 &rest (&whole 2 2 4 &body))))
-
-(declare-environment-widget-form 'define-tool)
 
 (defun find-tools ()
   (let ((classes ()))
