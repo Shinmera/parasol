@@ -18,7 +18,7 @@
    #:cached-icon))
 
 (do-symbols (symbol '#:org.shirakumo.parasol.dev)
-  (export symbol '#:org.shirakumo.parasol.dev))
+  (export (list symbol) '#:org.shirakumo.parasol.dev))
 
 (defpackage #:parasol
   (:use #:parasol-dev)
