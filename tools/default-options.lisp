@@ -54,7 +54,7 @@
   ((default :initarg :default :initform "" :accessor default)))
 
 (define-slot (string-option on-return) ()
-  (signal! string-option change ((#_text string-option) string)))
+  (signal! string-option (change string) (#_text string-option)))
 
 (define-initializer (string-option setup)
   (#_setText string-option default)
@@ -68,7 +68,7 @@
    (default :initarg :default :initform 0)))
 
 (define-slot (range-option on-release) ()
-  (signal! range-option change ((#_value range-option) int)))
+  (signal! range-option (change int) (#_value range-option)))
 
 (define-initializer (range-option setup)
   (#_setRange range-option min max)

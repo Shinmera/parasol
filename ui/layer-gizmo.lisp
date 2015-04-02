@@ -106,7 +106,7 @@
 (define-slot (mode-list new-index) ((value int))
   (declare (connected mode (current-index-changed int)))
   (declare (ignore value))
-  (signal! mode value-changed ((value mode) int)))
+  (signal! mode (value-changed int) (value mode)))
 
 (defmethod (setf value) (value (mode mode-list))
   (when (numberp value) (setf value (to-mode-name value)))

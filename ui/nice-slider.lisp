@@ -26,7 +26,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-slot (double-slider update) ((value int))
   (declare (connected double-slider (value-changed int)))
-  (signal! double-slider value-changed ((/ value div) double)))
+  (signal! double-slider (value-changed double) (/ value div)))
 
 (defmethod value ((double-slider double-slider))
   (/ (#_value double-slider) (slot-value double-slider 'div)))
@@ -71,7 +71,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
             (/= (value spin-box) value))
     (setf (value slider) value)
     (setf (value spin-box) value)
-    (signal! nice-slider value-changed (value double))))
+    (signal! nice-slider (value-changed double) value)))
 
 (define-slot (nice-slider reset) ()
   (declare (connected button (clicked)))
