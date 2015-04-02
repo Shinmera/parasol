@@ -19,7 +19,7 @@
   (#_setFlat visible T)
   (#_setCheckable visible T))
 
-(define-subwidget (layer-item layout) (#_new QHBoxLayout widget)
+(define-subwidget (layer-item layout) (#_new QHBoxLayout layer-item)
   (#_setMargin layout 0)
   (#_setSpacing layout 0)
   (#_addWidget layout visible)
@@ -97,29 +97,30 @@
                       exclusion))))
 
 (define-initializer (mode-list setup)
-  (#_setToolTip mode "Compositing Mode")
+  (#_setToolTip mode-list "Compositing Mode")
   (dolist (i modes)
-    (#_addItem mode (string-downcase i))))
+    (#_addItem mode-list (string-downcase i))))
 
 (define-signal (mode-list value-changed) (int))
 
 (define-slot (mode-list new-index) ((value int))
-  (declare (connected mode (current-index-changed int)))
+  (declare (connected mode-list (current-index-changed int)))
   (declare (ignore value))
-  (signal! mode (value-changed int) (value mode)))
+  (signal! mode-list (value-changed int) (value mode-list)))
 
-(defmethod (setf value) (value (mode mode-list))
+(defmethod (setf value) (value (mode-list mode-list))
   (when (numberp value) (setf value (to-mode-name value)))
-  (#_setCurrentIndex mode (position value (slot-value mode 'modes)
-                                    :test #'string-equal)))
+  (#_setCurrentIndex mode-list (position value (slot-value mode-list 'modes)
+                                         :test #'string-equal)))
 
-(defmethod value ((mode mode-list))
-  (to-mode-num (nth (#_currentIndex mode) (slot-value mode 'modes))))
+(defmethod value ((mode-list mode-list))
+  (to-mode-num (nth (#_currentIndex mode-list)
+                    (slot-value mode-list 'modes))))
 
 (define-widget layer-gizmo (QDockWidget)
   ())
 
-(define-subwidget (layer-gizmo central) (#_new QWidget widget)
+(define-subwidget (layer-gizmo central) (#_new QWidget layer-gizmo)
   (#_setWindowTitle layer-gizmo "Layers")
   (#_setWidget layer-gizmo central))
 
@@ -130,22 +131,22 @@
 (define-subwidget (layer-gizmo opacity) (make-instance 'nice-slider :max 1.0 :step 0.01)
   (#_setToolTip opacity "Opacity"))
 
-(define-subwidget (layer-gizmo up) (#_new QPushButton "^" widget)
+(define-subwidget (layer-gizmo up) (#_new QPushButton "^" layer-gizmo)
   (#_setMinimumWidth up 30))
 
-(define-subwidget (layer-gizmo down) (#_new QPushButton "v" widget)
+(define-subwidget (layer-gizmo down) (#_new QPushButton "v" layer-gizmo)
   (#_setMinimumWidth down 30))
 
-(define-subwidget (layer-gizmo add) (#_new QPushButton "+" widget)
+(define-subwidget (layer-gizmo add) (#_new QPushButton "+" layer-gizmo)
   (#_setMinimumWidth add 30))
 
-(define-subwidget (layer-gizmo remove) (#_new QPushButton "-" widget)
+(define-subwidget (layer-gizmo remove) (#_new QPushButton "-" layer-gizmo)
   (#_setMinimumWidth remove 30))
 
-(define-subwidget (layer-gizmo merge) (#_new QPushButton "M" widget)
+(define-subwidget (layer-gizmo merge) (#_new QPushButton "M" layer-gizmo)
   (#_setMinimumWidth merge 30))
 
-(define-subwidget (layer-gizmo copy) (#_new QPushButton "C" widget)
+(define-subwidget (layer-gizmo copy) (#_new QPushButton "C" layer-gizmo)
   (#_setMinimumWidth copy 30))
 
 (define-subwidget (layer-gizmo layout) (#_new QGridLayout central)
@@ -164,8 +165,8 @@
   (#_addWidget layout merge 3 4 1 1)
   (#_addWidget layout copy 3 5 1 1))
 
-(defmethod refresh ((widget layer-gizmo))
-  (with-slots-bound (widget layer-gizmo)
+(defmethod refresh ((layer-gizmo layer-gizmo))
+  (with-slots-bound (layer-gizmo layer-gizmo)
     (refresh-layers list)
     (let ((layer (current-layer (current-document))))
       (setf (value opacity) (opacity layer))

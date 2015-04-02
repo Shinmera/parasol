@@ -17,7 +17,7 @@
     (error "Tried to create a main window without the proper context!"))
   (when *window*
     (error "A main window instance is already active!"))
-  (setf *window* window))
+  (setf *window* main-window))
 
 (define-subwidget (main-window tab-area) (make-instance 'tab-area))
 
@@ -37,9 +37,9 @@
   (#_setCentralWidget main-window layout-container))
 
 (define-initializer (main-window setup)
-  (#_setWindowTitle window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
-  (#_setTabPosition window (#_Qt::AllDockWidgetAreas) (#_QTabWidget::North))
-  (#_resize window 500 500))
+  (#_setWindowTitle main-window (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
+  (#_setTabPosition main-window (#_Qt::AllDockWidgetAreas) (#_QTabWidget::North))
+  (#_resize main-window 500 500))
 
 (define-menu (main-window File)
   (:item ("New" (ctrl n))
@@ -49,18 +49,19 @@
   (:item ("Save As..." (ctrl alt s)))
   (:separator)
   (:item ("Quit" (ctrl q))
-    (#_close widget)))
+    (#_close main-window)))
 
 (define-menu (main-window Edit)
   (:separator)
   (:item "Keychords"
-    (#_exec (make-widget 'qtools:keychord-editor (widget))))
+         ;; (#_exec (make-widget 'qtools:keychord-editor (widget)))
+         )
   (:item "Settings"))
 
 (define-menu (main-window Help)
   (:item "About"
     (let ((system (asdf:find-system :parasol)))
-      (with-finalizing ((box (#_new QMessageBox widget)))
+      (with-finalizing ((box (#_new QMessageBox main-window)))
         (#_setText box (format NIL "~a<br />
 The source code is openly available and licensed under ~a.<br />
 <br />

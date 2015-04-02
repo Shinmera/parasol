@@ -11,7 +11,7 @@
 (define-tool-option widget-option (QWidget)
   ())
 
-(define-subwidget (widget-option layout) (#_new QVBoxLayout widget)
+(define-subwidget (widget-option layout) (#_new QVBoxLayout widget-option)
   (#_setLayout widget-option layout))
 
 ;; Integer spin box

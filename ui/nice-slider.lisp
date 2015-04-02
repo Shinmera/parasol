@@ -17,10 +17,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (print
    (setf div (let ((str (string-trim "0" (format NIL "~f" step))))
                (expt 10 (- (length str) (position #\. str) 1)))))
-  (#_setMaximum slider (round (* div max)))
-  (#_setMinimum slider (round (* div min)))
-  (#_setTickInterval slider (round (* div step)))
-  (#_setOrientation slider (#_Qt::Horizontal)))
+  (#_setMaximum double-slider (round (* div max)))
+  (#_setMinimum double-slider (round (* div min)))
+  (#_setTickInterval double-slider (round (* div step)))
+  (#_setOrientation double-slider (#_Qt::Horizontal)))
 
 (define-signal (double-slider value-changed) (double))
 
