@@ -35,13 +35,12 @@
   (declare (connected tool-button (toggled bool)))
   (let ((tool (tool tool-button)))
     (cond (checked
-           (setf (tool *window*) tool)
-           (parasol-tools:activate tool))
+           (setf (tool *window*) tool))
           (T
            (parasol-tools:deactivate tool)))))
 
 (define-widget tools-area (QToolBar)
-  ())
+  ((button-map :initform (make-hash-table :test 'eql) :accessor button-map)))
 
 (define-subwidget (tools-area group) (#_new QButtonGroup tools-area)
   (setf (q+:exclusive group) T))
@@ -53,6 +52,15 @@
   (dolist (tool (find-tools))
     (let ((button (make-instance 'tool-button :tool (make-instance tool))))
       (q+:add-button group button)
-      (q+:add-widget tools-area button)))
+      (q+:add-widget tools-area button)
+      (setf (gethash tool button-map) button)))
   (setf (q+:window-title tools-area) "Tools")
   (q+:add-tool-bar *window* tools-area))
+
+(defmethod (setf tool) :after (tool (window main-window))
+  (unless (eql tool (tool window))
+    (parasol-tools:activate tool)
+    (let ((button (gethash tool (button-map (slot-value window 'tools-area)))))
+      (if button
+          (q+:click button)
+          (v:warn :tools-area "Setting tool ~s which has no corresponding button!" tool)))))
