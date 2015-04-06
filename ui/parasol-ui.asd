@@ -14,6 +14,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :serial T
   :components ((:file "package")
                (:file "nice-slider")
+               (:file "type-input-widgets")
                (:file "main-window")
                (:file "tab-area")
                (:file "document-view")
