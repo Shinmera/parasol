@@ -9,11 +9,11 @@
 
 (defvar *type-class-map* (make-hash-table :test 'eql))
 
-(defun make-input-for-type (type setter &optional (value NIL v-p))
+(defun make-input-for-type (type object slot &optional (value NIL v-p))
   (let ((class (gethash (if (listp type) (first type) type) *type-class-map*)))
     (if v-p
-        (make-instance class :setter setter :constraint type :value value)
-        (make-instance class :setter setter :constraint type))))
+        (make-instance class :object object :slot slot :constraint type :value value)
+        (make-instance class :object object :slot slot :constraint type))))
 
 ;;;;;
 ;; Additional types to distinguish
@@ -38,7 +38,8 @@
 ;; Basic setters
 (define-widget slot-setter (QWidget)
   ((value :accessor value)
-   (setter :initarg :setter :accessor setter)
+   (object :initarg :object :accessor object)
+   (slot :initarg :slot :accessor slot)
    (constraint :initarg :constraint :accessor constraint))
   (:default-initargs
     :setter (error "SETTER required.")
@@ -57,7 +58,7 @@
     (setf (q+:value setter) new-val))
   (:method :after (new-val (setter slot-setter))
     (setf (slot-value setter 'value) new-val)
-    (funcall (setter setter) new-val)))
+    (setf (slot-value (object setter) (slot setter)) new-val)))
 
 (define-widget ranged-setter (QWidget slot-setter)
   ((maximum :initform NIL :accessor maximum)
@@ -89,6 +90,14 @@
     (4 (&whole 6 &rest)
        (&whole 2 (&whole 0 0 &rest 2))
        &rest (&whole 2 2 &rest (&whole 2 2 4 &body))))
+
+;;;;;
+;; Container
+(define-type-input (widget-setter widget) (QWidget slot-setter)
+  ())
+
+(define-subwidget (widget-setter layout) (q+:make-qvboxlayout widget-setter)
+  (q+:add-widget layout (slot-value (object widget-setter) (slot widget-setter))))
 
 ;;;;;
 ;; Integer

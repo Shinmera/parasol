@@ -30,8 +30,7 @@
         (when (find name (tool-display tool))
           (make-input-for-type
            (c2mop:slot-definition-type slot)
-           #'(lambda (value) (setf (slot-value tool name) value))
-           (slot-value tool name)))))))
+           tool name (slot-value tool name)))))))
 
 (define-widget tool-button (QPushButton)
   ((tool :initarg :tool :accessor tool))
