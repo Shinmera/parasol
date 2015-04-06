@@ -14,9 +14,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    (div)))
 
 (define-initializer (double-slider setup)
-  (print
-   (setf div (let ((str (string-trim "0" (format NIL "~f" step))))
-               (expt 10 (- (length str) (position #\. str) 1)))))
+  (setf div (let ((str (string-trim "0" (format NIL "~f" step))))
+              (expt 10 (- (length str) (position #\. str) 1))))
   (#_setMaximum double-slider (round (* div max)))
   (#_setMinimum double-slider (round (* div min)))
   (#_setTickInterval double-slider (round (* div step)))

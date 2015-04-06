@@ -24,7 +24,7 @@
    (%tablet-input :initform NIL :accessor %tablet-input)
    (pen-pressed :initform NIL :accessor pen-pressed)))
 
-(define-initializer (document-view document)
+(define-initializer (document-view setup)
   (unless (document document-view)
     (setf (document document-view)
           (make-instance 'document))))
