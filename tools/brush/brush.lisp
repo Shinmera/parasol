@@ -7,8 +7,39 @@
 (in-package #:org.shirakumo.parasol.tools.brush)
 (named-readtables:in-readtable :qtools)
 
-;; Again, mostly what TOOL does, but with some adaptations that
-;; make it more suited towards the brush env.
+(defclass brush-class (standard-class)
+  ((title :initarg :title :accessor brush-title)
+   (display :initarg :display :accessor brush-option-display))
+  (:default-initargs
+   :title (error "TITLE required.")
+   :display ())
+  (:documentation ""))
+
+(defmethod c2mop:validate-superclass ((class brush-class) (superclass t))
+  nil)
+
+(defmethod c2mop:validate-superclass ((class standard-class) (superclass brush-class))
+  nil)
+
+(defmethod c2mop:validate-superclass ((class brush-class) (superclass standard-class))
+  t)
+
+(defmethod c2mop:validate-superclass ((class brush-class) (superclass brush-class))
+  t)
+
+(defun initialize-brush-class (class next-method &rest args &key title display &allow-other-keys)
+  (when (consp title) (setf (getf args :title) (first title)))
+  (apply next-method class :allow-other-keys T args)
+  (c2mop:finalize-inheritance class)
+  (dolist (slot display)
+    (check-display-slot class slot)))
+
+(defmethod initialize-instance :around ((class brush-class) &rest initargs)
+  (apply #'initialize-brush-class class #'call-next-method initargs))
+
+(defmethod reinitialize-instance :around ((class brush-class) &rest initargs)
+  (apply #'initialize-brush-class class #'call-next-method initargs))
+
 
 (defclass abstract-brush ()
   ()

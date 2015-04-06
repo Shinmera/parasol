@@ -14,7 +14,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :serial T
   :components ((:file "package")
                (:file "brush-tool")
-               (:file "brush-class")
                (:file "brush")
                (:file "basic"))
   :depends-on (:parasol :parasol-document :parasol-tools))

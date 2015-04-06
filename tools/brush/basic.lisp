@@ -8,9 +8,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (named-readtables:in-readtable :qtools)
 
 (define-brush linearly-sampled-brush (abstract-brush)
-  ((distance :initarg :distance :initform 1.0 :accessor distance))
-  (:options (distance :type double-option :min 0.1 :max 100000.0 :step 0.5 :default 1.0 :slot 'distance
-              :label "Distance")))
+  ((distance :initarg :distance :initform 1.0 :accessor distance
+             :type (float 0.1 1000000.0))))
 
 (defgeneric draw-penpoint (brush pen target))
 
@@ -27,9 +26,9 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                       (draw-penpoint brush pen target)))))
 
 (define-brush single-colored-brush (abstract-brush)
-  ((color :initarg :color :initform (#_new QColor 0 0 0) :accessor color))
-  (:options (color :type color-option :slot 'color
-              :label "Color")))
+  ;; Fix color dependency issue
+  ((color :initarg :color :initform (make-instance 'color) :accessor color
+          :type color)))
 
 (defmethod draw-stroke :before ((brush single-colored-brush) (stroke stroke) target &optional from)
   (declare (ignore from))
@@ -39,9 +38,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 ;; This needs to be generalised so I can use it both for brushes and textures and all
 ;; maybe a superclass that translates and this scales?
 (define-brush sized-brush (abstract-brush)
-  ((size :initarg :size :initform 2.0 :accessor size))
-  (:options (size :type double-option :min 0.1 :max 1000000.0 :step 0.5 :default 2.0 :slot 'size
-                  :label "Size")))
+  ((size :initarg :size :initform 2.0 :accessor size
+         :type (float 0.1 1000000.0))))
 
 (defmethod draw-penpoint :before ((brush sized-brush) (pen pen) target)
   (#_scale target (size brush) (size brush)))
@@ -83,7 +81,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ()
-  (:order color size distance))
+  (:display color size distance))
 
 (define-brush pepper-brush (linearly-sampled-brush sized-brush texture-brush)
   ((texture :initform "assets/pepper.png" :accessor texture)))
