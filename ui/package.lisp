@@ -7,6 +7,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (in-package #:org.shirakumo.parasol)
 (defpackage #:parasol-ui
   (:use #:parasol-dev #:parasol-document #:parasol-tools)
+  (:shadowing-import-from #:parasol-tools #:activate #:deactivate)
   (:nicknames #:org.shirakumo.parasol.ui)
   ;; document-view.lisp
   (:export
