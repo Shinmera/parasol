@@ -28,12 +28,9 @@
 (define-subwidget (history-gizmo list) (make-instance 'history-list))
 
 (define-subwidget (history-gizmo layout) (#_new QGridLayout central)
-  (#_setLayout central layout)
   (#_setMargin layout 0)
   (#_setSpacing layout 0)
-  (#_setAlignment layout (#_Qt::AlignTop))
-
-  (#_addWidget layout history-gizmo 0 0 1 1))
+  (#_setAlignment layout (#_Qt::AlignTop)))
 
 (define-initializer (history-gizmo setup)
   (#_setSizePolicy history-gizmo (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
