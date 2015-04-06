@@ -22,6 +22,17 @@
   (#_setSpacing layout 0)
   (#_setAlignment layout (#_Qt::AlignTop)))
 
+(defun populate-tool-options (gizmo tool)
+  (let ((layout (slot-value gizmo 'layout)))
+    (clear-layout layout)
+    (dolist (slot (c2mop:class-slots (class-of tool)))
+      (let ((name (c2mop:slot-definition-name slot)))
+        (when (find name (tool-display tool))
+          (make-input-for-type
+           (c2mop:slot-definition-type slot)
+           #'(lambda (value) (setf (slot-value tool name) value))
+           (slot-value tool name)))))))
+
 (define-widget tool-button (QPushButton)
   ((tool :initarg :tool :accessor tool))
   (:default-initargs
@@ -57,8 +68,11 @@
   (setf (q+:window-title tools-area) "Tools")
   (q+:add-tool-bar *window* tools-area))
 
-(defmethod (setf tool) :after (tool (window main-window))
+(defmethod (setf tool) :around (tool (window main-window))
   (unless (eql tool (tool window))
+    (call-next-method)
+    (let ((gizmo (slot-value (slot-value window 'tools-area) 'gizmo)))
+      (populate-tool-options gizmo tool))
     (parasol-tools:activate tool)
     (let ((button (gethash tool (button-map (slot-value window 'tools-area)))))
       (if button
