@@ -8,8 +8,7 @@
 (named-readtables:in-readtable :qtools)
 
 (define-tool (rotate-tool "Rotate" "Rotate the canvas.") ()
-  ((start-pos :initform NIL :accessor start-pos))
-  (:icon :rotate ("mypaint-view-rotate")))
+  ((start-pos :initform NIL :accessor start-pos)))
 
 (defmethod begin ((tool rotate-tool) pen document)
   (setf (start-pos tool) (- (y-view pen) (angle (current-view)))))

@@ -8,8 +8,7 @@
 (named-readtables:in-readtable :qtools)
 
 (define-tool (zoom-tool "Zoom" "Zoom the canvas.") ()
-  ((start-pos :initform NIL :accessor start-pos))
-  (:icon :zoom ("mypaint-view-zoom")))
+  ((start-pos :initform NIL :accessor start-pos)))
 
 (defmethod begin ((tool zoom-tool) pen document)
   (setf (start-pos tool) (- (- (/ (y-view pen) 1000)) (zoom (current-view)))))

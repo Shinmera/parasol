@@ -8,8 +8,7 @@
 (named-readtables:in-readtable :qtools)
 
 (define-tool (move-tool "Move" "Move the canvas.") ()
-  ((start-pos :initform NIL :accessor start-pos))
-  (:icon :move ("mypaint-view-pan")))
+  ((start-pos :initform NIL :accessor start-pos)))
 
 (defmethod begin ((tool move-tool) pen document)
   (setf (start-pos tool) (cons (- (x-view pen) (x (current-view)))
