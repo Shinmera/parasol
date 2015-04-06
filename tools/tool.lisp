@@ -21,49 +21,24 @@
                     (cons name (apply #'make-instance type :tool tool args)))) into options
         finally (setf (tool-options tool) options)))
 
-(define-widget tool (QPushButton widget)
-  ((options :initform () :accessor tool-options))
+(defclass tool ()
+  ()
   (:metaclass tool-class)
-  (:label "Tool")
+  (:title "Tool")
   (:documentation "Superclass for all document-manipulating tools."))
-
-(define-slot (tool change) ((activated bool))
-  (if activated
-      (select tool)
-      (deselect tool)))
-
-(define-initializer (tool setup 5)
-  (initialize-options tool)
-  ;; Default init
-  (#_setMinimumWidth tool 50)
-  (#_setSizePolicy tool (#_QSizePolicy::Maximum) (#_QSizePolicy::Maximum))
-  (#_setCheckable tool T)
-  (#_setFlat tool T)
-  (#_setToolTip tool (format NIL "~a~@[: ~a~]" (tool-label tool) (tool-description tool)))
-  (if (tool-icon tool)
-      (#_setIcon tool (tool-icon tool))
-      (#_setText tool (tool-label tool)))
-  (connect! tool (toggled bool) tool (change bool)))
 
 (defmethod print-object ((tool tool) stream)
   (print-unreadable-object (tool stream :type T)
-    (format stream "~s" (tool-label tool)))
+    (format stream "~s" (tool-name tool)))
   tool)
-
-(defun tool-option (name tool)
-  (cdr (assoc name (tool-options tool))))
 
 (defmacro define-superclass-method-wrapper (method)
   `(defmethod ,method ((tool tool))
      (,method (class-of tool))))
 
-(define-superclass-method-wrapper tool-label)
+(define-superclass-method-wrapper tool-title)
 (define-superclass-method-wrapper tool-description)
-(define-superclass-method-wrapper tool-icon)
-
-(defmethod finalize :after ((tool tool))
-  (loop for (name . option) in (tool-options tool)
-        do (finalize option)))
+(define-superclass-method-wrapper tool-display)
 
 ;; Tool method stubs
 (defgeneric select (tool)
@@ -99,13 +74,13 @@
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-tool (name direct-superclasses direct-slots &body options)
-  (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T))
+  (destructuring-bind (name &optional (title (capitalize-on #\- name #\Space T))
                                       (description ""))
       (if (listp name) name (list name))
     (unless (apply #'has-superclass 'tool direct-superclasses)
       (push 'tool direct-superclasses))
-    (unless (assoc :label options)
-      (push (list :label label) options))
+    (unless (assoc :title options)
+      (push (list :title title) options))
     (unless (assoc :description options)
       (push (list :description description) options))
     `(define-widget ,name (QPushButton ,@direct-superclasses)

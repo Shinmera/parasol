@@ -8,39 +8,16 @@
 (defpackage #:parasol-tools
   (:use #:parasol-dev)
   (:nicknames #:org.shirakumo.parasol.tools)
-  ;; default-options.lisp
-  (:export
-   #:widget-option
-   #:integer-option
-   #:double-option
-   #:boolean-option
-   #:string-option
-   #:range-option
-   #:color-option
-   #:list-option
-   #:add-item
-   #:clear-items)
   ;; tool-class.lisp
   (:export
    #:tool-class
-   #:tool-icon
-   #:tool-label
+   #:tool-title
    #:tool-description)
-  ;; tool-option.lisp
-  (:export
-   #:tool-option
-   #:label
-   #:description
-   #:tool
-   #:on-change
-   #:slot
-   #:change
-   #:define-tool-option)
   ;; tool.lisp
   (:export
    #:tool
    #:tool-options
-   #:tool-label
+   #:tool-title
    #:tool-description
    #:tool-icon
    #:tool-option

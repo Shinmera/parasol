@@ -13,8 +13,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
   :components ((:file "package")
-               (:file "tool-option")
-               (:file "default-options")
                (:file "tool-class")
                (:file "tool"))
   :depends-on (:parasol))
