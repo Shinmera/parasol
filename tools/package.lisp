@@ -21,8 +21,8 @@
    #:tool-description
    #:tool-icon
    #:tool-option
-   #:select
-   #:deselect
+   #:activate
+   #:deactivate
    #:begin
    #:move
    #:end

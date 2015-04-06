@@ -41,13 +41,13 @@
 (define-superclass-method-wrapper tool-display)
 
 ;; Tool method stubs
-(defgeneric select (tool)
+(defgeneric activate (tool)
   (:method ((tool tool))
-    (v:debug :tool "[STUB] (SELECT ~s)" tool)))
+    (v:debug :tool "[STUB] (ACTIVATE ~s)" tool)))
 
-(defgeneric deselect (tool)
+(defgeneric deactivate (tool)
   (:method ((tool tool))
-    (v:debug :tool "[STUB] (DESELECT ~s)" tool)))
+    (v:debug :tool "[STUB] (DEACTIVATE ~s)" tool)))
 
 (defgeneric begin (tool pen document)
   (:method ((tool tool) pen document)
