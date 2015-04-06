@@ -12,15 +12,16 @@
   (:export
    #:tool-class
    #:tool-title
-   #:tool-description)
+   #:tool-display
+   #:tool-description
+   #:check-display-slot)
   ;; tool.lisp
   (:export
    #:tool
    #:tool-options
    #:tool-title
    #:tool-description
-   #:tool-icon
-   #:tool-option
+   #:tool-display
    #:activate
    #:deactivate
    #:begin
