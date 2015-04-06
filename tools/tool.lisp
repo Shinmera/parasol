@@ -29,7 +29,7 @@
 
 (defmethod print-object ((tool tool) stream)
   (print-unreadable-object (tool stream :type T)
-    (format stream "~s" (tool-name tool)))
+    (format stream "~s" (tool-title tool)))
   tool)
 
 (defmacro define-superclass-method-wrapper (method)
@@ -83,7 +83,7 @@
       (push (list :title title) options))
     (unless (assoc :description options)
       (push (list :description description) options))
-    `(define-widget ,name (QPushButton ,@direct-superclasses)
+    `(defclass ,name ,direct-superclasses
        ,direct-slots
        (:metaclass tool-class)
        ,@options)))
