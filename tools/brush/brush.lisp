@@ -7,25 +7,13 @@
 (in-package #:org.shirakumo.parasol.tools.brush)
 (named-readtables:in-readtable :qtools)
 
-(defclass brush-class (standard-class)
+(defclass brush-class (finalizable-class)
   ((title :initarg :title :accessor brush-title)
    (display :initarg :display :accessor brush-option-display))
   (:default-initargs
    :title (error "TITLE required.")
    :display ())
   (:documentation ""))
-
-(defmethod c2mop:validate-superclass ((class brush-class) (superclass t))
-  nil)
-
-(defmethod c2mop:validate-superclass ((class standard-class) (superclass brush-class))
-  nil)
-
-(defmethod c2mop:validate-superclass ((class brush-class) (superclass standard-class))
-  t)
-
-(defmethod c2mop:validate-superclass ((class brush-class) (superclass brush-class))
-  t)
 
 (defun initialize-brush-class (class next-method &rest args &key title display &allow-other-keys)
   (when (consp title) (setf (getf args :title) (first title)))
@@ -40,12 +28,11 @@
 (defmethod reinitialize-instance :around ((class brush-class) &rest initargs)
   (apply #'initialize-brush-class class #'call-next-method initargs))
 
-
 (defclass abstract-brush ()
   ()
   (:documentation "Superclass for brushes that only exist in-code and are not visible to the user."))
 
-(defclass brush (abstract-brush)
+(defclass brush (finalizable abstract-brush)
   ((options :initform () :accessor brush-options))
   (:metaclass brush-class)
   (:label "Brush")
@@ -59,46 +46,22 @@
                    (slot-value brush name)))
     copy))
 
-(defmethod print-object ((brush brush) stream)
-  (print-unreadable-object (brush stream :type T)
-    (format stream "~s" (brush-label brush)))
-  brush)
-
 (defmacro define-superclass-method-wrapper (method)
   `(defmethod ,method ((brush brush))
      (,method (class-of brush))))
 
-(define-superclass-method-wrapper brush-label)
-(define-superclass-method-wrapper brush-icon)
-
-(defmethod initialize-instance :after ((brush brush) &key)
-  ;; Instantiate all the options
-  (loop for option in (if (slot-boundp (class-of brush) 'order)
-                          (brush-option-order (class-of brush))
-                          (mapcar #'car (brush-effective-options (class-of brush))))
-        collect (destructuring-bind (name &rest args &key type &allow-other-keys)
-                    (assoc option (brush-effective-options (class-of brush)))
-                  (let ((args (copy-list args)))
-                    (remf args :type)
-                    (loop for cons on args by #'cddr
-                          do (setf (cadr cons) (eval (cadr cons))))
-                    (cons name (apply #'make-instance type :tool brush args)))) into options
-        finally (setf (brush-options brush) options)))
-
-(defmethod finalize :after ((brush brush))
-  (loop for (name . option) in (brush-options brush)
-        do (finalize option)))
+(define-superclass-method-wrapper brush-title)
 
 (defgeneric draw-stroke (brush stroke target &optional offset))
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
-  (destructuring-bind (name &optional (label (capitalize-on #\- name #\Space T)))
+  (destructuring-bind (name &optional (title (capitalize-on #\- name #\Space T)))
       (if (listp name) name (list name))
     (unless (apply #'parasol-tools::has-superclass 'brush direct-superclasses)
       (push 'brush direct-superclasses))
-    (unless (assoc :label options)
-      (push (list :label label) options))
+    (unless (assoc :title options)
+      (push (list :title title) options))
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        (defclass ,name ,direct-superclasses
          ,direct-slots
