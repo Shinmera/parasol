@@ -44,14 +44,15 @@
       brush)))
 
 (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
-  ((current-brush :initform NIL :accessor current-brush :finalized T))
-  (:display brush brush-options))
+  ((current-brush :initform NIL :accessor current-brush))
+  (:display current-brush))
 
-(define-initializer (brush-tool setup)
-  (dolist (brush (or (find-brushes)
-                     (warn "No brushes found.")))
-    (add-item (string-downcase (class-name brush))
-              (tool-option 'brush brush-tool))))
+(defmethod initialize-instance :before ((tool brush-tool) &key)
+  (setf (c2mop:slot-definition-type
+         (find 'current-brush (c2mop:class-slots (class-of tool))
+               :key #'c2mop:slot-definition-name))
+        `(member ,@(or (find-brushes)
+                       (warn "No brushes found!")))))
 
 (defmethod begin ((tool brush-tool) pen document)
   (v:info :brush-tool "Beginning stroke at ~s" pen)
