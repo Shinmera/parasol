@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.parasol.tools)
 (named-readtables:in-readtable :qtools)
 
-(defclass tool-class (standard-class)
+(defclass tool-class (finalizable-class)
   ((title :initarg :title :accessor tool-title :type string)
    (description :initarg :description :accessor tool-description :type string)
    (display :initarg :display :accessor tool-display :type list))
@@ -17,22 +17,10 @@
    :display ())
   (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
-(defmethod c2mop:validate-superclass ((class tool-class) (superclass t))
-  NIL)
-
-(defmethod c2mop:validate-superclass ((class standard-class) (superclass tool-class))
-  T)
-
-(defmethod c2mop:validate-superclass ((class tool-class) (superclass standard-class))
-  T)
-
-(defmethod c2mop:validate-superclass ((class tool-class) (superclass tool-class))
-  T)
-
 (defun check-display-slot (class name)
   (when (not (find name (c2mop:class-slots class) :key #'c2mop:slot-definition-name))
     (error "Cannot find an effective slot named ~s on class ~s, but it is set as a display slot."
-           slot class)))
+           name class)))
 
 ;; During initialisation we just make sure the options are proper.
 (defun initialize-tool-class (class next-method &rest args &key title description display &allow-other-keys)
@@ -50,7 +38,7 @@
   (apply #'initialize-tool-class class #'call-next-method initargs))
 
 
-(defclass tool ()
+(defclass tool (finalizable)
   ()
   (:metaclass tool-class)
   (:title "Tool")
