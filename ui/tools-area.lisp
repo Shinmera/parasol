@@ -47,7 +47,7 @@
     (cond (checked
            (setf (tool *window*) tool))
           (T
-           (parasol-tools:deactivate tool)))))
+           (deselect tool)))))
 
 (define-widget tools-area (QToolBar)
   ((button-map :initform (make-hash-table :test 'eql) :accessor button-map)))
@@ -60,7 +60,8 @@
 
 (define-initializer (tools-area setup)
   (dolist (tool (find-tools))
-    (let ((button (make-instance 'tool-button :tool (make-instance tool))))
+    (let* ((tool (make-instance tool))
+           (button (make-instance 'tool-button :tool tool)))
       (q+:add-button group button)
       (q+:add-widget tools-area button)
       (setf (gethash tool button-map) button)))
@@ -72,7 +73,7 @@
     (call-next-method)
     (let ((gizmo (slot-value (slot-value window 'tools-area) 'gizmo)))
       (populate-tool-options gizmo tool))
-    (parasol-tools:activate tool)
+    (select tool)
     (let ((button (gethash tool (button-map (slot-value window 'tools-area)))))
       (if button
           (q+:click button)
