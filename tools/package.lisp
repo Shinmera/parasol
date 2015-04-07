@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.parasol)
 (defpackage #:parasol-tools
-  (:use #:parasol-dev)
+  (:use #:parasol-dev #:parasol-document)
   (:nicknames #:org.shirakumo.parasol.tools)
   ;; tool-class.lisp
   (:export
@@ -22,8 +22,8 @@
    #:tool-title
    #:tool-description
    #:tool-display
-   #:activate
-   #:deactivate
+   #:select
+   #:deselect
    #:begin
    #:move
    #:end

@@ -56,11 +56,6 @@
   (:title "Tool")
   (:documentation "Superclass for all document-manipulating tools."))
 
-(defmethod print-object ((tool tool) stream)
-  (print-unreadable-object (tool stream :type T)
-    (format stream "~s" (tool-title tool)))
-  tool)
-
 (defmacro define-superclass-method-wrapper (method)
   `(defmethod ,method ((tool tool))
      (,method (class-of tool))))
@@ -70,13 +65,13 @@
 (define-superclass-method-wrapper tool-display)
 
 ;; Tool method stubs
-(defgeneric activate (tool)
+(defgeneric select (tool)
   (:method ((tool tool))
-    (v:debug :tool "[STUB] (ACTIVATE ~s)" tool)))
+    (v:debug :tool "[STUB] (SELECT ~s)" tool)))
 
-(defgeneric deactivate (tool)
+(defgeneric deselect (tool)
   (:method ((tool tool))
-    (v:debug :tool "[STUB] (DEACTIVATE ~s)" tool)))
+    (v:debug :tool "[STUB] (DESELECT ~s)" tool)))
 
 (defgeneric begin (tool pen document)
   (:method ((tool tool) pen document)

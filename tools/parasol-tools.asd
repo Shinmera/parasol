@@ -14,4 +14,5 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :serial T
   :components ((:file "package")
                (:file "tool"))
-  :depends-on (:parasol))
+  :depends-on (:parasol
+               :parasol-document))
