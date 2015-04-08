@@ -27,7 +27,7 @@
     (clear-layout layout)
     (dolist (slot (c2mop:class-slots (class-of tool)))
       (let ((name (c2mop:slot-definition-name slot)))
-        (when (find name (tool-display tool))
+        (when (find name (configurable-slots tool))
           (make-input-for-type
            (c2mop:slot-definition-type slot)
            tool name (slot-value tool name)))))))
