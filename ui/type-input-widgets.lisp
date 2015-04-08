@@ -195,7 +195,7 @@
 
 (define-initializer (member-setter setup)
   (dolist (item (cdr (constraint member-setter)))
-    (q+:add-item member-setter (princ-to-text item))))
+    (q+:add-item member-setter (princ-to-string item))))
 
 (define-slot (member-setter changed) ((new-val int))
   (declare (connected member-setter (current-index-changed int)))
