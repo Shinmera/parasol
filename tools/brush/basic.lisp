@@ -81,7 +81,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-brush basic-brush (linearly-sampled-brush single-colored-brush circle-tip-brush pressured-size-brush)
   ()
-  (:display color size distance))
+  (:configurable color size distance))
 
 (define-brush pepper-brush (linearly-sampled-brush sized-brush texture-brush)
   ((texture :initform "assets/pepper.png" :accessor texture)))

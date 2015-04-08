@@ -28,24 +28,12 @@
 (defmethod draw-buffer ((stroke stroke) target)
   (draw-stroke (brush stroke) stroke target 0))
 
-(defun switch-brush (tool option brush-name)
-  (declare (ignore option))
-  (when (and brush-name (string/= brush-name ""))
-    (let ((previous (current-brush tool)))
-      (when previous
-        (finalize previous)))
-    (let ((brush (make-instance (or (find-symbol (string-upcase brush-name) #.*package*)
-                                    (error "Wtf. No brush like ~s found, but selected." brush-name))))
-          (layout (slot-value (tool-option 'brush-options tool) 'parasol-tools::layout)))
-      (v:info :brush-tool "Selecting brush ~s" brush)
-      (clear-layout layout)
-      (loop for (name . option) in (brush-options brush)
-            do (#_addWidget layout option))
-      brush)))
+(defgeneric draw-stroke (brush stroke target &optional offset))
 
 (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
-  ((current-brush :initform NIL :accessor current-brush))
-  (:display current-brush))
+  ((current-brush :initform NIL :accessor current-brush)
+   (brush-instance :initform NIL :accessor brush-instance :type configurable))
+  (:configurable current-brush brush-instance))
 
 (defmethod initialize-instance :before ((tool brush-tool) &key)
   (setf (c2mop:slot-definition-type

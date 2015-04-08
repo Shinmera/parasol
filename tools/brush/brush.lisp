@@ -7,35 +7,17 @@
 (in-package #:org.shirakumo.parasol.tools.brush)
 (named-readtables:in-readtable :qtools)
 
-(defclass brush-class (finalizable-class)
-  ((title :initarg :title :accessor brush-title)
-   (display :initarg :display :accessor brush-option-display))
-  (:default-initargs
-   :title (error "TITLE required.")
-   :display ())
+(defclass brush-class (configurable-class descriptive-class)
+  ()
   (:documentation ""))
-
-(defun initialize-brush-class (class next-method &rest args &key title display &allow-other-keys)
-  (when (consp title) (setf (getf args :title) (first title)))
-  (apply next-method class :allow-other-keys T args)
-  (c2mop:finalize-inheritance class)
-  (dolist (slot display)
-    (check-display-slot class slot)))
-
-(defmethod initialize-instance :around ((class brush-class) &rest initargs)
-  (apply #'initialize-brush-class class #'call-next-method initargs))
-
-(defmethod reinitialize-instance :around ((class brush-class) &rest initargs)
-  (apply #'initialize-brush-class class #'call-next-method initargs))
 
 (defclass abstract-brush ()
   ()
   (:documentation "Superclass for brushes that only exist in-code and are not visible to the user."))
 
-(defclass brush (finalizable abstract-brush)
+(define-finalizable brush (configurable abstract-brush)
   ((options :initform () :accessor brush-options))
   (:metaclass brush-class)
-  (:label "Brush")
   (:documentation "Superclass for all user-usable brushes."))
 
 (defmethod copy ((brush brush))
@@ -46,22 +28,18 @@
                    (slot-value brush name)))
     copy))
 
-(defmacro define-superclass-method-wrapper (method)
-  `(defmethod ,method ((brush brush))
-     (,method (class-of brush))))
-
-(define-superclass-method-wrapper brush-title)
-
-(defgeneric draw-stroke (brush stroke target &optional offset))
+(define-superclass-method-wrapper brush brush-title object-title)
 
 ;; Wrapper to make it neater and automatically assign proper meta/classes
 (defmacro define-brush (name direct-superclasses direct-slots &body options)
-  (destructuring-bind (name &optional (title (capitalize-on #\- name #\Space T)))
+  (destructuring-bind (name &optional (title (capitalize-on #\- name #\Space T)) (description ""))
       (if (listp name) name (list name))
     (unless (apply #'parasol-tools::has-superclass 'brush direct-superclasses)
       (push 'brush direct-superclasses))
     (unless (assoc :title options)
       (push (list :title title) options))
+    (unless (assoc :description options)
+      (push (list :description description) options))
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        (defclass ,name ,direct-superclasses
          ,direct-slots
