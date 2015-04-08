@@ -113,8 +113,8 @@
 (define-type-input (float-setter float) (QDoubleSpinBox ranged-setter)
   ())
 
-(define-slot (float-setter changed) ((new-val int))
-  (declare (connected float-setter (value-changed int)))
+(define-slot (float-setter changed) ((new-val double))
+  (declare (connected float-setter (value-changed double)))
   (setf (value float-setter) new-val))
 
 ;;;;;
