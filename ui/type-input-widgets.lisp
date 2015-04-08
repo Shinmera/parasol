@@ -49,7 +49,9 @@
     (setf (q+:value setter) new-val))
   (:method :after (new-val (setter slot-setter))
     (setf (slot-value setter 'value) new-val)
-    (setf (slot-value (object setter) (slot setter)) new-val)))
+    (when (or (not (slot-boundp (object setter) (slot setter)))
+              (not (equal new-val (slot-value (object setter) (slot setter)))))
+      (setf (slot-value (object setter) (slot setter)) new-val))))
 
 (define-widget ranged-setter (QWidget slot-setter)
   ((maximum :initform NIL :accessor maximum)
@@ -161,6 +163,9 @@
 (define-type-input (color-setter color) (QPushButton slot-setter)
   ())
 
+(define-initializer (color-setter setup)
+  (setf (q+:flat color-setter) T))
+
 (defmethod (setf value) (new-val (setter color-setter))
   (let ((pal (q+:palette setter)))
     (setf (q+:color pal (#_QPalette::Button)) (to-qcolor new-val))
@@ -184,14 +189,19 @@
 (define-type-input (member-setter member) (QComboBox slot-setter)
   ())
 
+;; We need this to ensure that we don't switch already on init
+;; when the default value is about to be set.
+(defvar *init* NIL)
 (define-initializer (member-setter setup)
-  (dolist (item (cdr (constraint member-setter)))
-    (q+:add-item member-setter (princ-to-string item))))
+  (let ((*init* T))
+    (dolist (item (cdr (constraint member-setter)))
+      (q+:add-item member-setter (princ-to-string item)))))
 
 (define-slot (member-setter changed) ((new-val int))
   (declare (connected member-setter (current-index-changed int)))
-  (setf (value member-setter)
-        (nth new-val (cdr (constraint member-setter)))))
+  (unless *init*
+    (setf (value member-setter)
+          (nth new-val (cdr (constraint member-setter))))))
 
 (defmethod (setf value) (new-val (setter member-setter))
   (let ((pos (position new-val (cdr (constraint setter)))))
@@ -208,17 +218,26 @@
   ((object :initarg :object :accessor object)))
 
 (define-subwidget (configurable-setter layout) (q+:make-qvboxlayout configurable-setter)
-  (dolist (slot (c2mop:class-slots (class-of object)))
-    (let ((name (c2mop:slot-definition-name slot))
-          (type (c2mop:slot-definition-type slot)))
-      (when (find name (configurable-slots object))
-        (q+:add-widget
-         layout
-         (case type
-           (configurable
-            (make-input-for-configurable (slot-value object name)))
-           (T
-            (make-input-for-type type object name (slot-value object name)))))))))
+  (#_setMargin layout 0)
+  (#_setSpacing layout 0)
+  (dolist (name (configurable-slots object))
+    (let ((slot (find name (c2mop:class-slots (class-of object))
+                      :key #'c2mop:slot-definition-name)))
+      (when slot
+        (let ((type (c2mop:slot-definition-type slot)))
+          (case type
+            (configurable
+             (when (slot-boundp object name)
+               (q+:add-widget layout (make-input-for-configurable (slot-value object name)))))
+            (T
+             (q+:add-widget
+              layout
+              (if (slot-boundp object name)
+                  (make-input-for-type type object name (slot-value object name))
+                  (make-input-for-type type object name))))))))))
+
+(defmethod finalize :before ((setter configurable-setter))
+  (clear-layout (slot-value setter 'layout)))
 
 (defun make-input-for-configurable (configurable)
   (make-instance 'configurable-setter :object configurable))
