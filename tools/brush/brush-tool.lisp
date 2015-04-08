@@ -39,24 +39,32 @@
   (setf (c2mop:slot-definition-type
          (find 'current-brush (c2mop:class-slots (class-of tool))
                :key #'c2mop:slot-definition-name))
-        `(member ,@(or (find-brushes)
+        `(member ,@(or (mapcar #'class-name (find-brushes))
                        (warn "No brushes found!")))))
 
+(defmethod (setf c2mop:slot-value-using-class) :after (value class (object brush-tool) slot)
+  (when (and value (eql (c2mop:slot-definition-name slot)
+                        'current-brush))
+    (setf (slot-value object 'brush-instance)
+          (make-instance value))))
+
 (defmethod begin ((tool brush-tool) pen document)
-  (v:info :brush-tool "Beginning stroke at ~s" pen)
-  (let ((stroke (make-instance 'stroke :brush (copy (current-brush tool))
-                                       :x (x pen) :y (y pen)))
-        (layer (current-layer document)))
-    (insert (add-point pen stroke) layer)
-    ;; FIXME! need to be turned into a call to the render loop once we have that.
-    ;; FIXME²! We also need to optimise this to not rebuffer completely because that's insane.
-    ;; Instead we need to add buffer drawing modes and then only do incremental painting.
-    ;; FIXME³! Also, we need some kind of way to notify higher-level caches of the changes.
-    ))
+  (when (brush-instance tool)
+    (v:info :brush-tool "Beginning stroke at ~s" pen)
+    (let ((stroke (make-instance 'stroke :brush (copy (brush-instance tool))
+                                         :x (x pen) :y (y pen)))
+          (layer (current-layer document)))
+      (insert (add-point pen stroke) layer)
+      ;; FIXME! need to be turned into a call to the render loop once we have that.
+      ;; FIXME²! We also need to optimise this to not rebuffer completely because that's insane.
+      ;; Instead we need to add buffer drawing modes and then only do incremental painting.
+      ;; FIXME³! Also, we need some kind of way to notify higher-level caches of the changes.
+      )))
 
 (defmethod move ((tool brush-tool) pen document)
-  (let ((layer (current-layer document)))
-    (add-point pen (current-drawable layer))))
+  (let ((drawable (current-drawable (current-layer document))))
+    (when drawable
+      (add-point pen drawable))))
 
 (defmethod end ((tool brush-tool) pen document)
   ;; History hook here some day.
