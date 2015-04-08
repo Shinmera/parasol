@@ -34,6 +34,15 @@
   ()
   (:metaclass configurable-class))
 
+(defgeneric configurable-slot-changed (object slot)
+  (:method (object slot)
+    (declare (ignore object slot))))
+
+(defmethod (setf c2mop:slot-value-using-class) :after (val (class configurable-class) (object configurable) slot)
+  (declare (ignore val))
+  (when (find (c2mop:slot-definition-name slot) (configurable-slots class))
+    (configurable-slot-changed object slot)))
+
 (defmacro define-superclass-method-wrapper (class method &optional (target-method method))
   `(defmethod ,method ((,class ,class))
      (,target-method (class-of ,class))))

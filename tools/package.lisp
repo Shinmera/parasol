@@ -13,6 +13,7 @@
    #:configurable-class
    #:configurable-slots
    #:configurable
+   #:configurable-slot-changed
    #:define-superclass-method-wrapper
 
    #:descriptive-class
