@@ -38,7 +38,8 @@
 
 (define-initializer (tool-button setup)
   (setf (q+:checkable tool-button) T)
-  (setf (q+:text tool-button) (tool-title tool)))
+  (setf (q+:text tool-button) (tool-title tool))
+  (setf (q+:tool-tip tool-button) (tool-description tool)))
 
 (define-slot (tool-button changed) ((checked bool))
   (declare (connected tool-button (toggled bool)))
