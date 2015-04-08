@@ -15,7 +15,7 @@
   ()
   (:documentation "Superclass for brushes that only exist in-code and are not visible to the user."))
 
-(define-finalizable brush (configurable abstract-brush)
+(defclass brush (configurable abstract-brush)
   ((options :initform () :accessor brush-options))
   (:metaclass brush-class)
   (:documentation "Superclass for all user-usable brushes."))
