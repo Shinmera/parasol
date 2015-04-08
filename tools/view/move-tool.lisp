@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.parasol.tools.view)
 (named-readtables:in-readtable :qtools)
 
-(define-tool (move-tool "Move" "Move the canvas.") ()
+(define-tool (move-tool "Move" "Pan over the canvas.") ()
   ((start-pos :initform NIL :accessor start-pos)))
 
 (defmethod begin ((tool move-tool) pen document)

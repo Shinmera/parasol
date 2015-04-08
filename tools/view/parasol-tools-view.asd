@@ -15,5 +15,6 @@
   :components ((:file "package")
                (:file "move-tool")
                (:file "rotate-tool")
-               (:file "zoom-tool"))
+               (:file "zoom-tool")
+               (:file "restore-tool"))
   :depends-on (:parasol :parasol-document :parasol-tools :parasol-ui))
