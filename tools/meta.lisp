@@ -60,7 +60,7 @@
 
 (defun initialize-descriptive-class (class next-method &rest args &key name title description &allow-other-keys)
   (when (consp title) (setf (getf args :title) (concat title)))
-  (when (consp description) (setf (getf args :description) (concat title)))
+  (when (consp description) (setf (getf args :description) (concat description)))
   (unless title (setf (getf args :title) (symbol-name name)))
   (unless description (setf (getf args :description) ""))
   (apply next-method class :allow-other-keys T args))
