@@ -17,7 +17,8 @@
 
 (defgeneric current-drawable (layer)
   (:method ((layer meta-layer))
-    (aref (drawables layer) (current-index layer))))
+    (and (current-index layer)
+         (aref (drawables layer) (current-index layer)))))
 
 (defgeneric (setf current-drawable) (drawable layer)
   (:method ((drawable drawable) (layer meta-layer))
