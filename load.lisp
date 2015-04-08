@@ -34,8 +34,9 @@
   ;; some kind of system to automate this
   ;; or at least make it hookable
   (ensure-loaded :parasol-ui)
-  (ensure-loaded :parasol-tools-brush)
-  (ensure-loaded :parasol-tools-view))
+  ;; (ensure-loaded :parasol-tools-brush)
+  (ensure-loaded :parasol-tools-view)
+  )
 
 (defun start ()
   (test-compatibility)

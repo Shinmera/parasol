@@ -17,7 +17,7 @@
 
   ;; QThread needs to be compiled in manually.
   ;; We might want to provide functions to do that...
-  (assert (find-qclass "QThread") () "SmokeQt needs to be compiled with QThread class support.")
+  ;(assert (find-qclass "QThread" NIL) () "SmokeQt needs to be compiled with QThread class support.")
 
   ;; We need OpenGL support for better drawing.
   (ensure-smoke :qtopengl))
