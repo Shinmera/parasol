@@ -31,8 +31,8 @@
 (defgeneric draw-stroke (brush stroke target &optional offset))
 
 (define-tool (brush-tool "Brush" "Paint onto the canvas.") ()
-  ((current-brush :initform NIL :accessor current-brush)
-   (brush-instance :initform NIL :accessor brush-instance :type configurable))
+  ((current-brush :accessor current-brush)
+   (brush-instance :accessor brush-instance :type configurable))
   (:configurable current-brush brush-instance))
 
 (defmethod initialize-instance :before ((tool brush-tool) &key)
@@ -45,11 +45,13 @@
 (defmethod (setf c2mop:slot-value-using-class) :after (value class (object brush-tool) slot)
   (when (and value (eql (c2mop:slot-definition-name slot)
                         'current-brush))
+    (v:info :brush "Switching to brush ~s" value)
     (setf (slot-value object 'brush-instance)
           (make-instance value))))
 
 (defmethod begin ((tool brush-tool) pen document)
-  (when (brush-instance tool)
+  (when (and (slot-boundp tool 'brush-instance)
+             (brush-instance tool))
     (v:info :brush-tool "Beginning stroke at ~s" pen)
     (let ((stroke (make-instance 'stroke :brush (copy (brush-instance tool))
                                          :x (x pen) :y (y pen)))
