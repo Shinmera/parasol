@@ -114,7 +114,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:adaptive-buffered
    #:chunk-size
    #:initial-size
-   #:ensure-fitting)
+   #:ensure-fitting
+
+   #:color
+   #:r
+   #:g
+   #:b
+   #:a
+   #:to-qcolor)
   ;; target.lisp
   (:export
    #:*target-backend*

@@ -180,3 +180,14 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
           (incf (x buffered) xd)
           (incf (y buffered) yd))))
     buffered))
+
+(defclass color ()
+  ((r :initarg :r :accessor r)
+   (g :initarg :g :accessor g)
+   (b :initarg :b :accessor b)
+   (a :initarg :a :accessor a))
+  (:default-initargs
+   :r 0 :g 0 :b 0 :a 255))
+
+(defun to-qcolor (color)
+  (q+:make-qcolor (r color) (g color) (b color) (a color)))
