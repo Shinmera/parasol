@@ -22,10 +22,14 @@
   (#_setSpacing layout 0)
   (#_setAlignment layout (#_Qt::AlignTop)))
 
+(defvar *populating* NIL)
+
 (defun populate-tool-options (gizmo tool)
-  (let ((layout (slot-value gizmo 'layout)))
-    (clear-layout layout)
-    (q+:add-widget layout (make-input-for-configurable tool))))
+  (unless *populating*
+    (let ((layout (slot-value gizmo 'layout))
+          (*populating* T))
+      (clear-layout layout)
+      (q+:add-widget layout (make-input-for-configurable tool)))))
 
 (define-widget tool-button (QPushButton)
   ((tool :initarg :tool :accessor tool))
@@ -79,5 +83,4 @@
                   'configurable)
              (slot-boundp *window* 'tools-area))
     (let ((gizmo (slot-value (slot-value *window* 'tools-area) 'gizmo)))
-      ;; (populate-tool-options gizmo tool)
-      )))
+      (populate-tool-options gizmo tool))))
