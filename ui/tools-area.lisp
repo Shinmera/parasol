@@ -75,7 +75,8 @@
           (v:warn :tools-area "Setting tool ~s which has no corresponding button!" tool)))))
 
 (defmethod configurable-slot-changed :after ((tool tool) slot)
-  (when (eql (c2mop:slot-definition-type slot)
-             'configurable)
+  (when (and (eql (c2mop:slot-definition-type slot)
+                  'configurable)
+             (slot-boundp *window* 'tools-area))
     (let ((gizmo (slot-value (slot-value *window* 'tools-area) 'gizmo)))
       (populate-tool-options gizmo tool))))

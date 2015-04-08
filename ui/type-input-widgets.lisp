@@ -42,7 +42,8 @@
    (slot :initarg :slot :accessor slot)
    (constraint :initarg :constraint :accessor constraint))
   (:default-initargs
-    :setter (error "SETTER required.")
+    :object (error "OBJECT required.")
+    :slot (error "SLOT required.")
     :constraint (error "CONSTRAINT required.")))
 
 (defmethod initialize-instance :after ((setter slot-setter) &key (value NIL v-p) &allow-other-keys)
@@ -51,7 +52,8 @@
 
 (defgeneric (setf value) (new-val slot-setter)
   (:method :around (new-val (setter slot-setter))
-    (unless (equal new-val (value setter))
+    (unless (or (not (slot-boundp setter 'value))
+                (equal new-val (value setter)))
       (call-next-method))
     new-val)
   (:method (new-val (setter slot-setter))
