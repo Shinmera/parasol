@@ -33,7 +33,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (defmethod draw-stroke :before ((brush single-colored-brush) (stroke stroke) target &optional from)
   (declare (ignore from))
   (#_setPen target (#_Qt::NoPen))
-  (#_setBrush target (#_new QBrush (color brush))))
+  (#_setBrush target (#_new QBrush (to-qcolor (color brush)))))
 
 ;; This needs to be generalised so I can use it both for brushes and textures and all
 ;; maybe a superclass that translates and this scales?
