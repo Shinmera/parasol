@@ -46,8 +46,8 @@
    (description :initarg :description :accessor object-description :type string))
   (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
-(defun concat (&rest args)
-  (reduce #'(lambda (a b) (concatenate 'string a b)) args))
+(defun concat (sequence)
+  (reduce #'(lambda (a b) (concatenate 'string a b)) sequence))
 
 (defun initialize-descriptive-class (class next-method &rest args &key name title description &allow-other-keys)
   (when (consp title) (setf (getf args :title) (concat title)))
