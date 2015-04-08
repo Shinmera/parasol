@@ -206,3 +206,24 @@
   (let ((pos (position new-val (cdr (constraint setter)))))
     (unless (= pos (q+:current-index setter))
       (setf (q+:current-index setter) pos))))
+
+;;;;;
+;; Configurable
+(define-type-input (configurable-setter configurable) (QWidget)
+  ((object :initarg :object :accessor object)))
+
+(define-subwidget (configurable-setter layout) (q+:make-qvboxlayout)
+  (dolist (slot (c2mop:class-slots (class-of object)))
+    (let ((name (c2mop:slot-definition-name slot))
+          (type (c2mop:slot-definition-type slot)))
+      (when (find name (configurable-slots object))
+        (q+:add-widget
+         layout
+         (case type
+           (configurable
+            (make-input-for-configurable (slot-value object name)))
+           (T
+            (make-input-for-type type object name (slot-value object name)))))))))
+
+(defun make-input-for-configurable (configurable)
+  (make-instance 'configurable-setter :object configurable))
