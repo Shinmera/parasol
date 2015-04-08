@@ -7,50 +7,18 @@
 (in-package #:org.shirakumo.parasol.tools)
 (named-readtables:in-readtable :qtools)
 
-(defclass tool-class (finalizable-class)
-  ((title :initarg :title :accessor tool-title :type string)
-   (description :initarg :description :accessor tool-description :type string)
-   (display :initarg :display :accessor tool-display :type list))
-  (:default-initargs
-   :title (error "TITLE required.")
-   :description ""
-   :display ())
+(defclass tool-class (configurable-class descriptive-class)
+  ()
   (:documentation "Metaclass for tools that operate on the document. Required for special tool options definition."))
 
-(defun check-display-slot (class name)
-  (when (not (find name (c2mop:class-slots class) :key #'c2mop:slot-definition-name))
-    (error "Cannot find an effective slot named ~s on class ~s, but it is set as a display slot."
-           name class)))
-
-;; During initialisation we just make sure the options are proper.
-(defun initialize-tool-class (class next-method &rest args &key title description display &allow-other-keys)
-  (when (consp title) (setf (getf args :title) (first title)))
-  (when (consp description) (setf (getf args :description) (first description)))
-  (apply next-method class :allow-other-keys T args)
-  (c2mop:finalize-inheritance class)
-  (dolist (slot display)
-    (check-display-slot class slot)))
-
-(defmethod initialize-instance :around ((class tool-class) &rest initargs)
-  (apply #'initialize-tool-class class #'call-next-method initargs))
-
-(defmethod reinitialize-instance :around ((class tool-class) &rest initargs)
-  (apply #'initialize-tool-class class #'call-next-method initargs))
-
-
-(defclass tool (finalizable)
+(defclass tool (configurable)
   ()
   (:metaclass tool-class)
-  (:title "Tool")
   (:documentation "Superclass for all document-manipulating tools."))
 
-(defmacro define-superclass-method-wrapper (method)
-  `(defmethod ,method ((tool tool))
-     (,method (class-of tool))))
-
-(define-superclass-method-wrapper tool-title)
-(define-superclass-method-wrapper tool-description)
-(define-superclass-method-wrapper tool-display)
+(define-superclass-method-wrapper tool configurable-slots)
+(define-superclass-method-wrapper tool tool-title object-title)
+(define-superclass-method-wrapper tool tool-description object-description)
 
 ;; Tool method stubs
 (defgeneric select (tool)

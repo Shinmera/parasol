@@ -8,24 +8,29 @@
 (defpackage #:parasol-tools
   (:use #:parasol-dev #:parasol-document)
   (:nicknames #:org.shirakumo.parasol.tools)
-  ;; tool-class.lisp
+  ;; meta.lisp
   (:export
-   #:tool-class
-   #:tool-title
-   #:tool-display
-   #:tool-description
-   #:check-display-slot)
+   #:configurable-class
+   #:configurable-slots
+   #:configurable
+   #:define-superclass-method-wrapper
+
+   #:descriptive-class
+   #:object-title
+   #:object-description)
   ;; tool.lisp
   (:export
+   #:tool-class
+   
    #:tool
-   #:tool-options
+   
    #:tool-title
    #:tool-description
-   #:tool-display
    #:select
    #:deselect
    #:begin
    #:move
    #:end
+   #:has-superclass
    #:define-tool
    #:find-tools))
