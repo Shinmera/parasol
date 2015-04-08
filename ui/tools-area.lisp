@@ -25,12 +25,7 @@
 (defun populate-tool-options (gizmo tool)
   (let ((layout (slot-value gizmo 'layout)))
     (clear-layout layout)
-    (dolist (slot (c2mop:class-slots (class-of tool)))
-      (let ((name (c2mop:slot-definition-name slot)))
-        (when (find name (configurable-slots tool))
-          (make-input-for-type
-           (c2mop:slot-definition-type slot)
-           tool name (slot-value tool name)))))))
+    (q+:add-widget layout (make-input-for-configurable tool))))
 
 (define-widget tool-button (QPushButton)
   ((tool :initarg :tool :accessor tool))
@@ -78,3 +73,9 @@
       (if button
           (q+:click button)
           (v:warn :tools-area "Setting tool ~s which has no corresponding button!" tool)))))
+
+(defmethod configurable-slot-changed :after ((tool tool) slot)
+  (when (eql (c2mop:slot-definition-type slot)
+             'configurable)
+    (let ((gizmo (slot-value (slot-value *window* 'tools-area) 'gizmo)))
+      (populate-tool-options gizmo tool))))
