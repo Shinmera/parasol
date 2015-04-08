@@ -79,4 +79,5 @@
                   'configurable)
              (slot-boundp *window* 'tools-area))
     (let ((gizmo (slot-value (slot-value *window* 'tools-area) 'gizmo)))
-      (populate-tool-options gizmo tool))))
+      ;; (populate-tool-options gizmo tool)
+      )))

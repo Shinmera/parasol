@@ -23,17 +23,6 @@
 (deftype range (from to)
   `(float ,from ,to))
 
-(defclass color ()
-  ((r :initarg :r :accessor r)
-   (g :initarg :g :accessor g)
-   (b :initarg :b :accessor b)
-   (a :initarg :a :accessor a))
-  (:default-initargs
-   :r 0 :g 0 :b 0 :a 255))
-
-(defun to-qcolor (color)
-  (q+:make-qcolor (r color) (g color) (b color) (a color)))
-
 ;;;;;
 ;; Basic setters
 (define-widget slot-setter (QWidget)
@@ -52,8 +41,8 @@
 
 (defgeneric (setf value) (new-val slot-setter)
   (:method :around (new-val (setter slot-setter))
-    (unless (or (not (slot-boundp setter 'value))
-                (equal new-val (value setter)))
+    (when (or (not (slot-boundp setter 'value))
+              (not (equal new-val (value setter))))
       (call-next-method))
     new-val)
   (:method (new-val (setter slot-setter))
@@ -206,15 +195,19 @@
 
 (defmethod (setf value) (new-val (setter member-setter))
   (let ((pos (position new-val (cdr (constraint setter)))))
-    (unless (= pos (q+:current-index setter))
-      (setf (q+:current-index setter) pos))))
+    (cond ((not pos)
+           (v:warn :parasol-ui "Attempting to set value ~s, which is not a member of ~s"
+                   new-val setter))
+          ((or (not (q+:current-index setter))
+               (not (= pos (q+:current-index setter))))
+           (setf (q+:current-index setter) pos)))))
 
 ;;;;;
 ;; Configurable
 (define-type-input (configurable-setter configurable) (QWidget)
   ((object :initarg :object :accessor object)))
 
-(define-subwidget (configurable-setter layout) (q+:make-qvboxlayout)
+(define-subwidget (configurable-setter layout) (q+:make-qvboxlayout configurable-setter)
   (dolist (slot (c2mop:class-slots (class-of object)))
     (let ((name (c2mop:slot-definition-name slot))
           (type (c2mop:slot-definition-type slot)))
