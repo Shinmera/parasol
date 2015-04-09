@@ -38,7 +38,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 ;; This needs to be generalised so I can use it both for brushes and textures and all
 ;; maybe a superclass that translates and this scales?
 (define-brush sized-brush (abstract-brush)
-  ((size :initarg :size :initform 2.0 :accessor size
+  ((size :initarg :size :initform 5.0 :accessor size
          :type (float 0.1 1000000.0))))
 
 (defmethod draw-penpoint :before ((brush sized-brush) (pen pen) target)

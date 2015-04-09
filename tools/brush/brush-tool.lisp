@@ -36,11 +36,13 @@
   (:configurable current-brush brush-instance))
 
 (defmethod initialize-instance :before ((tool brush-tool) &key)
-  (setf (c2mop:slot-definition-type
-         (find 'current-brush (c2mop:class-slots (class-of tool))
-               :key #'c2mop:slot-definition-name))
-        `(member ,@(or (mapcar #'class-name (find-brushes))
-                       (warn "No brushes found!")))))
+  (let ((type `(member ,@(or (mapcar #'class-name (find-brushes))
+                             (warn "No brushes found!")))))
+    (setf (c2mop:slot-definition-type
+           (find 'current-brush (c2mop:class-slots (class-of tool))
+                 :key #'c2mop:slot-definition-name))
+          type)
+    (setf (current-brush tool) (first (cdr type)))))
 
 (defmethod (setf c2mop:slot-value-using-class) :after (value class (object brush-tool) slot)
   (when (and value (eql (c2mop:slot-definition-name slot)
