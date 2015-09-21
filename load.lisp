@@ -38,6 +38,6 @@
   (ensure-loaded :parasol-tools-view))
 
 (defun start ()
-  (test-compatibility)
+  (qt:make-qapplication)
   (run-startup-hooks)
   (funcall (find-symbol "MAIN" "PARASOL-UI")))
