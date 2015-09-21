@@ -33,6 +33,6 @@
   (setf (q+:alignment layout) (q+:qt.align-top)))
 
 (define-initializer (history-gizmo setup)
-  (setf (q+:size-policy history-gizmo) (q+:qsizepolicy-maximum) (q+:qsizepolicy-minimum))
-  (q+:add-cock-widget *window* (q+:qt.right-dock-widget-area) history-gizmo)
+  (setf (q+:size-policy history-gizmo) (values (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum)))
+  (q+:add-dock-widget *window* (q+:qt.right-dock-widget-area) history-gizmo)
   (q+:tabify-dock-widget *window* history-gizmo (slot-value *window* 'layer-gizmo)))

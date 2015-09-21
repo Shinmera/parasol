@@ -62,7 +62,7 @@
 (defun blit-framebuffer-target (from to width height &optional (x 0) (y 0))
   (setf width (round width)
         height (round height))
-  (q+:qglframebufferobject.blit-framebuffer
+  (q+:qglframebufferobject-blit-framebuffer
    to (q+:make-qrect (round x) (round y) width height)
    from (q+:make-qrect 0 0 width height))
   to)

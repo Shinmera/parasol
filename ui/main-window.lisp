@@ -38,7 +38,7 @@
 
 (define-initializer (main-window setup)
   (setf (q+:window-title main-window) (format NIL "Parasol v~a" (asdf:component-version (asdf:find-system :parasol))))
-  (setf (q+:tab-position main-window) (q+:qt.all-dock-widget-areas) (q+:qtabwidget.north))
+  (setf (q+:tab-position main-window (q+:qt.all-dock-widget-areas)) (q+:qtabwidget.north))
   (q+:resize main-window 500 500))
 
 (define-menu (main-window File)

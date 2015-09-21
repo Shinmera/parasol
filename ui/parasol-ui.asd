@@ -24,4 +24,6 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                (:file "tools-area")
                (:file "layer-gizmo")
                (:file "history-gizmo"))
-  :depends-on (:parasol :parasol-document :parasol-tools))
+  :depends-on (:parasol
+               :parasol-document
+               :parasol-tools))

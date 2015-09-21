@@ -11,7 +11,7 @@
   ())
 
 (define-initializer (gizmo setup)
-  (setf (q+:size-policy gizmo) (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum))
+  (setf (q+:size-policy gizmo) (values (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum)))
   (setf (q+:allowed-areas gizmo) (enum-or (q+:qt.left-dock-widget-area) (q+:qt.right-dock-widget-area)))
   (q+:add-dock-widget *window* (q+:qt.right-dock-widget-area) gizmo))
 

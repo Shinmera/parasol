@@ -14,13 +14,13 @@
   (setf (q+:text label) (or (field :name layer) "?")))
 
 (define-subwidget (layer-item visible) (q+:make-qpushbutton)
-  (setf (q+:size-policy visible) (q+:qsizepolicy.maximum) (q+:qsizepolicy.maximum))
+  (setf (q+:size-policy visible) (values (q+:qsizepolicy.maximum) (q+:qsizepolicy.maximum)))
   (setf (q+:minimum-width visible) 50)
   (setf (q+:flat visible) T)
   (setf (q+:checkable visible) T))
 
 (define-subwidget (layer-item layout) (q+:make-qhboxlayout layer-item)
-  (setf (q+:,argin layout) 0)
+  (setf (q+:margin layout) 0)
   (setf (q+:spacing layout) 0)
   (q+:add-widget layout visible)
   (q+:add-widget layout label)
@@ -220,5 +220,5 @@
 
 (define-initializer (layer-gizmo setup)
   (refresh layer-gizmo)
-  (setf (q+:size-policy layer-gizmo) (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum)))
+  (setf (q+:size-policy layer-gizmo) (values (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum)))
   (q+:add-dock-widget *window* (q+:qt.right-dock-widget-area) layer-gizmo))

@@ -57,7 +57,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (define-subwidget (nice-slider layout) (q+:make-qhboxlayout)
   (setf (q+:spacing layout) 0)
-  (setf (q+:contents-margins layout) 0 0 0 0)
+  (setf (q+:contents-margins layout) (values 0 0 0 0))
   (q+:add-widget layout slider 8)
   (q+:add-widget layout spin-box 1)
   (q+:add-widget layout button 1)

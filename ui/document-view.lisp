@@ -65,7 +65,7 @@
          :y-view (q+:y event)
          :rotation (q+:rotation event)
          :pressure (q+:pressure event)
-         :tangential-pressure (q+:tangential-rressure event))
+         :tangential-pressure (q+:tangential-pressure event))
         %tablet-input T)
   (q+:ignore event))
 

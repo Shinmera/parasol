@@ -15,7 +15,7 @@
   (setf (q+:widget tool-options-gizmo) central))
 
 (define-subwidget (tool-options-gizmo layout) (q+:make-qvboxlayout tool-options-gizmo)
-  (setf (q+:size-policy tool-options-gizmo) (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum))
+  (setf (q+:size-policy tool-options-gizmo) (values (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum)))
   (setf (q+:minimum-width tool-options-gizmo) 150)
   (setf (q+:layout central) layout)
   (setf (q+:margin layout) 0)
