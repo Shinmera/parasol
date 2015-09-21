@@ -22,7 +22,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
                  for i from 0 below length by (distance brush)
                  for pen = (linear-interpolate start end (/ i length))
                  do (with-transformation (target)
-                      (#_translate target (#_new QPointF (x pen) (y pen)))
+                      (q+:translate target (q+:make-qpointf (x pen) (y pen)))
                       (draw-penpoint brush pen target)))))
 
 (define-brush single-colored-brush (abstract-brush)
@@ -32,8 +32,8 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defmethod draw-stroke :before ((brush single-colored-brush) (stroke stroke) target &optional from)
   (declare (ignore from))
-  (#_setPen target (#_Qt::NoPen))
-  (#_setBrush target (#_new QBrush (to-qcolor (color brush)))))
+  (setf (q+:pen target) (q+:qt.no-pen))
+  (setf (q+:brush target) (q+:make-qbrush (to-qcolor (color brush)))))
 
 ;; This needs to be generalised so I can use it both for brushes and textures and all
 ;; maybe a superclass that translates and this scales?
@@ -42,7 +42,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
          :type (float 0.1 1000000.0))))
 
 (defmethod draw-penpoint :before ((brush sized-brush) (pen pen) target)
-  (#_scale target (size brush) (size brush)))
+  (q+:scale target (size brush) (size brush)))
 
 (define-brush pressured-size-brush (sized-brush abstract-brush)
   ())
@@ -58,7 +58,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   ())
 
 (defmethod draw-penpoint ((brush circle-tip-brush) (pen pen) target)
-  (#_drawEllipse target 0 0 1 1))
+  (q+:draw-ellipse target 0 0 1 1))
 
 (define-brush texture-brush (abstract-brush)
   ((texture :initarg :texture :initform NIL :accessor texture)))
@@ -74,7 +74,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (defmethod draw-penpoint ((brush texture-brush) (pen pen) target)
   (let ((texture (texture brush)))
     (with-transformation (target)
-      (#_translate target (#_new QPointF
+      (q+:translate target (q+:make-qpointf
                                  (- (/ (width texture) 2))
                                  (- (/ (height texture) 2))))
       (draw texture target))))

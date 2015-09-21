@@ -12,11 +12,11 @@
 
 (defun make-icon (value)
   (etypecase value
-    (null (#_new QIcon))
-    (qobject (#_new QIcon value))
-    (pathname (#_new QIcon (uiop:native-namestring value)))
+    (null (q+:make-qicon))
+    (qobject (q+:make-qicon value))
+    (pathname (q+:make-qicon (uiop:native-namestring value)))
     (string (make-icon (asdf:system-relative-pathname :parasol value)))
-    (list (#_QIcon::fromTheme (first value) (make-icon (second value))))))
+    (list (q+:qicon-from-theme (first value) (make-icon (second value))))))
 
 (defun icon (name)
   (gethash name *icons*))

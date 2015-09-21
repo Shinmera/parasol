@@ -9,9 +9,9 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defun make-painter (target)
   (let ((painter (painter target)))
-    (#_setRenderHint painter (#_QPainter::Antialiasing))
-    (#_setRenderHint painter (#_QPainter::SmoothPixmapTransform))
-    (#_setRenderHint painter (#_QPainter::HighQualityAntialiasing))
+    (setf (q+:render-hint painter) (q+:qpainter.antialiasing))
+    (setf (q+:render-hint painter) (q+:qpainter.smooth-pixmap-transform))
+    (setf (q+:render-hint painter) (q+:qpainter.high-quality-antialiasing))
     painter))
 
 (defmacro with-painter ((painter target) &body body)

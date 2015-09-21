@@ -16,10 +16,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (define-initializer (double-slider setup)
   (setf div (let ((str (string-trim "0" (format NIL "~f" step))))
               (expt 10 (- (length str) (position #\. str) 1))))
-  (#_setMaximum double-slider (round (* div max)))
-  (#_setMinimum double-slider (round (* div min)))
-  (#_setTickInterval double-slider (round (* div step)))
-  (#_setOrientation double-slider (#_Qt::Horizontal)))
+  (setf (q+:maximum double-slider) (round (* div max)))
+  (setf (q+:minimum double-slider) (round (* div min)))
+  (setf (q+:tick-interval double-slider) (round (* div step)))
+  (setf (q+:orientation double-slider) (q+:qt.horizontal)))
 
 (define-signal (double-slider value-changed) (double))
 
@@ -28,10 +28,10 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (signal! double-slider (value-changed double) (/ value div)))
 
 (defmethod value ((double-slider double-slider))
-  (/ (#_value double-slider) (slot-value double-slider 'div)))
+  (/ (q+:value double-slider) (slot-value double-slider 'div)))
 
 (defmethod (setf value) (value (double-slider double-slider))
-  (#_setValue double-slider (round (* value (slot-value double-slider 'div)))))
+  (setf (q+:value double-slider) (round (* value (slot-value double-slider 'div)))))
 
 (define-widget nice-slider (QWidget)
   ((max :initform 100.0 :initarg :max)
@@ -44,24 +44,24 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (define-subwidget (nice-slider slider) (make-instance 'double-slider :max max :min min :step step)
   (setf (value slider) default))
 
-(define-subwidget (nice-slider spin-box) (#_new QDoubleSpinBox)
-  (#_setSingleStep spin-box step)
-  (#_setMaximum spin-box max)
-  (#_setMinimum spin-box min)
-  (#_setValue spin-box default)
-  (#_setFixedWidth spin-box 70))
+(define-subwidget (nice-slider spin-box) (q+:make-qdoublespinbox)
+  (setf (q+:single-step spin-box) step)
+  (setf (q+:maximum spin-box) max)
+  (setf (q+:minimum spin-box) min)
+  (setf (q+:value spin-box) default)
+  (setf (q+:fixed-width spin-box) 70))
 
-(define-subwidget (nice-slider button) (#_new QPushButton)
-  (#_setText button (princ-to-string default))
-  (#_setFixedWidth button 50))
+(define-subwidget (nice-slider button) (q+:make-qpushbutton)
+  (setf (q+:text button) (princ-to-string default))
+  (setf (q+:fixed-width button) 50))
 
-(define-subwidget (nice-slider layout) (#_new QHBoxLayout)
-  (#_setSpacing layout 0)
-  (#_setContentsMargins layout 0 0 0 0)
-  (#_addWidget layout slider 8)
-  (#_addWidget layout spin-box 1)
-  (#_addWidget layout button 1)
-  (#_setLayout nice-slider layout))
+(define-subwidget (nice-slider layout) (q+:make-qhboxlayout)
+  (setf (q+:spacing layout) 0)
+  (setf (q+:contents-margins layout) 0 0 0 0)
+  (q+:add-widget layout slider 8)
+  (q+:add-widget layout spin-box 1)
+  (q+:add-widget layout button 1)
+  (setf (q+:layout nice-slider) layout))
 
 (define-slot (nice-slider update) ((value double))
   (declare (connected slider (value-changed double)))
@@ -78,7 +78,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (setf (value spin-box) default))
 
 (defmethod value ((nice-slider nice-slider))
-  (#_value (slot-value nice-slider 'spin-box)))
+  (q+:value (slot-value nice-slider 'spin-box)))
 
 (defmethod (setf value) (value (nice-slider nice-slider))
   (with-slots-bound (nice-slider nice-slider)

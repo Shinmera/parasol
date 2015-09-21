@@ -58,20 +58,20 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (defgeneric translate-to (positioned transform)
   (:method ((pos positioned) (transform qobject))
-    (#_translate transform (#_new QPointF (x pos) (y pos)))))
+    (q+:translate transform (q+:make-qpointf (x pos) (y pos)))))
 
 (defgeneric translate-away (positioned transform)
   (:method ((pos positioned) (transform qobject))
-    (#_translate transform (#_new QPointF (- (x pos)) (- (y pos))))))
+    (q+:translate transform (q+:make-qpointf (- (x pos)) (- (y pos))))))
 
 (defmacro with-transformation ((painter) &body body)
   (let ((paint (gensym "PAINTER")))
     `(let* ((,paint ,painter))
        (unwind-protect
             (progn
-              (#_save ,paint)
+              (q+:save ,paint)
               ,@body)
-         (#_restore ,paint)))))
+         (q+:restore ,paint)))))
 
 (defmacro with-translation-to ((positioned transform) &body body)
   (let ((pos (gensym "POSITIONED"))
@@ -130,7 +130,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:method ((buffered buffered))
     (let* ((buffer (buffer buffered))
            (painter (painter buffer)))
-      (#_eraseRect painter 0 0 (width buffer) (height buffer))
+      (q+:erase-rect painter 0 0 (width buffer) (height buffer))
       (draw-buffer buffered painter))))
 
 (defgeneric rebuffer-copy (buffered)

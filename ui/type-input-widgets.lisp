@@ -168,7 +168,7 @@
 
 (defmethod (setf value) (new-val (setter color-setter))
   (let ((pal (q+:palette setter)))
-    (setf (q+:color pal (#_QPalette::Button)) (to-qcolor new-val))
+    (setf (q+:color pal (q+:qpalette.button)) (to-qcolor new-val))
     (setf (q+:palette setter) pal)
     (setf (q+:auto-fill-background setter) T)
     (q+:update setter)))
@@ -218,8 +218,8 @@
   ((object :initarg :object :accessor object)))
 
 (define-subwidget (configurable-setter layout) (q+:make-qvboxlayout configurable-setter)
-  (#_setMargin layout 0)
-  (#_setSpacing layout 0)
+  (setf (q+:margin layout) 0)
+  (setf (q+:spacing layout) 0)
   (dolist (name (configurable-slots object))
     (let ((slot (find name (c2mop:class-slots (class-of object))
                       :key #'c2mop:slot-definition-name)))

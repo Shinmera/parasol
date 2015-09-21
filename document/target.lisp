@@ -36,10 +36,10 @@
     (make-instance backend :width width :height height)))
 
 (defun make-target-from (pathname)
-  (let* ((image (#_new QImage (uiop:native-namestring pathname)))
-         (target (make-target (#_width image) (#_height image))))
+  (let* ((image (q+:make-qimage (uiop:native-namestring pathname)))
+         (target (make-target (q+:width image) (q+:height image))))
     (with-painter (painter target)
-      (#_drawImage painter 0 0 image))
+      (q+:draw-image painter 0 0 image))
     (finalize image)
     target))
 
@@ -49,9 +49,9 @@
 
 (defgeneric painter (target)
   (:method ((widget widget))
-    (#_new QPainter widget))
+    (q+:make-qpainter widget))
   (:method ((object qobject))
-    (#_new QPainter object)))
+    (q+:make-qpainter object)))
 
 (defmethod copy ((target target))
   (error "COPY of the target ~s is not implemented." target))
@@ -92,8 +92,8 @@
 
 (defmethod initialize-instance :after ((target qimage-target) &key)
   (unless (image target)
-    (let ((image (#_new QImage (width target) (height target) (#_QImage::Format_ARGB32))))
-      (#_fill image (#_Qt::transparent))
+    (let ((image (q+:make-qimage (width target) (height target) (q+:qimage.format_argb32))))
+      (q+:fill image (q+:qt.transparent))
       (setf (image target) image))))
 
 (defmethod to-image ((target qimage-target))
@@ -103,20 +103,20 @@
   (make-instance 'qimage-target :width (width target) :height (height target)
                                 :image (copy (image target))))
 
-(defmethod clear ((target qimage-target) &optional (color (#_Qt::transparent)))
-  (#_fill (image target) color)
+(defmethod clear ((target qimage-target) &optional (color (q+:qt.transparent)))
+  (q+:fill (image target) color)
   target)
 
 (defmethod draw ((target qimage-target) painter)
-  (#_drawImage painter 0 0 (image target))
+  (q+:draw-image painter 0 0 (image target))
   target)
 
 (defmethod fit ((target qimage-target) width height &key (x 0) (y 0))
   (unless (and (= (width target) width)
                (= (height target) height))
-    (let ((new (#_new QImage width height (#_QImage::Format_ARGB32))))
-      (#_fill new (#_Qt::transparent))
-      (with-finalizing ((painter (#_new QPainter new)))
-        (#_drawImage painter x y (image target)))
+    (let ((new (q+:make-qimage width height (q+:qimage.format_argb32))))
+      (q+:fill new (q+:qt.transparent))
+      (with-finalizing ((painter (q+:make-qpainter new)))
+        (q+:draw-image painter x y (image target)))
       (setf (image target) new)))
   target)

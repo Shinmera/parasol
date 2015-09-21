@@ -11,9 +11,9 @@
   ())
 
 (define-initializer (gizmo setup)
-  (#_setSizePolicy gizmo (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
-  (#_setAllowedAreas gizmo (enum-or (#_Qt::LeftDockWidgetArea) (#_Qt::RightDockWidgetArea)))
-  (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) gizmo))
+  (setf (q+:size-policy gizmo) (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum))
+  (setf (q+:allowed-areas gizmo) (enum-or (q+:qt.left-dock-widget-area) (q+:qt.right-dock-widget-area)))
+  (q+:add-dock-widget *window* (q+:qt.right-dock-widget-area) gizmo))
 
 (defgeneric refresh (gizmo)
   (:method ((gizmo gizmo))))

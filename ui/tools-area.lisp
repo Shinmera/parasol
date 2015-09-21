@@ -10,17 +10,17 @@
 (define-widget tool-options-gizmo (QDockWidget)
   ())
 
-(define-subwidget (tool-options-gizmo central) (#_new QWidget tool-options-gizmo)
-  (#_setWindowTitle tool-options-gizmo "Tool Options")
-  (#_setWidget tool-options-gizmo central))
+(define-subwidget (tool-options-gizmo central) (q+:make-qwidget tool-options-gizmo)
+  (setf (q+:window-title tool-options-gizmo) "Tool Options")
+  (setf (q+:widget tool-options-gizmo) central))
 
-(define-subwidget (tool-options-gizmo layout) (#_new QVBoxLayout tool-options-gizmo)
-  (#_setSizePolicy tool-options-gizmo (#_QSizePolicy::Maximum) (#_QSizePolicy::Minimum))
-  (#_setMinimumWidth tool-options-gizmo 150)
-  (#_setLayout central layout)
-  (#_setMargin layout 0)
-  (#_setSpacing layout 0)
-  (#_setAlignment layout (#_Qt::AlignTop)))
+(define-subwidget (tool-options-gizmo layout) (q+:make-qvboxlayout tool-options-gizmo)
+  (setf (q+:size-policy tool-options-gizmo) (q+:qsizepolicy.maximum) (q+:qsizepolicy.minimum))
+  (setf (q+:minimum-width tool-options-gizmo) 150)
+  (setf (q+:layout central) layout)
+  (setf (q+:margin layout) 0)
+  (setf (q+:spacing layout) 0)
+  (setf (q+:alignment layout) (q+:qt.align-top)))
 
 (defvar *populating* NIL)
 
@@ -52,11 +52,11 @@
 (define-widget tools-area (QToolBar)
   ((button-map :initform (make-hash-table :test 'eql) :accessor button-map)))
 
-(define-subwidget (tools-area group) (#_new QButtonGroup tools-area)
+(define-subwidget (tools-area group) (q+:make-qbuttongroup tools-area)
   (setf (q+:exclusive group) T))
 
 (define-subwidget (tools-area gizmo) (make-instance 'tool-options-gizmo)
-  (#_addDockWidget *window* (#_Qt::RightDockWidgetArea) gizmo))
+  (q+:add-dock-widget *window* (q+:qt.right-dock-widget-area) gizmo))
 
 (define-initializer (tools-area setup)
   (dolist (tool (find-tools))

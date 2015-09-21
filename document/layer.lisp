@@ -70,8 +70,8 @@
 
 ;; (defmethod draw :around ((layer layer) target)
 ;;   (when (visible layer)
-;;     (#_setCompositionMode target (mode layer))
-;;     (#_setOpacity target (opacity layer))
+;;     (setf (q+:composition-mode target) (mode layer))
+;;     (setf (q+:opacity target) (opacity layer))
 ;;     (call-next-method)))
 
 ;; (defmethod draw-buffer ((layer layer) target)
@@ -80,7 +80,7 @@
 
 (defmethod draw ((layer layer) target)
   (when (visible layer)
-    (#_setCompositionMode target (mode layer))
-    (#_setOpacity target (opacity layer))
+    (setf (q+:composition-mode target) (mode layer))
+    (setf (q+:opacity target) (opacity layer))
     (loop for drawable across (drawables layer)
           do (draw drawable target))))

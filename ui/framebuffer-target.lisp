@@ -33,64 +33,64 @@
 
 (defun ensure-gl-init ()
   (unless *gl-format*
-    (let ((format (#_new QGLFormat)))
-      (#_setAlpha format T)
-      (#_setSampleBuffers format T)
+    (let ((format (q+:make-qglformat)))
+      (setf (q+:alpha format) T)
+      (setf (q+:sample-buffers format) T)
       (setf *gl-format* format))))
 
 (defun make-framebuffer (width height &optional (samples 0))
-  (#_makeCurrent parasol-ui::*context*)
-  (let ((format (#_new QGLFramebufferObjectFormat)))
+  (q+:make-current parasol-ui::*context*)
+  (let ((format (q+:make-qglframebufferobjectformat)))
     (when (< 0 samples)
-      (#_setSamples format samples))
-    (#_setAttachment format (#_QGLFramebufferObject::CombinedDepthStencil))
-    (let ((buffer (#_new QGLFramebufferObject width height format)))
+      (setf (q+:samples format) samples))
+    (setf (q+:attachment format) (q+:qglframebufferobject.combined-depth-stencil))
+    (let ((buffer (q+:make-qglframebufferobject width height format)))
       (finalize format)
-      (with-finalizing ((painter (#_new QPainter buffer)))
-        (#_beginNativePainting painter)
+      (with-finalizing ((painter (q+:make-qpainter buffer)))
+        (q+:begin-native-painting painter)
         (gl:clear-color 0 0 0 0)
         (gl:clear :color-buffer-bit)
-        (#_endNativePainting painter))
+        (q+:end-native-painting painter))
       buffer)))
 
 (defmethod initialize-instance :after ((target framebuffer-target) &key)
   (ensure-gl-init)
-  (#_makeCurrent parasol-ui::*context*)
+  (q+:make-current parasol-ui::*context*)
   (setf (sampled-buffer target) (make-framebuffer (width target) (height target) 4))
   (setf (buffer target) (make-framebuffer (width target) (height target))))
 
 (defun blit-framebuffer-target (from to width height &optional (x 0) (y 0))
   (setf width (round width)
         height (round height))
-  (#_QGLFramebufferObject::blitFramebuffer
-   to (#_new QRect (round x) (round y) width height)
-   from (#_new QRect 0 0 width height))
+  (q+:qglframebufferobject.blit-framebuffer
+   to (q+:make-qrect (round x) (round y) width height)
+   from (q+:make-qrect 0 0 width height))
   to)
 
 (defmethod to-image ((target framebuffer-target))
-  (#_toImage (buffer target)))
+  (q+:to-image (buffer target)))
 
 (defmethod copy ((target framebuffer-target))
   (let ((new (make-instance 'framebuffer-target :width (width target) :height (height target))))
     (blit-framebuffer-target (sampled-buffer target) (sampled-buffer new) (width target) (height target))
     new))
 
-(defmethod clear ((target framebuffer-target) &optional (color (#_Qt::transparent)))
+(defmethod clear ((target framebuffer-target) &optional (color (q+:qt.transparent)))
   (with-painter (painter (sampled-buffer target))
-    (#_fillRect painter 0 0 (width target) (height target) color))
+    (q+:fill-rect painter 0 0 (width target) (height target) color))
   target)
 
 (defmethod draw ((target framebuffer-target) painter)
   ;; blit to non-sampled so we can access the texture.
   (blit-framebuffer-target (sampled-buffer target) (buffer target) (width target) (height target))
   ;; draw using OpenGL
-  (#_beginNativePainting painter)
+  (q+:begin-native-painting painter)
   (gl:enable :blend)
-  (gl-set-blending (enum-value (#_compositionMode painter)))  
+  (gl-set-blending (enum-value (q+:composition-mode painter)))  
   
   (gl:enable :texture-2d)
   ;; Maybe ask stassats to incorporate support for this kinda thing...
-  (gl:bind-texture :texture-2d (cffi:mem-ref (#_texture (buffer target)) :uint))
+  (gl:bind-texture :texture-2d (cffi:mem-ref (q+:texture (buffer target)) :uint))
   (gl:with-primitives :quads
     (gl:tex-coord 0 1)
     (gl:vertex 0 0)
@@ -101,7 +101,7 @@
     (gl:tex-coord 0 0)
     (gl:vertex 0 (1+ (height target))))
   
-  (#_endNativePainting painter))
+  (q+:end-native-painting painter))
 
 (defmethod fit ((target framebuffer-target) width height &key (x 0) (y 0))
   (unless (and (= (width target) width)
@@ -115,10 +115,10 @@
   target)
 
 (defmethod (setf target-backend) :around ((backend (eql :framebuffer)))
-  (cond ((not (#_QGLFramebufferObject::hasOpenGLFramebufferObjects))
+  (cond ((not (q+:qglframebufferobject-has-open-glframebuffer-objects))
          (v:severe :framebuffer "Your system does not support OpenGL Frame Buffers!")
          (v:severe :framebuffer "Cannot enable framebuffer target. Drawing might be slow."))
-        ((not (#_QGLFramebufferObject::hasOpenGLFramebufferBlit))
+        ((not (q+:qglframebufferobject-has-open-glframebuffer-blit))
          (v:severe :framebuffer "Your system does not support OpenGL Frame Buffer Blitting!")
          (v:severe :framebuffer "Cannot enable framebuffer target. Drawing might be slow."))
         (T

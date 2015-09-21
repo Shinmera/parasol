@@ -31,14 +31,14 @@
 
 (define-override (document-view paint-event) (event)
   (declare (ignore event))
-  (let ((*context* (#_context document-view)))
+  (let ((*context* (q+:context document-view)))
     (with-painter (painter document-view)
-      (#_fillRect painter (#_rect document-view) (#_Qt::white))
+      (q+:fill-rect painter (q+:rect document-view) (q+:qt.white))
       (with-transformation (painter)
         (translate-to document-view painter)
         ;; origin fix...
-        (#_rotate painter angle)
-        (#_scale painter
+        (q+:rotate painter angle)
+        (q+:scale painter
                  (if mirror-x (- zoom) zoom)
                  (if mirror-y (- zoom) zoom))
         (draw document painter)))))
@@ -53,21 +53,21 @@
   (setf pen
         (make-instance
          'view-pen
-         :pointer (qt:enum-value (#_pointerType event))
-         :device (qt:enum-value (#_device event))
+         :pointer (qt:enum-value (q+:pointer-type event))
+         :device (qt:enum-value (q+:device event))
          :before pen
-         :x (translate-x (#_x event) document-view)
-         :y (translate-y (#_y event) document-view)
-         :z (#_z event)
-         :x-tilt (#_xTilt event)
-         :y-tilt (#_yTilt event)
-         :x-view (#_x event)
-         :y-view (#_y event)
-         :rotation (#_rotation event)
-         :pressure (#_pressure event)
-         :tangential-pressure (#_tangentialPressure event))
+         :x (translate-x (q+:x event) document-view)
+         :y (translate-y (q+:y event) document-view)
+         :z (q+:z event)
+         :x-tilt (q+:x-tilt event)
+         :y-tilt (q+:y-tilt event)
+         :x-view (q+:x event)
+         :y-view (q+:y event)
+         :rotation (q+:rotation event)
+         :pressure (q+:pressure event)
+         :tangential-pressure (q+:tangential-rressure event))
         %tablet-input T)
-  (#_ignore event))
+  (q+:ignore event))
 
 (defun maybe-update-pen (document-view event)
   (unless (%tablet-input document-view)
@@ -77,20 +77,20 @@
            :pointer 1
            :device 0
            :before (pen document-view)
-           :x (translate-x (#_x event) document-view)
-           :y (translate-y (#_y event) document-view)
-           :x-view (#_x event)
-           :y-view (#_y event)
+           :x (translate-x (q+:x event) document-view)
+           :y (translate-y (q+:y event) document-view)
+           :x-view (q+:x event)
+           :y-view (q+:y event)
            :pressure *mouse-pressure*))))
 
 (defun process-mouse (document-view event func)
   (maybe-update-pen document-view event)
-  (let ((*context* (#_context document-view)))
+  (let ((*context* (q+:context document-view)))
     (when (and (tool *window*) (slot-value document-view 'pen-pressed))
       (funcall func (tool *window*) (pen document-view) (document document-view))))
   ;; !Critical
-  (#_repaint document-view)
-  (#_ignore event))
+  (q+:repaint document-view)
+  (q+:ignore event))
 
 (define-override (document-view mouse-move-event) (event)
   (process-mouse document-view event #'move))
