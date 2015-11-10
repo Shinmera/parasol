@@ -237,7 +237,7 @@
                   (make-input-for-type type object name))))))))))
 
 (defmethod finalize :before ((setter configurable-setter))
-  (clear-layout (slot-value setter 'layout)))
+  (sweep-layout (slot-value setter 'layout)))
 
 (defun make-input-for-configurable (configurable)
   (make-instance 'configurable-setter :object configurable))

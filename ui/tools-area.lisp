@@ -28,7 +28,7 @@
   (unless *populating*
     (let ((layout (slot-value gizmo 'layout))
           (*populating* T))
-      (clear-layout layout)
+      (sweep-layout layout)
       (q+:add-widget layout (make-input-for-configurable tool)))))
 
 (define-widget tool-button (QPushButton)
