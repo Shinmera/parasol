@@ -21,4 +21,5 @@
                :qtools
                :qtcore
                :qtgui
-               :qtopengl))
+               :qtopengl
+               :qtools-ui))
