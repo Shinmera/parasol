@@ -128,7 +128,7 @@
 
 (define-subwidget (layer-gizmo mode) (make-instance 'mode-list))
 
-(define-subwidget (layer-gizmo opacity) (make-instance 'nice-slider :max 1.0 :step 0.01)
+(define-subwidget (layer-gizmo opacity) (make-instance 'qui:slider :maximum 1.0 :stepping 0.01)
   (setf (q+:tool-tip opacity) "Opacity"))
 
 (define-subwidget (layer-gizmo up) (q+:make-qPushButton "^" layer-gizmo)
