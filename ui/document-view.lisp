@@ -14,7 +14,7 @@
   ((x-view :initarg :x-view :initform 0 :accessor x-view)
    (y-view :initarg :y-view :initform 0 :accessor y-view)))
 
-(define-widget document-view (QGLWidget tab positioned)
+(define-widget document-view (QGLWidget positioned)
   ((document :initarg :document :initform NIL :accessor document :finalized T)
    (angle :initarg :angle :initform 0 :accessor angle)
    (zoom :initarg :scale :initform 1.0 :accessor zoom)
@@ -86,20 +86,22 @@
 (defun process-mouse (document-view event func)
   (maybe-update-pen document-view event)
   (let ((*context* (q+:context document-view)))
-    (when (and (tool *window*) (slot-value document-view 'pen-pressed))
-      (funcall func (tool *window*) (pen document-view) (document document-view))))
+    )
   ;; !Critical
   (q+:repaint document-view)
   (q+:ignore event))
 
 (define-override (document-view mouse-move-event) (event)
-  (process-mouse document-view event #'move))
+  ;; (process-mouse document-view event #'move)
+  )
 
 (define-override (document-view mouse-press-event) (event)
   (setf pen-pressed T)
-  (process-mouse document-view event #'begin))
+  ;; (process-mouse document-view event #'begin)
+  )
 
 (define-override (document-view mouse-release-event) (event)
   (setf pen-pressed NIL
         %tablet-input NIL)
-  (process-mouse document-view event #'end))
+  ;; (process-mouse document-view event #'end)
+  )
