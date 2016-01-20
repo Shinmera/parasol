@@ -12,7 +12,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   (:export
    #:document
    #:current-layer
-   #:add-layer)
+   #:add-layer
+   #:remove-layer
+   #:move-layer
+   #:merge-layer
+   #:copy-layer)
   ;; history.lisp
   (:export
    #:history-item

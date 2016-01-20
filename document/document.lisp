@@ -26,6 +26,22 @@
      (insert (make-metadata-instance 'layer (:name (format NIL "Layer ~d" (incf (layer-counter document))))) document at)
      document)))
 
+(defgeneric remove-layer (document &optional at)
+  (:method ((document document) &optional (at (current-index document)))
+    (extract at document)))
+
+(defgeneric move-layer (document to &optional from)
+  (:method ((document document) to &optional (from (current-index document)))
+    ))
+
+(defgeneric merge-layer (document &optional from to)
+  (:method ((document document) &optional (from (current-index document)) (to (1+ (current-index document))))
+    ))
+
+(defgeneric copy-layer (document &optional at)
+  (:method ((document document) &optional (at (current-index document)))
+    ))
+
 (defmethod extract :after ((index fixnum) (document document))
   (when (= 0 (length (drawables document)))
     (insert (make-instance 'layer) document))
