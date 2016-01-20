@@ -13,16 +13,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
   :components ((:file "package")
-               (:file "type-input-widgets")
-               (:file "main-window")
-               (:file "tab-area")
-               (:file "document-view")
                (:file "gl-compositing")
                (:file "framebuffer-target")
-               (:file "gizmo")
-               (:file "tools-area")
-               (:file "layer-gizmo")
-               (:file "history-gizmo"))
+               (:file "document-view")
+               (:file "layers")
+               (:file "main-window"))
   :depends-on (:parasol
                :parasol-document
-               :parasol-tools))
+               :qtools-ui))
