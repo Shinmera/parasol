@@ -6,7 +6,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 
 (in-package #:org.shirakumo.parasol)
 (defpackage #:parasol-document
-  (:use #:parasol-dev)
+  (:use #:parasol-dev #:array-utils)
   (:nicknames #:org.shirakumo.parasol.document)
   ;; document.lisp
   (:export
@@ -16,7 +16,11 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
    #:remove-layer
    #:move-layer
    #:merge-layer
-   #:copy-layer)
+   #:copy-layer
+   #:layer-inserted
+   #:layer-added
+   #:layer-removed
+   #:layer-moved)
   ;; history.lisp
   (:export
    #:history-item

@@ -13,7 +13,6 @@
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
   :components ((:file "package")
-               (:file "array")
                (:file "image-op")
                (:file "pen")
                (:file "metadata")
@@ -23,4 +22,5 @@
                (:file "layer")
                (:file "document"))
   :depends-on (:parasol
-               :cl-opengl))
+               :cl-opengl
+               :array-utils))
