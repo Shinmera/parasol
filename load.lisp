@@ -6,21 +6,6 @@
 
 (in-package #:org.shirakumo.parasol.dev)
 
-(defvar *startup-hooks* (make-hash-table :test 'eql))
-
-(defmacro define-startup-hook (name () &body body)
-  `(setf (gethash ',name *startup-hooks*)
-         #'(lambda () ,@body)))
-
-(defun remove-startup-hook (name)
-  (remhash name *startup-hooks*))
-
-(defun run-startup-hooks ()
-  (maphash #'(lambda (k f)
-               (v:info :parasol "Running startup hook ~a" k)
-               (funcall f))
-           *startup-hooks*))
-
 (defun load-system (system)
   #+:quicklisp (ql:quickload system)
   #-:quicklisp (asdf:load-system system))
@@ -39,5 +24,5 @@
 
 (defun start ()
   (qt:make-qapplication)
-  (run-startup-hooks)
+  (trigger :startup)
   (funcall (find-symbol "MAIN" "PARASOL-UI")))

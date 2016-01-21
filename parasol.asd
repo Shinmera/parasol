@@ -15,7 +15,7 @@
   :homepage "https://github.com/Shinmera/parasol"
   :serial T
   :components ((:file "package")
-               (:file "icons")
+               (:file "triggers")
                (:file "load"))
   :depends-on (:verbose
                :qtools

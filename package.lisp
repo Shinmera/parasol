@@ -9,13 +9,14 @@
   (:use #:cl+qt)
   (:nicknames #:org.shirakumo.parasol.dev)
   (:export
-   #:start
-   #:define-startup-hook
-   #:remove-startup-hook
-
-   #:icon
-   #:make-icon
-   #:cached-icon))
+   #:start)
+  (:export
+   #:hook
+   #:hooks
+   #:add-hook
+   #:remove-hook
+   #:define-hook
+   #:trigger))
 
 (do-symbols (symbol '#:org.shirakumo.parasol.dev)
   (export (list symbol) '#:org.shirakumo.parasol.dev))
