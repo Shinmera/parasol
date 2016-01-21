@@ -20,7 +20,7 @@
 (defun hooks (trigger)
   (gethash trigger *hooks*))
 
-(defun (setf hooks) (trigger hooks)
+(defun (setf hooks) (hooks trigger)
   (setf (gethash trigger *hooks*)
         (sort hooks #'> :key #'priority)))
 
