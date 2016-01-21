@@ -20,19 +20,27 @@
   (:method ((document document))
     (current-drawable document)))
 
+(defmethod activate :after (layer (document document))
+  (trigger 'layer-activated document layer))
+
 (defgeneric add-layer (document &optional at)
   (:method ((document document) &optional (at (1+ (current-index document))))
-    (activate
-     (insert (make-metadata-instance 'layer (:name (format NIL "Layer ~d" (incf (layer-counter document))))) document at)
-     document)))
+    (let ((layer (make-metadata-instance 'layer (:name (format NIL "Layer ~d" (incf (layer-counter document)))))))
+      (insert layer document at)
+      (trigger 'layer-inserted document layer)
+      (activate layer document))))
 
 (defgeneric remove-layer (document &optional at)
   (:method ((document document) &optional (at (current-index document)))
-    (extract at document)))
+    (extract at document)
+    (trigger 'layer-removed document at)))
 
 (defgeneric move-layer (document to &optional from)
   (:method ((document document) to &optional (from (current-index document)))
-    ))
+    (let ((layer (vector-pop-position (drawables document) from)))
+      (vector-push-extend-position
+       layer (drawables document) (if (< from to) (1- to) to)))
+    (trigger 'layer-moved document from to)))
 
 (defgeneric merge-layer (document &optional from to)
   (:method ((document document) &optional (from (current-index document)) (to (1+ (current-index document))))
