@@ -124,5 +124,5 @@
         (T
          (call-next-method))))
 
-(define-startup-hook set-framebuffer-target ()
+(define-hook (:startup framebuffer-backend) ()
   (setf (target-backend) :framebuffer))
