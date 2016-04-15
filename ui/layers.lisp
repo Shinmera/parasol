@@ -7,6 +7,21 @@
 (in-package #:org.shirakumo.parasol.ui)
 (named-readtables:in-readtable :qtools)
 
+(define-widget layer-widget (QWidget qui:listing-item)
+  ())
+
+(define-widget layers-list (QWidget qui:listing)
+  ())
+
+(defmethod qui:item-acceptable-p (item (layers-list layers-list))
+  NIL)
+
+(defmethod qui:item-acceptable-p ((layer layer) (layers-list layers-list))
+  T)
+
+(defmethod qui:coerce-item ((layer layer) (layers-list layers-list))
+  (make-instance 'layer-widget :item layer :container layers-list))
+
 (define-widget layers (QWidget qui:panel)
   ()
   (:default-initargs :title "Layers"))
@@ -14,7 +29,7 @@
 (define-subwidget (layers container) (q+:make-qwidget)
   (setf (qui:widget :center layers) container))
 
-(define-subwidget (layers list) (make-instance 'qui:listing)
+(define-subwidget (layers list) (make-instance 'layers-list)
   (setf (q+:minimum-height list) 200))
 
 (define-subwidget (layers layout) (q+:make-qgridlayout container)
@@ -30,6 +45,18 @@
     (mkbutton "m" 1 4 1 1)
     (mkbutton "c" 1 5 1 1)))
 
+(define-hook (layer-inserted layers-widget) (document layer)
+  (when (eql document (current-document))
+    (signal! (slot-value *main* 'layers) (redo-layers))))
+
+(define-hook (layer-removed layers-widget) (document layer)
+  (when (eql document (current-document))
+    (signal! (slot-value *main* 'layers) (redo-layers))))
+
+(define-hook (layer-moved layers-widget) (document from to)
+  (when (eql document (current-document))
+    (signal! (slot-value *main* 'layers) (redo-layers))))
+
 (define-slot (layers button) ()
   (declare (connected (find-children layers "QPushButton") (clicked)))
   (let ((name (q+:object-name (q+:sender layers))))
@@ -37,7 +64,7 @@
       (case (char name 0)
         (#\+ (add-layer (current-document)))
         (#\- (remove-layer (current-document)))
-        (#\v (move-layer (current-document) -1))
-        (#\^ (move-layer (current-document) 1))
+        (#\v (move-layer (current-document) (1- (current-index (current-document)))))
+        (#\^ (move-layer (current-document) (1+ (current-index (current-document)))))
         (#\m (merge-layer (current-document)))
         (#\c (clone-layer (current-document)))))))
