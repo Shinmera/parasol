@@ -57,7 +57,7 @@
   (ensure-gl-init)
   (q+:make-current parasol-ui::*context*)
   (setf (sampled-buffer target) (make-framebuffer (width target) (height target) 4))
-  (setf (buffer target) (make-framebuffer (width target) (height target))))
+  (setf (buffer target) (make-framebuffer (round (width target)) (round (height target)))))
 
 (defun blit-framebuffer-target (from to width height &optional (x 0) (y 0))
   (setf width (round width)
@@ -90,7 +90,7 @@
   
   (gl:enable :texture-2d)
   ;; Maybe ask stassats to incorporate support for this kinda thing...
-  (gl:bind-texture :texture-2d (cffi:mem-ref (q+:texture (buffer target)) :uint))
+  (gl:bind-texture :texture-2d (q+:texture (buffer target)))
   (gl:with-primitives :quads
     (gl:tex-coord 0 1)
     (gl:vertex 0 0)
