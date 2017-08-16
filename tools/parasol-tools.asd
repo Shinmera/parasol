@@ -4,7 +4,7 @@ This file is a part of Parasol
 Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:cl-user)
+
 (asdf:defsystem parasol-tools
   :name "Parasol-Tools"
   :version "0.0.0"
