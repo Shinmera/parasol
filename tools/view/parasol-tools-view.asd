@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:cl-user)
+
 (asdf:defsystem parasol-tools-view
   :name "Parasol-Tools-View"
   :version "0.0.0"
