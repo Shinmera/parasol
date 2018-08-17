@@ -12,7 +12,9 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "A common lisp painting application."
-  :homepage "https://github.com/Shinmera/parasol"
+  :homepage "https://Shinmera.github.io/parasol/"
+  :bug-tracker "https://github.com/Shinmera/parasol/issues"
+  :source-control (:git "https://github.com/Shinmera/parasol.git")
   :serial T
   :components ((:file "package")
                (:file "icons")
