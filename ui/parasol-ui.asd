@@ -8,7 +8,7 @@ Author: Nicolas Hafner <shinmera@tymoon.eu>
 (asdf:defsystem parasol-ui
   :name "Parasol-Ui"
   :version "0.0.0"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :serial T
